@@ -1,0 +1,10 @@
+{
+    "nav": {
+        "about": "这是什么",
+        "services": "服务介绍",
+        "download": "软件下载",
+        "tutorials": "教学影片",
+        "blacklist_lookup": "黑名单查询",
+        "docs": "文档"
+    }
+}

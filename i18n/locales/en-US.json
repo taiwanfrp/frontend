@@ -1,0 +1,10 @@
+{
+    "nav": {
+        "about": "About",
+        "services": "Services",
+        "download": "Download",
+        "tutorials": "Tutorials",
+        "blacklist_lookup": "Blacklist Lookup",
+        "docs": "Docs"
+    }
+}

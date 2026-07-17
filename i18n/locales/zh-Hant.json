@@ -1,0 +1,10 @@
+{
+    "nav": {
+        "about": "這是什麼",
+        "services": "服務介紹",
+        "download": "軟體下載",
+        "tutorials": "教學影片",
+        "blacklist_lookup": "黑名單查詢",
+        "docs": "文檔"
+    }
+}
