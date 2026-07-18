@@ -16,6 +16,30 @@ const selectLanguage = (code: Parameters<typeof setLocale>[0]) => {
 	isLangOpen.value = false
 }
 
+const isAtTop = ref(true)
+
+onMounted(() => {
+	const handleScroll = () => {
+		// 當往下滾動超過 10px 時 isAtTop 變為 false (顯示捲軸)
+		isAtTop.value = window.scrollY < 10
+	}
+
+	window.addEventListener('scroll', handleScroll, { passive: true })
+	handleScroll() // 初始化執行一次確認位置
+
+	// 元件卸載時清除監聽，避免記憶體洩漏
+	onUnmounted(() => {
+		window.removeEventListener('scroll', handleScroll)
+	})
+})
+
+// 將判斷結果綁定到 <html> tag 的 class 上
+useHead({
+	htmlAttrs: {
+		class: computed(() => isAtTop.value ? 'hide-scrollbar' : ''),
+	},
+})
+
 const navLinks = computed(() => [
 	{ label: t('nav.about'), to: '#' },
 	{ label: t('nav.services'), to: '#' },
@@ -29,7 +53,7 @@ const navLinks = computed(() => [
 <template>
 	<div class="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased">
 		<!-- Top Bar -->
-		<header class="sticky top-0 z-50 border-b border-gray-200 dark:border-gray-800 bg-white/75 dark:bg-gray-950/75 backdrop-blur">
+		<header class="sticky top-0 z-50 border-b border-transparent hover:border-gray-200 dark:hover:border-gray-800 bg-transparent hover:bg-white/75 dark:hover:bg-gray-950/75 transition-all duration-300 backdrop-blur">
 			<div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl flex items-center justify-between h-16">
 				<!-- Logo -->
 				<NuxtLink

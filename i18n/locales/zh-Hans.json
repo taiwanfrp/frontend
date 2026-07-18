@@ -6,5 +6,15 @@
         "tutorials": "教学影片",
         "blacklist_lookup": "黑名单查询",
         "docs": "文档"
+    },
+    "home": {
+        "hero": {
+            "badge": "专为学生、开发者与麦块服主打造",
+            "title": "TaiwanFRP",
+            "subtitle_line1": "轻松将隐藏在 NAT 或防火墙后的本地服务器连接至互联网",
+            "subtitle_line2": "无需公网 IP、免设置路由器，提供免费且稳定的内网穿透服务，让你的专属游戏服务器与开发项目轻松上线",
+            "btn_start": "免费开始使用",
+            "btn_video": "观看教学影片"
+        }
     }
 }

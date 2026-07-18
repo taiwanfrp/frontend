@@ -6,5 +6,15 @@
         "tutorials": "Tutorials",
         "blacklist_lookup": "Blacklist Lookup",
         "docs": "Docs"
+    },
+    "home": {
+        "hero": {
+            "badge": "Designed for students, developers, and Minecraft server owners",
+            "title": "TaiwanFRP",
+            "subtitle_line1": "Easily connect your local server, hidden behind a NAT or firewall, to the internet",
+            "subtitle_line2": "No public IP needed, no router configuration required. We provide a free and stable internal network penetration service, making it easy for you to go live with your exclusive game server and development projects.",
+            "btn_start": "Get started for free",
+            "btn_video": "Watch Tutorials"
+        }
     }
 }
