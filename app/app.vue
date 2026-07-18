@@ -26,7 +26,7 @@ const navLinks = computed(() => [
 			<div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl flex items-center justify-between h-16">
 				<!-- Logo -->
 				<NuxtLink
-					to="/"
+					:to="$localePath('/')"
 					class="flex items-center gap-2 group"
 				>
 					<!-- <UIcon name="i-heroicons-globe-alt-20-solid" class="w-7 h-7 text-primary group-hover:text-primary-600 transition-colors" /> -->
