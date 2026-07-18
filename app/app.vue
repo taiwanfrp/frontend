@@ -9,6 +9,13 @@ const isDark = computed({
 
 const { locale, locales, setLocale, t } = useI18n()
 
+const isLangOpen = ref(false)
+
+const selectLanguage = (code: Parameters<typeof setLocale>[0]) => {
+	setLocale(code)
+	isLangOpen.value = false
+}
+
 const navLinks = computed(() => [
 	{ label: t('nav.about'), to: '#' },
 	{ label: t('nav.services'), to: '#' },
@@ -58,24 +65,34 @@ const navLinks = computed(() => [
 					<!-- 語言切換選單 -->
 					<!-- 加入 group class 連動滑鼠狀態 -->
 					<div class="relative group">
+						<div
+							v-if="isLangOpen"
+							class="fixed inset-0 z-40"
+							@click="isLangOpen = false"
+						/>
 						<UButton
 							icon="i-heroicons-language-20-solid"
 							color="neutral"
 							variant="ghost"
 							square
+							class="relative z-50"
+							@click="isLangOpen = !isLangOpen"
 						/>
 
 						<!-- 下拉內容: 預設隱藏 (opacity-0, invisible), 當滑鼠移入 group 時顯示 -->
 						<!-- pt-2 (padding-top: 0.5rem) 防止滑鼠往下移時不會斷開接觸 -->
-						<div class="absolute right-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+						<div
+							class="absolute right-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50"
+							:class="isLangOpen ? 'opacity-100 visible' : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible'"
+						>
 							<!-- 選單本體外觀 -->
-							<div class="w-36 p-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-lg flex flex-col">
+							<div class="w-36 p-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-lg flex flex-col relative z-50">
 								<button
 									v-for="l in locales"
 									:key="l.code"
 									class="flex items-center gap-2 px-2.5 py-2 text-sm rounded-md transition-colors w-full text-left"
 									:class="locale === l.code ? 'bg-gray-100 dark:bg-gray-800 text-primary-500 font-medium' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'"
-									@click="setLocale(l.code)"
+									@click="selectLanguage(l.code)"
 								>
 									<UIcon
 										name="i-heroicons-check-20-solid"
