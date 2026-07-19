@@ -10,6 +10,7 @@ const isDark = computed({
 const { locale, locales, setLocale, t } = useI18n()
 
 const isLangOpen = ref(false)
+const isMobileMenuOpen = ref(false)
 
 const selectLanguage = (code: Parameters<typeof setLocale>[0]) => {
 	setLocale(code)
@@ -53,7 +54,12 @@ const navLinks = computed(() => [
 <template>
 	<div class="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased">
 		<!-- Top Bar -->
-		<header class="sticky top-0 z-50 border-b border-transparent hover:border-gray-200 dark:hover:border-gray-800 bg-transparent hover:bg-white/75 dark:hover:bg-gray-950/75 transition-all duration-300 backdrop-blur">
+		<header
+			class="sticky top-0 z-50 transition-all duration-300"
+			:class="isMobileMenuOpen
+				? 'bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-800/50'
+				: 'bg-transparent border-b border-transparent hover:border-gray-200 dark:hover:border-gray-800 hover:bg-white/75 dark:hover:bg-gray-950/75 backdrop-blur'"
+		>
 			<div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl flex items-center justify-between h-16">
 				<!-- Logo -->
 				<NuxtLink
@@ -159,8 +165,54 @@ const navLinks = computed(() => [
 						square
 						aria-label="GitHub repository"
 					/>
+
+					<UButton
+						:icon="isMobileMenuOpen ? 'i-heroicons-x-mark-20-solid' : 'i-heroicons-bars-3-solid'"
+						color="neutral"
+						variant="ghost"
+						square
+						class="md:hidden"
+						aria-label="Toggle Menu"
+						@click="isMobileMenuOpen = !isMobileMenuOpen"
+					/>
 				</div>
 			</div>
+
+			<!-- 手機版下拉導覽列 -->
+			<Transition
+				enter-active-class="transition duration-300 ease-out"
+				enter-from-class="opacity-0 -translate-y-2"
+				enter-to-class="opacity-100 translate-y-0"
+				leave-active-class="transition duration-200 ease-in"
+				leave-from-class="opacity-100 translate-y-0"
+				leave-to-class="opacity-0 -translate-y-2"
+			>
+				<div
+					v-show="isMobileMenuOpen"
+					class="md:hidden absolute top-full left-0 w-full bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-800/50 shadow-lg py-2"
+				>
+					<nav class="flex flex-col px-4 space-y-1">
+						<NuxtLink
+							v-for="link in navLinks"
+							:key="link.label"
+							:to="link.to"
+							class="px-4 py-3 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
+							@click="isMobileMenuOpen = false"
+						>
+							{{ link.label }}
+						</NuxtLink>
+
+						<div class="border-t border-gray-200 dark:border-gray-800 mt-2 pt-2">
+							<UButton
+								label="Log In"
+								color="neutral"
+								variant="ghost"
+								class="w-full justify-start px-4 py-3 text-base font-medium"
+							/>
+						</div>
+					</nav>
+				</div>
+			</Transition>
 		</header>
 
 		<main>
