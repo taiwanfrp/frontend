@@ -1,3 +1,5 @@
+import pkg from './package.json' with { type: 'json' }
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
 
@@ -16,6 +18,11 @@ export default defineNuxtConfig({
 		preference: 'system',
 		fallback: 'light',
 		classSuffix: '',
+	},
+	runtimeConfig: {
+		public: {
+			version: pkg.version,
+		},
 	},
 	routeRules: {
 		'/': { prerender: true },	// 官網首頁使用 SSG
