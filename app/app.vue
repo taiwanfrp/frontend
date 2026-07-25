@@ -12,10 +12,15 @@ const { locale, locales, setLocale, t } = useI18n()
 const isLangOpen = ref(false)
 const isMobileMenuOpen = ref(false)
 
+const isUserMenuOpen = ref(false)
+const isMobileUserMenuOpen = ref(false)
+
 const selectLanguage = (code: Parameters<typeof setLocale>[0]) => {
 	setLocale(code)
 	isLangOpen.value = false
 }
+
+const { user, isLoading, fetchUser, logout, getAvatarUrl } = useAuth()
 
 const isAtTop = ref(true)
 
@@ -28,10 +33,12 @@ onMounted(() => {
 	window.addEventListener('scroll', handleScroll, { passive: true })
 	handleScroll() // 初始化執行一次確認位置
 
-	// 元件卸載時清除監聽，避免記憶體洩漏
+	// 元件卸載時清除監聽, 避免記憶體洩漏
 	onUnmounted(() => {
 		window.removeEventListener('scroll', handleScroll)
 	})
+
+	fetchUser()
 })
 
 // 將判斷結果綁定到 <html> tag 的 class 上
@@ -144,12 +151,83 @@ const navLinks = computed(() => [
 						@click="isDark = !isDark"
 					/>
 
-					<UButton
-						label="Log In"
-						color="neutral"
-						variant="ghost"
-						class="hidden sm:inline-flex text-sm"
-					/>
+					<ClientOnly>
+						<div
+							v-if="isLoading"
+							class="hidden sm:inline-flex w-16 h-8 bg-gray-200 dark:bg-gray-800 animate-pulse rounded-lg"
+						/>
+						<UButton
+							v-else-if="!user"
+							label="Log In"
+							color="neutral"
+							variant="ghost"
+							class="hidden sm:inline-flex text-sm"
+							to="https://api.taiwanfrp.me/api/auth/discord/login"
+						/>
+
+						<div
+							v-else
+							class="relative group hidden sm:block"
+						>
+							<!-- 點擊外部關閉的透明遮罩 -->
+							<div
+								v-if="isUserMenuOpen"
+								class="fixed inset-0 z-40"
+								@click="isUserMenuOpen = false"
+							/>
+
+							<!-- 顯示 username 與頭像 -->
+							<UButton
+								color="neutral"
+								variant="ghost"
+								class="relative z-50 inline-flex text-sm font-medium px-2"
+								trailing-icon="i-heroicons-chevron-down-20-solid"
+								@click="isUserMenuOpen = !isUserMenuOpen"
+							>
+								<div class="flex items-center gap-2">
+									<img
+										:src="getAvatarUrl(user)"
+										class="w-5 h-5 rounded-full object-cover"
+										alt="Avatar"
+									>
+									<span>{{ user.username || 'User' }}</span>
+								</div>
+							</UButton>
+
+							<!-- 下拉選單內容 -->
+							<div
+								class="absolute right-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50"
+								:class="isUserMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible'"
+							>
+								<div class="w-40 p-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-lg flex flex-col relative z-50">
+									<NuxtLink
+										to="/profile"
+										class="flex items-center gap-2 px-2.5 py-2 text-sm rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors w-full text-left font-medium mb-1"
+										@click="isUserMenuOpen = false"
+									>
+										<!-- 改成 user-circle -->
+										<UIcon
+											name="i-heroicons-user-circle-20-solid"
+											class="w-4 h-4 shrink-0"
+										/>
+										個人資料
+									</NuxtLink>
+
+									<!-- 登出按鈕 -->
+									<button
+										class="flex items-center gap-2 px-2.5 py-2 text-sm rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors w-full text-left font-medium"
+										@click="logout"
+									>
+										<UIcon
+											name="i-heroicons-arrow-right-on-rectangle-20-solid"
+											class="w-4 h-4 shrink-0"
+										/>
+										登出
+									</button>
+								</div>
+							</div>
+						</div>
+					</ClientOnly>
 
 					<!-- <UButton
 						label="Get started"
@@ -165,6 +243,76 @@ const navLinks = computed(() => [
 						square
 						aria-label="GitHub repository"
 					/>
+
+					<!-- 手機版使用者選單 -->
+					<ClientOnly>
+						<div
+							v-if="user"
+							class="relative group md:hidden flex items-center ml-1"
+						>
+							<!-- 點擊外部關閉的透明遮罩 -->
+							<div
+								v-if="isMobileUserMenuOpen"
+								class="fixed inset-0 z-40"
+								@click="isMobileUserMenuOpen = false"
+							/>
+
+							<!-- 頭像按鈕 -->
+							<button
+								class="relative z-50 flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/50 text-primary-600 dark:text-primary-400 font-semibold text-sm ring-2 ring-transparent hover:ring-primary-500 transition-all overflow-hidden"
+								@click="isMobileUserMenuOpen = !isMobileUserMenuOpen"
+							>
+								<img
+									:src="getAvatarUrl(user)"
+									class="w-full h-full object-cover"
+									alt="Avatar"
+								>
+							</button>
+
+							<!-- 頭像下拉選單內容 -->
+							<div
+								class="absolute right-0 top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50"
+								:class="isMobileUserMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible'"
+							>
+								<div class="w-48 p-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-lg flex flex-col relative z-50 overflow-hidden">
+									<!-- 最上方顯示 username -->
+									<div class="px-3 py-2 border-b border-gray-200 dark:border-gray-800 mb-1">
+										<p class="text-xs text-gray-500 dark:text-gray-400">
+											登入身分
+										</p>
+										<p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+											{{ user.username }}
+										</p>
+									</div>
+
+									<!-- 個人資料 -->
+									<NuxtLink
+										to="/profile"
+										class="flex items-center gap-2 px-2.5 py-2 text-sm rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors w-full text-left font-medium mb-1"
+										@click="isMobileUserMenuOpen = false"
+									>
+										<UIcon
+											name="i-heroicons-user-circle-20-solid"
+											class="w-4 h-4 shrink-0"
+										/>
+										個人資料
+									</NuxtLink>
+
+									<!-- 登出 -->
+									<button
+										class="flex items-center gap-2 px-2.5 py-2 text-sm rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors w-full text-left font-medium"
+										@click="logout"
+									>
+										<UIcon
+											name="i-heroicons-arrow-right-on-rectangle-20-solid"
+											class="w-4 h-4 shrink-0"
+										/>
+										登出
+									</button>
+								</div>
+							</div>
+						</div>
+					</ClientOnly>
 
 					<UButton
 						:icon="isMobileMenuOpen ? 'i-heroicons-x-mark-20-solid' : 'i-heroicons-bars-3-solid'"
@@ -202,14 +350,31 @@ const navLinks = computed(() => [
 							{{ link.label }}
 						</NuxtLink>
 
-						<div class="border-t border-gray-200 dark:border-gray-800 mt-2 pt-2">
-							<UButton
-								label="Log In"
-								color="neutral"
-								variant="ghost"
-								class="w-full justify-start px-4 py-3 text-base font-medium"
-							/>
-						</div>
+						<ClientOnly>
+							<div
+								v-if="isLoading"
+								class="border-t border-gray-200 dark:border-gray-800 mt-2 pt-2"
+							>
+								<div
+									class="w-full h-10 bg-gray-200 dark:bg-gray-800 animate-pulse rounded-lg mx-4"
+									style="width: calc(100% - 2rem);"
+								/>
+							</div>
+
+							<!-- 未登入 -->
+							<div
+								v-else-if="!user"
+								class="border-t border-gray-200 dark:border-gray-800 mt-2 pt-2"
+							>
+								<UButton
+									label="Log In"
+									color="neutral"
+									variant="ghost"
+									class="w-full justify-start px-4 py-3 text-base font-medium"
+									to="https://api.taiwanfrp.me/api/auth/discord/login"
+								/>
+							</div>
+						</ClientOnly>
 					</nav>
 				</div>
 			</Transition>
