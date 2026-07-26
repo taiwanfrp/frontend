@@ -162,7 +162,7 @@ const navLinks = computed(() => [
 							color="neutral"
 							variant="ghost"
 							class="hidden sm:inline-flex text-sm"
-							to="https://api.taiwanfrp.me/api/auth/discord/login"
+							to="https://api.taiwanfrp.me/api/v1/auth/discord/login"
 						/>
 
 						<div
