@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
 const colorMode = useColorMode()
 const isDark = computed({
 	get: () => colorMode.value === 'dark',
@@ -59,7 +62,25 @@ const navLinks = computed(() => [
 </script>
 
 <template>
-	<div class="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased">
+	<div class="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased relative">
+		<!-- 背景 -->
+		<div
+			v-if="!route.meta.hideBackground"
+			class="fixed inset-0 z-0 flex items-center justify-center bg-white dark:bg-gray-950 pointer-events-none"
+		>
+			<!-- Background Image -->
+			<div
+				class="absolute inset-0 bg-cover bg-center bg-no-repeat"
+				style="background-image: url('/background.png');"
+			/>
+
+			<!-- 中層半透明顏色遮罩 (不透明度 + 輕微毛玻璃) -->
+			<div class="absolute inset-0 bg-white/30 dark:bg-gray-950/55 backdrop-blur-sm" />
+
+			<!-- Dotted Background -->
+			<div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9IiNEMUQ1REIiLz48L3N2Zz4=')] dark:bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9IiMzNzQxNTEiLz48L3N2Zz4=')] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" />
+		</div>
+
 		<!-- Top Bar -->
 		<header
 			class="sticky top-0 z-50 transition-all duration-300"
@@ -380,7 +401,7 @@ const navLinks = computed(() => [
 			</Transition>
 		</header>
 
-		<main>
+		<main class="relative z-10">
 			<NuxtPage />
 		</main>
 	</div>

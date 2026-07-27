@@ -3,20 +3,6 @@
 <template>
 	<!-- 利用 min-h 扣除導覽列高度來達到畫面垂直置中, overflow-hidden 防止背景超出邊界 -->
 	<div class="relative flex flex-col items-center justify-center min-h-screen -mt-16 pt-16 overflow-hidden pb-20 sm:pb-28">
-		<div class="absolute inset-0 z-0 flex items-center justify-center bg-white dark:bg-gray-950">
-			<!-- Background Image -->
-			<div
-				class="absolute inset-0 bg-cover bg-center bg-no-repeat"
-				style="background-image: url('/background.png');"
-			/>
-
-			<!-- 中層半透明顏色遮罩 (不透明度 + 輕微毛玻璃) -->
-			<div class="absolute inset-0 bg-white/30 dark:bg-gray-950/55 backdrop-blur-sm" />
-
-			<!-- Dotted Background -->
-			<div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9IiNEMUQ1REIiLz48L3N2Zz4=')] dark:bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9IiMzNzQxNTEiLz48L3N2Zz4=')] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" />
-		</div>
-
 		<!-- Main Content -->
 		<div class="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto flex flex-col items-center">
 			<!-- Badge -->
