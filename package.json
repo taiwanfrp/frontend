@@ -10,7 +10,11 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint --ext .js,.ts,.vue .",
-    "lint:fix": "eslint --fix --ext .js,.ts,.vue ."
+    "lint:fix": "eslint --fix --ext .js,.ts,.vue .",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,ts,vue}": "eslint --fix"
   },
   "dependencies": {
     "@formkit/auto-animate": "0.10.0",
@@ -44,6 +48,8 @@
     "vue-router": "^5.1.0"
   },
   "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.2.0",
     "vue-tsc": "^3.3.7"
   }
 }
