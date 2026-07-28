@@ -4,7 +4,6 @@ import { useRoute } from 'vue-router'
 
 const route = useRoute()
 
-// 1. 將平鋪的選單改為「群組化」的結構
 const menuGroups = [
 	{
 		title: '核心服務',
@@ -61,19 +60,15 @@ const isActive = (itemPath: string) => {
 
 		<!-- Sidebar -->
 		<aside class="hidden md:flex flex-col w-64 fixed left-0 top-16 h-[calc(100vh-4rem)] bg-transparent border-r border-black/4 dark:border-white/4 z-40">
-			<!-- 2. 修改這裡的間距，使用 space-y-6 讓各個群組之間拉開距離 -->
 			<nav class="flex-1 overflow-y-auto p-4 space-y-6">
-				<!-- 第一層迴圈：渲染群組 -->
 				<div
 					v-for="group in menuGroups"
 					:key="group.title"
 				>
-					<!-- 群組小標題：使用極淡的文字與大寫英文字母風格 (如果之後有英文語系的話) -->
 					<h3 class="px-3 mb-2 text-[12px] font-semibold text-gray-500 dark:text-gray-400 tracking-wider">
 						{{ group.title }}
 					</h3>
 
-					<!-- 第二層迴圈：渲染群組內的按鈕 -->
 					<div class="space-y-1">
 						<NuxtLink
 							v-for="item in group.items"
