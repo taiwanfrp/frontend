@@ -402,7 +402,9 @@ const navLinks = computed(() => [
 		</header>
 
 		<main class="relative z-10">
-			<NuxtPage />
+			<NuxtLayout>
+				<NuxtPage />
+			</NuxtLayout>
 		</main>
 	</div>
 </template>
