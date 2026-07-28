@@ -1,8 +1,18 @@
-<!-- app/layouts/dashboard.vue -->
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
-
 const route = useRoute()
+const { user, isLoading } = useAuth()
+
+onMounted(() => {
+	if (!isLoading.value && !user.value) {
+		navigateTo('/')
+	}
+})
+
+watchEffect(() => {
+	if (!isLoading.value && !user.value) {
+		navigateTo('/')
+	}
+})
 
 const menuGroups = [
 	{

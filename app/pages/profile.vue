@@ -6,6 +6,12 @@ onMounted(() => {
 		navigateTo('/')
 	}
 })
+
+watchEffect(() => {
+	if (!isLoading.value && !user.value) {
+		navigateTo('/')
+	}
+})
 </script>
 
 <template>
