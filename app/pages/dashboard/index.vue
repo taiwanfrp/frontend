@@ -39,11 +39,9 @@ interface Tunnel {
 const colorMode = useColorMode()
 const isDark = computed(() => colorMode.value === 'dark')
 
-const config = useRuntimeConfig()
 const { user } = useAuth()
 
-const { data: tunnels, pending: isTunnelsLoading } = useFetch<Tunnel[]>(`${config.public.apiUrl}/api/v1/tunnels`, {
-	credentials: 'include',
+const { data: tunnels, pending: isTunnelsLoading } = useApiFetch<Tunnel[]>('/api/v1/tunnels', {
 	server: false,
 	lazy: true,
 	default: () => [],
