@@ -222,11 +222,21 @@ const navLinks = computed(() => [
 							>
 								<div class="w-40 p-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-lg flex flex-col relative z-50">
 									<NuxtLink
+										to="/dashboard"
+										class="flex items-center gap-2 px-2.5 py-2 text-sm rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors w-full text-left font-medium mb-1"
+										@click="isUserMenuOpen = false"
+									>
+										<UIcon
+											name="i-heroicons-chart-pie-20-solid"
+											class="w-4 h-4 shrink-0"
+										/>
+										儀表板
+									</NuxtLink>
+									<NuxtLink
 										to="/profile"
 										class="flex items-center gap-2 px-2.5 py-2 text-sm rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors w-full text-left font-medium mb-1"
 										@click="isUserMenuOpen = false"
 									>
-										<!-- 改成 user-circle -->
 										<UIcon
 											name="i-heroicons-user-circle-20-solid"
 											class="w-4 h-4 shrink-0"

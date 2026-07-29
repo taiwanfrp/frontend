@@ -22,6 +22,7 @@ export default defineNuxtConfig({
 	runtimeConfig: {
 		public: {
 			version: pkg.version,
+			apiUrl: '',
 		},
 	},
 	routeRules: {

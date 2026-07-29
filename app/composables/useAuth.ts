@@ -8,11 +8,17 @@ export interface User {
 	locale: string
 	email: string | null
 	verified: boolean
+	roles: string[]
 	permissions: string[]
+	limits?: {
+		max_tunnels: number
+		max_bandwidth: number
+	}
 	[key: string]: unknown
 }
 
 export const useAuth = () => {
+	const config = useRuntimeConfig()
 	// 使用 useState 建立全域狀態避免跨頁面切換時重複請求
 	const user = useState<User | null>('auth_user', () => null)
 	// 建立 loading 狀態避免在檢查登入前畫面閃爍
@@ -21,7 +27,7 @@ export const useAuth = () => {
 	const fetchUser = async () => {
 		isLoading.value = true
 		try {
-			const data = await $fetch('https://api.taiwanfrp.me/api/v1/users/me', {
+			const data = await $fetch(`${config.public.apiUrl}/api/v1/users/me`, {
 				// 帶上 cookie
 				credentials: 'include',
 			})
@@ -38,7 +44,7 @@ export const useAuth = () => {
 
 	const logout = async () => {
 		try {
-			await $fetch('https://api.taiwanfrp.me/api/v1/auth/logout', {
+			await $fetch(`${config.public.apiUrl}/api/v1/auth/logout`, {
 				method: 'POST',
 				credentials: 'include',
 			})
