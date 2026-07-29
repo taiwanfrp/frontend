@@ -1,11 +1,131 @@
 <script setup lang="ts">
+import type { TableColumn } from '@nuxt/ui'
+
 definePageMeta({
 	layout: 'dashboard',
 })
+
+interface AppNode {
+	id: number
+	name: string
+	description: string
+	host: string
+	port_start: number
+	port_end: number
+	status: string	// active, draft, reviewing, maintenance, disabled
+	is_public: boolean
+	owner_id: string
+	created_at: string
+	updated_at: string
+}
+
+const { data: nodes, pending: isNodesLoading } = useApiFetch<AppNode[]>('/api/v1/nodes', {
+	server: false,
+	lazy: true,
+	default: () => [],
+})
+
+const columns: TableColumn<AppNode>[] = [
+	{ accessorKey: 'name', header: '節點名稱' },
+	{ accessorKey: 'host', header: '伺服器位址' },
+	{ id: 'ports', header: '可用連接埠' },
+	{ accessorKey: 'is_public', header: '類型' },
+	{ accessorKey: 'status', header: '運營狀態' },
+	{ id: 'connection_status', header: '連線狀態' },
+	{ id: 'actions', header: '' },
+]
+
+const statusMap: Record<string, { label: string, color: 'success' | 'neutral' | 'warning' | 'info' | 'error' }> = {
+	active: { label: '可用', color: 'success' },
+	draft: { label: '待審核', color: 'neutral' },
+	reviewing: { label: '審核中', color: 'warning' },
+	maintenance: { label: '維護中', color: 'info' },
+	disabled: { label: '停用', color: 'error' },
+}
 </script>
 
 <template>
-	<div class="p-8">
-		<h1>節點</h1>
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+		<!-- 頁面標頭 -->
+		<div class="flex items-center justify-between mb-6">
+			<h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+				節點列表
+			</h1>
+		</div>
+
+		<!-- 節點表格卡片 -->
+		<UCard class="bg-white/50 dark:bg-gray-900/50 backdrop-blur shadow-sm ring-1 ring-gray-200/50 dark:ring-gray-800/50">
+			<UTable
+				:data="nodes"
+				:columns="columns"
+				:loading="isNodesLoading"
+				class="text-base [&_th]:text-center! [&_td]:text-center!"
+			>
+				<!-- 名稱與描述 -->
+				<template #name-cell="{ row }">
+					<div class="flex flex-col">
+						<span class="text-base font-semibold text-gray-900 dark:text-white">{{ row.original.name }}</span>
+						<span
+							v-if="row.original.description"
+							class="text-sm text-gray-500 dark:text-gray-400 mt-1 truncate max-w-xs"
+						>
+							{{ row.original.description }}
+						</span>
+					</div>
+				</template>
+
+				<!-- 伺服器位址 -->
+				<template #host-cell="{ row }">
+					<span class="text-base text-gray-700 dark:text-gray-300">
+						{{ row.original.host }}
+					</span>
+				</template>
+
+				<!-- 連接埠 -->
+				<template #ports-cell="{ row }">
+					<span class="text-base text-gray-600 dark:text-gray-300 font-mono bg-gray-100 dark:bg-gray-800 px-2.5 py-1 rounded-md">
+						{{ row.original.port_start }} - {{ row.original.port_end }}
+					</span>
+				</template>
+
+				<!-- 類型標籤 -->
+				<template #is_public-cell="{ row }">
+					<UBadge
+						:color="row.original.is_public ? 'primary' : 'neutral'"
+						variant="subtle"
+						size="md"
+					>
+						{{ row.original.is_public ? '公開節點' : '私有節點' }}
+					</UBadge>
+				</template>
+
+				<!-- 營運狀態標籤 -->
+				<template #status-cell="{ row }">
+					<UBadge
+						:color="statusMap[row.original.status]?.color || 'neutral'"
+						variant="subtle"
+						size="md"
+					>
+						{{ statusMap[row.original.status]?.label || row.original.status }}
+					</UBadge>
+				</template>
+
+				<!-- 連線狀態 -->
+				<template #connection_status-cell>
+					<span class="text-gray-400 dark:text-gray-500">-</span>
+				</template>
+
+				<!-- 空狀態 -->
+				<template #empty>
+					<div class="flex flex-col items-center justify-center py-12">
+						<UIcon
+							name="i-heroicons-server"
+							class="w-12 h-12 text-gray-400 dark:text-gray-500 mb-4"
+						/>
+						<span class="text-base text-gray-500 dark:text-gray-400">目前沒有任何可用的節點</span>
+					</div>
+				</template>
+			</UTable>
+		</UCard>
 	</div>
 </template>
