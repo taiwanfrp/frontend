@@ -27,30 +27,30 @@ const menuGroups = [
 	{
 		title: '進階配置',
 		items: [
-			{ label: '憑證', icon: 'i-heroicons-shield-check', to: '/dashboard/certificates' },
-			{ label: 'API', icon: 'i-heroicons-command-line', to: '/dashboard/api' },
+			{ label: '憑證', icon: 'i-heroicons-shield-check', to: '/dashboard/certificates', disabled: true, badge: '即將推出' },
+			{ label: 'API', icon: 'i-heroicons-command-line', to: '/dashboard/api', disabled: true, badge: '即將推出' },
 		],
 	},
 	{
 		title: '監控與日誌',
 		items: [
-			{ label: '日誌', icon: 'i-heroicons-clipboard-document-list', to: '/dashboard/logs' },
-			{ label: '統計', icon: 'i-heroicons-chart-bar', to: '/dashboard/statistics' },
+			{ label: '日誌', icon: 'i-heroicons-clipboard-document-list', to: '/dashboard/logs', disabled: true, badge: '即將推出' },
+			{ label: '統計', icon: 'i-heroicons-chart-bar', to: '/dashboard/statistics', disabled: true, badge: '即將推出' },
 		],
 	},
 	{
 		title: '帳號與系統',
 		items: [
-			{ label: '使用者', icon: 'i-heroicons-users', to: '/dashboard/users' },
-			{ label: '通知', icon: 'i-heroicons-bell', to: '/dashboard/notifications' },
-			{ label: '整合', icon: 'i-heroicons-puzzle-piece', to: '/dashboard/integrations' },
+			{ label: '使用者', icon: 'i-heroicons-users', to: '/dashboard/users', disabled: true, badge: '即將推出' },
+			{ label: '通知', icon: 'i-heroicons-bell', to: '/dashboard/notifications', disabled: true, badge: '即將推出' },
+			{ label: '整合', icon: 'i-heroicons-puzzle-piece', to: '/dashboard/integrations', disabled: true, badge: '即將推出' },
 			{ label: '設定', icon: 'i-heroicons-cog-6-tooth', to: '/dashboard/settings' },
 		],
 	},
 	{
 		title: '幫助',
 		items: [
-			{ label: '支援', icon: 'i-heroicons-lifebuoy', to: '/dashboard/support' },
+			{ label: '支援', icon: 'i-heroicons-lifebuoy', to: '/dashboard/support', disabled: true, badge: '即將推出' },
 			{ label: '關於', icon: 'i-heroicons-information-circle', to: '/dashboard/about' },
 		],
 	},
@@ -83,19 +83,30 @@ const isActive = (itemPath: string) => {
 						<NuxtLink
 							v-for="item in group.items"
 							:key="item.to"
-							:to="item.to"
+							:to="item.disabled ? undefined : item.to"
 							class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-							:class="
+							:class="[
+								item.disabled ? 'opacity-50 pointer-events-none' : '',
 								isActive(item.to)
 									? 'bg-primary-500/8 text-primary-600 dark:text-primary-400'
-									: 'text-gray-700 dark:text-gray-300 hover:bg-gray-900/5 dark:hover:bg-white/5'
-							"
+									: 'text-gray-700 dark:text-gray-300 hover:bg-gray-900/5 dark:hover:bg-white/5',
+							]"
 						>
 							<UIcon
 								:name="item.icon"
 								class="w-5 h-5 shrink-0"
 							/>
 							{{ item.label }}
+
+							<UBadge
+								v-if="item.badge"
+								color="primary"
+								variant="subtle"
+								size="xs"
+								class="ml-auto text-[12px] px-1.5 py-0"
+							>
+								{{ item.badge }}
+							</UBadge>
 						</NuxtLink>
 					</div>
 				</div>
