@@ -25,6 +25,22 @@ const { data: nodes, pending: isNodesLoading } = useApiFetch<AppNode[]>('/api/v1
 	default: () => [],
 })
 
+const searchQuery = ref('')
+
+const filteredNodes = computed(() => {
+	// 如果沒有搜尋字串就回傳全部資料
+	if (!searchQuery.value) return nodes.value || []
+
+	const query = searchQuery.value.toLowerCase()
+
+	// 只要名稱、描述、或是主機位址包含搜尋字串就保留該節點
+	return (nodes.value || []).filter(node =>
+		node.name.toLowerCase().includes(query)
+		|| (node.description && node.description.toLowerCase().includes(query))
+		|| node.host.toLowerCase().includes(query),
+	)
+})
+
 const columns: TableColumn<AppNode>[] = [
 	{ accessorKey: 'name', header: '節點名稱' },
 	{ accessorKey: 'host', header: '伺服器位址' },
@@ -51,12 +67,36 @@ const statusMap: Record<string, { label: string, color: 'success' | 'neutral' | 
 			<h1 class="text-2xl font-bold text-gray-900 dark:text-white">
 				節點列表
 			</h1>
+
+			<!-- 搜尋輸入框 -->
+			<div class="w-full sm:w-72">
+				<UInput
+					v-model="searchQuery"
+					icon="i-heroicons-magnifying-glass"
+					placeholder="搜尋節點名稱或位址..."
+					size="md"
+				>
+					<!-- 如果有輸入文字就顯示清除按鈕 -->
+					<template
+						v-if="searchQuery"
+						#trailing
+					>
+						<UButton
+							color="neutral"
+							variant="link"
+							icon="i-heroicons-x-mark-20-solid"
+							:padded="false"
+							@click="searchQuery = ''"
+						/>
+					</template>
+				</UInput>
+			</div>
 		</div>
 
 		<!-- 節點表格卡片 -->
 		<UCard class="bg-white/50 dark:bg-gray-900/50 backdrop-blur shadow-sm ring-1 ring-gray-200/50 dark:ring-gray-800/50">
 			<UTable
-				:data="nodes"
+				:data="filteredNodes"
 				:columns="columns"
 				:loading="isNodesLoading"
 				class="text-base [&_th]:text-center! [&_td]:text-center!"
@@ -117,12 +157,20 @@ const statusMap: Record<string, { label: string, color: 'success' | 'neutral' | 
 
 				<!-- 空狀態 -->
 				<template #empty>
-					<div class="flex flex-col items-center justify-center py-12">
+					<div class="flex flex-col items-center justify-center py-12 text-center">
 						<UIcon
 							name="i-heroicons-server"
 							class="w-12 h-12 text-gray-400 dark:text-gray-500 mb-4"
 						/>
-						<span class="text-base text-gray-500 dark:text-gray-400">目前沒有任何可用的節點</span>
+						<span class="text-base font-medium text-gray-900 dark:text-white">
+							{{ searchQuery ? '找不到符合的節點' : '目前沒有任何可用的節點' }}
+						</span>
+						<span
+							v-if="searchQuery"
+							class="text-sm text-gray-500 mt-1"
+						>
+							請嘗試使用不同的關鍵字搜尋
+						</span>
 					</div>
 				</template>
 			</UTable>
