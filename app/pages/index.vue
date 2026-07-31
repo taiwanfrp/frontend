@@ -40,7 +40,7 @@
 					color="secondary"
 					variant="soft"
 					to="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-					class="rounded-lg px-8 py-3 font-semibold w-full sm:w-auto justify-center bg-secondary-200 dark:bg-secondary-500/40 transition-transform hover:scale-105 transition-colors"
+					class="rounded-lg px-8 py-3 font-semibold w-full sm:w-auto justify-center bg-secondary-200 dark:bg-secondary-500/40 transition hover:scale-105"
 				/>
 			</div>
 		</div>
