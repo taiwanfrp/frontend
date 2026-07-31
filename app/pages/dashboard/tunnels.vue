@@ -1,11 +1,216 @@
 <script setup lang="ts">
+import { ref, computed } from 'vue'
+import type { TableColumn } from '@nuxt/ui'
+
 definePageMeta({
 	layout: 'dashboard',
 })
+
+interface AppTunnel {
+	id: string
+	name: string
+	description: string | null
+	node_id: number
+	protocol: string // tcp, udp, http, https, tcpmux, stcp, sudp
+	local_ip: string
+	local_port: number
+	remote_port: number | null
+	custom_domain: string | null
+	is_kcp_enabled: boolean
+	is_proxy_protocol_v2_enabled: boolean
+	is_enabled: boolean // 使用者自行控制
+	status: string // 管理員控制 (active, disabled)
+	created_at: string
+	updated_at: string
+}
+
+const { data: tunnels, pending: isTunnelsLoading } = useApiFetch<AppTunnel[]>('/api/v1/tunnels', {
+	server: false,
+	lazy: true,
+	default: () => [],
+})
+
+const searchQuery = ref('')
+
+const filteredTunnels = computed(() => {
+	if (!searchQuery.value) return tunnels.value || []
+
+	const query = searchQuery.value.toLowerCase()
+
+	return (tunnels.value || []).filter(tunnel =>
+		tunnel.name.toLowerCase().includes(query)
+		|| (tunnel.description && tunnel.description.toLowerCase().includes(query))
+		|| tunnel.local_ip.toLowerCase().includes(query)
+		|| (tunnel.custom_domain && tunnel.custom_domain.toLowerCase().includes(query)),
+	)
+})
+
+const columns: TableColumn<AppTunnel>[] = [
+	{ accessorKey: 'name', header: '隧道名稱' },
+	{ accessorKey: 'node_id', header: '節點 ID' },
+	{ accessorKey: 'protocol', header: '協議' },
+	{ id: 'local', header: '本地端 (Local)' },
+	{ id: 'remote', header: '遠端 (Remote)' },
+	{ accessorKey: 'is_enabled', header: '啟用' },
+	{ accessorKey: 'status', header: '審核狀態' },
+	{ id: 'connection_status', header: '連線狀態' },
+	{ id: 'actions', header: '' },
+]
+
+const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'> = {
+	tcp: 'info',
+	udp: 'warning',
+	http: 'success',
+	https: 'primary',
+	tcpmux: 'info',
+	stcp: 'neutral',
+	sudp: 'neutral',
+}
 </script>
 
 <template>
-	<div class="p-8">
-		<h1>隧道</h1>
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+		<!-- 頁面標頭 -->
+		<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+			<h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+				隧道列表
+			</h1>
+
+			<!-- 搜尋輸入框 -->
+			<div class="w-full sm:w-72">
+				<UInput
+					v-model="searchQuery"
+					icon="i-heroicons-magnifying-glass"
+					placeholder="搜尋名稱、IP 或網域..."
+					size="md"
+				>
+					<template
+						v-if="searchQuery"
+						#trailing
+					>
+						<UButton
+							color="neutral"
+							variant="link"
+							icon="i-heroicons-x-mark-20-solid"
+							:padded="false"
+							@click="searchQuery = ''"
+						/>
+					</template>
+				</UInput>
+			</div>
+		</div>
+
+		<!-- 隧道表格卡片 -->
+		<UCard class="bg-white/50 dark:bg-gray-900/50 backdrop-blur shadow-sm ring-1 ring-gray-200/50 dark:ring-gray-800/50">
+			<UTable
+				:data="filteredTunnels"
+				:columns="columns"
+				:loading="isTunnelsLoading"
+				class="text-base [&_th]:text-center! [&_td]:text-center!"
+			>
+				<!-- 名稱與描述 -->
+				<template #name-cell="{ row }">
+					<div class="flex flex-col items-center">
+						<span class="text-base font-semibold text-gray-900 dark:text-white">{{ row.original.name }}</span>
+						<span
+							v-if="row.original.description"
+							class="text-sm text-gray-500 dark:text-gray-400 mt-1 truncate max-w-xs"
+						>
+							{{ row.original.description }}
+						</span>
+					</div>
+				</template>
+
+				<!-- 節點 ID -->
+				<template #node_id-cell="{ row }">
+					<span class="text-gray-600 dark:text-gray-300">#{{ row.original.node_id }}</span>
+				</template>
+
+				<!-- 協議 -->
+				<template #protocol-cell="{ row }">
+					<UBadge
+						:color="protocolColors[row.original.protocol] || 'neutral'"
+						variant="subtle"
+						size="md"
+						class="uppercase font-bold"
+					>
+						{{ row.original.protocol }}
+					</UBadge>
+				</template>
+
+				<!-- 本地端 (Local IP : Port) -->
+				<template #local-cell="{ row }">
+					<span class="text-base text-gray-600 dark:text-gray-300 font-mono bg-gray-100 dark:bg-gray-800 px-2.5 py-1 rounded-md">
+						{{ row.original.local_ip }}:{{ row.original.local_port }}
+					</span>
+				</template>
+
+				<!-- 遠端 (Remote Port 或 Custom Domain) -->
+				<template #remote-cell="{ row }">
+					<span
+						v-if="['http', 'https'].includes(row.original.protocol) && row.original.custom_domain"
+						class="text-base text-primary-600 dark:text-primary-400"
+					>
+						{{ row.original.custom_domain }}
+					</span>
+					<span
+						v-else-if="row.original.remote_port"
+						class="text-base text-gray-600 dark:text-gray-300 font-mono bg-gray-100 dark:bg-gray-800 px-2.5 py-1 rounded-md"
+					>
+						{{ row.original.remote_port }}
+					</span>
+					<span
+						v-else
+						class="text-gray-400"
+					>-</span>
+				</template>
+
+				<!-- 用戶自訂啟用狀態 -->
+				<template #is_enabled-cell="{ row }">
+					<UBadge
+						:color="row.original.is_enabled ? 'success' : 'neutral'"
+						variant="subtle"
+						size="md"
+					>
+						{{ row.original.is_enabled ? '已啟用' : '已停用' }}
+					</UBadge>
+				</template>
+
+				<!-- 系統管理員狀態 -->
+				<template #status-cell="{ row }">
+					<UBadge
+						:color="row.original.status === 'active' ? 'success' : 'error'"
+						variant="subtle"
+						size="md"
+					>
+						{{ row.original.status === 'active' ? '正常' : '已被管理員停用' }}
+					</UBadge>
+				</template>
+
+				<!-- 連線狀態預留 -->
+				<template #connection_status-cell>
+					<span class="text-gray-400 dark:text-gray-500">-</span>
+				</template>
+
+				<!-- 空狀態 -->
+				<template #empty>
+					<div class="flex flex-col items-center justify-center py-12 text-center">
+						<UIcon
+							name="i-heroicons-arrows-right-left"
+							class="w-12 h-12 text-gray-400 dark:text-gray-500 mb-4"
+						/>
+						<span class="text-base font-medium text-gray-900 dark:text-white">
+							{{ searchQuery ? '找不到符合的隧道' : '您目前還沒有建立任何隧道' }}
+						</span>
+						<span
+							v-if="searchQuery"
+							class="text-sm text-gray-500 mt-1"
+						>
+							請嘗試使用不同的關鍵字搜尋
+						</span>
+					</div>
+				</template>
+			</UTable>
+		</UCard>
 	</div>
 </template>
