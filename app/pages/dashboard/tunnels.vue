@@ -6,6 +6,17 @@ definePageMeta({
 	layout: 'dashboard',
 })
 
+interface AppNode {
+	id: number
+	name: string
+	description: string | null
+	host: string
+	port_start: number
+	port_end: number
+	status: string
+	is_public: boolean
+}
+
 interface AppTunnel {
 	id: string
 	name: string
@@ -30,7 +41,21 @@ const { data: tunnels, pending: isTunnelsLoading } = useApiFetch<AppTunnel[]>('/
 	default: () => [],
 })
 
+const { data: nodes } = useApiFetch<AppNode[]>('/api/v1/nodes', {
+	server: false,
+	lazy: true,
+	default: () => [],
+})
+
 const searchQuery = ref('')
+
+const nodeMap = computed(() => {
+	const map: Record<number, AppNode> = {}
+	for (const node of (nodes.value || [])) {
+		map[node.id] = node
+	}
+	return map
+})
 
 const filteredTunnels = computed(() => {
 	if (!searchQuery.value) return tunnels.value || []
@@ -47,7 +72,7 @@ const filteredTunnels = computed(() => {
 
 const columns: TableColumn<AppTunnel>[] = [
 	{ accessorKey: 'name', header: '隧道名稱' },
-	{ accessorKey: 'node_id', header: '節點 ID' },
+	{ accessorKey: 'node_id', header: '所屬節點' },
 	{ accessorKey: 'protocol', header: '協議' },
 	{ id: 'local', header: '本地端 (Local)' },
 	{ id: 'remote', header: '遠端 (Remote)' },
@@ -121,9 +146,54 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 					</div>
 				</template>
 
-				<!-- 節點 ID -->
+				<!-- 懸浮顯示節點詳細資訊 -->
 				<template #node_id-cell="{ row }">
-					<span class="text-gray-600 dark:text-gray-300">#{{ row.original.node_id }}</span>
+					<UPopover mode="hover">
+						<span class="font-medium text-gray-600 dark:text-gray-400 cursor-pointer border-gray-400 dark:border-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors pb-0.5">
+							{{ nodeMap[row.original.node_id]?.name || `#${row.original.node_id}` }}
+						</span>
+
+						<!-- 浮動視窗內容 -->
+						<template #content>
+							<div
+								v-if="nodeMap[row.original.node_id]"
+								class="p-4 w-64 space-y-3 text-left"
+							>
+								<div class="border-b border-gray-200 dark:border-gray-700 pb-3">
+									<div class="font-bold text-base text-gray-900 dark:text-white">
+										{{ nodeMap[row.original.node_id]?.name }}
+									</div>
+									<div
+										v-if="nodeMap[row.original.node_id]?.description"
+										class="text-sm text-gray-500 dark:text-gray-400 mt-1"
+									>
+										{{ nodeMap[row.original.node_id]?.description }}
+									</div>
+								</div>
+
+								<div class="flex justify-between items-center text-sm pt-1">
+									<span class="text-gray-500 dark:text-gray-400">伺服器位址</span>
+									<span class="font-mono text-gray-900 dark:text-white">
+										{{ nodeMap[row.original.node_id]?.host }}
+									</span>
+								</div>
+
+								<div class="flex justify-between items-center text-sm">
+									<span class="text-gray-500 dark:text-gray-400">可用連接埠</span>
+									<span class="font-mono text-gray-900 dark:text-white">
+										{{ nodeMap[row.original.node_id]?.port_start }} - {{ nodeMap[row.original.node_id]?.port_end }}
+									</span>
+								</div>
+							</div>
+
+							<div
+								v-else
+								class="p-4 text-sm text-gray-500 text-center"
+							>
+								正在載入節點資訊或無權限查看
+							</div>
+						</template>
+					</UPopover>
 				</template>
 
 				<!-- 協議 -->
@@ -145,19 +215,26 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 					</span>
 				</template>
 
-				<!-- 遠端 (Remote Port 或 Custom Domain) -->
+				<!-- 遠端 (Remote URL:Port 或 Custom Domain) -->
 				<template #remote-cell="{ row }">
+					<!-- HTTP/HTTPS 顯示自訂網域 -->
 					<span
 						v-if="['http', 'https'].includes(row.original.protocol) && row.original.custom_domain"
 						class="text-base text-primary-600 dark:text-primary-400"
 					>
 						{{ row.original.custom_domain }}
 					</span>
+					<!-- TCP/UDP 顯示 節點主機:Port -->
 					<span
 						v-else-if="row.original.remote_port"
 						class="text-base text-gray-600 dark:text-gray-300 font-mono bg-gray-100 dark:bg-gray-800 px-2.5 py-1 rounded-md"
 					>
-						{{ row.original.remote_port }}
+						<template v-if="nodeMap[row.original.node_id]?.host">
+							{{ nodeMap[row.original.node_id]?.host }}:{{ row.original.remote_port }}
+						</template>
+						<template v-else>
+							:{{ row.original.remote_port }}
+						</template>
 					</span>
 					<span
 						v-else
@@ -171,8 +248,9 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 						:color="row.original.is_enabled ? 'success' : 'neutral'"
 						variant="subtle"
 						size="md"
+						class="flex justify-center w-20 mx-auto"
 					>
-						{{ row.original.is_enabled ? '已啟用' : '已停用' }}
+						{{ row.original.is_enabled ? '執行中' : '已停止' }}
 					</UBadge>
 				</template>
 
@@ -180,9 +258,15 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 				<template #status-cell="{ row }">
 					<UBadge
 						:color="row.original.status === 'active' ? 'success' : 'error'"
-						variant="subtle"
+						:variant="row.original.status === 'active' ? 'subtle' : 'solid'"
 						size="md"
+						class="flex justify-center items-center gap-1 w-32 mx-auto"
 					>
+						<UIcon
+							v-if="row.original.status !== 'active'"
+							name="i-heroicons-lock-closed-16-solid"
+							class="w-3.5 h-3.5"
+						/>
 						{{ row.original.status === 'active' ? '正常' : '已被管理員停用' }}
 					</UBadge>
 				</template>
