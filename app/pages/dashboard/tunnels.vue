@@ -35,7 +35,9 @@ interface AppTunnel {
 	updated_at: string
 }
 
-const { data: tunnels, pending: isTunnelsLoading } = useApiFetch<AppTunnel[]>('/api/v1/tunnels', {
+const toast = useToast()
+
+const { data: tunnels, pending: isTunnelsLoading, refresh: refreshTunnels } = useApiFetch<AppTunnel[]>('/api/v1/tunnels', {
 	server: false,
 	lazy: true,
 	default: () => [],
@@ -69,6 +71,54 @@ const filteredTunnels = computed(() => {
 		|| (tunnel.custom_domain && tunnel.custom_domain.toLowerCase().includes(query)),
 	)
 })
+
+// 刪除隧道
+const isDeleteModalOpen = ref(false)
+const tunnelToDelete = ref<AppTunnel | null>(null)
+const isDeleting = ref(false)
+
+const openDeleteModal = (tunnel: AppTunnel) => {
+	tunnelToDelete.value = tunnel
+	isDeleteModalOpen.value = true
+}
+
+const confirmDelete = async () => {
+	if (!tunnelToDelete.value) return
+
+	isDeleting.value = true
+	const config = useRuntimeConfig()
+
+	try {
+		await $fetch(`/api/v1/tunnels/${tunnelToDelete.value.id}`, {
+			method: 'DELETE',
+			baseURL: config.public.apiUrl as string,
+			credentials: 'include',
+		})
+
+		toast.add({
+			title: '刪除成功',
+			description: `隧道 ${tunnelToDelete.value.name} 已成功移除。`,
+			color: 'success',
+			icon: 'i-heroicons-check-circle',
+		})
+
+		// 關閉 Modal 並重新整理列表
+		isDeleteModalOpen.value = false
+		refreshTunnels()
+	}
+	catch (error: unknown) {
+		const err = error as { data?: { detail?: string } }
+		toast.add({
+			title: '刪除失敗',
+			description: err.data?.detail || '無法刪除該隧道，請稍後再試。',
+			color: 'error',
+			icon: 'i-heroicons-x-circle',
+		})
+	}
+	finally {
+		isDeleting.value = false
+	}
+}
 
 const columns: TableColumn<AppTunnel>[] = [
 	{ accessorKey: 'name', header: '隧道名稱' },
@@ -287,7 +337,7 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 					<span class="text-gray-400 dark:text-gray-500">-</span>
 				</template>
 
-				<template #actions-cell="{}">
+				<template #actions-cell="{ row }">
 					<div class="flex items-center justify-center gap-1">
 						<UButton
 							color="neutral"
@@ -302,6 +352,7 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 							icon="i-heroicons-trash"
 							size="lg"
 							title="刪除隧道"
+							@click="openDeleteModal(row.original)"
 						/>
 					</div>
 				</template>
@@ -326,5 +377,55 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 				</template>
 			</UTable>
 		</UCard>
+
+		<!-- 刪除確認對話框 -->
+		<div
+			v-if="isDeleteModalOpen"
+			class="fixed inset-0 z-100 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm p-4 transition-opacity"
+			@click.self="isDeleteModalOpen = false"
+		>
+			<UCard class="w-full max-w-lg shadow-2xl ring-1 ring-gray-200/50 dark:ring-gray-800/50 divide-y divide-gray-100 dark:divide-gray-800">
+				<template #header>
+					<div class="flex items-center justify-between">
+						<h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
+							刪除隧道
+						</h3>
+						<UButton
+							color="neutral"
+							variant="ghost"
+							icon="i-heroicons-x-mark-20-solid"
+							class="-my-1"
+							@click="isDeleteModalOpen = false"
+						/>
+					</div>
+				</template>
+
+				<div class="py-2">
+					<p class="text-sm text-gray-500 dark:text-gray-400">
+						確定要刪除隧道 <span class="font-bold text-gray-900 dark:text-white">{{ tunnelToDelete?.name }}</span> 嗎？
+						<br><br>
+						<span class="text-red-500 font-medium">注意：此操作無法復原，與該隧道相關的所有連線隨後將被中斷。</span>
+					</p>
+				</div>
+
+				<template #footer>
+					<div class="flex justify-end gap-3">
+						<UButton
+							color="neutral"
+							variant="ghost"
+							label="取消"
+							:disabled="isDeleting"
+							@click="isDeleteModalOpen = false"
+						/>
+						<UButton
+							color="error"
+							label="確認刪除"
+							:loading="isDeleting"
+							@click="confirmDelete"
+						/>
+					</div>
+				</template>
+			</UCard>
+		</div>
 	</div>
 </template>
