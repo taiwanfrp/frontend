@@ -101,27 +101,38 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 				隧道列表
 			</h1>
 
-			<!-- 搜尋輸入框 -->
-			<div class="w-full sm:w-72">
-				<UInput
-					v-model="searchQuery"
-					icon="i-heroicons-magnifying-glass"
-					placeholder="搜尋名稱、IP 或網域..."
+			<div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+				<!-- 新增隧道按鈕 -->
+				<UButton
+					icon="i-heroicons-plus"
+					color="primary"
+					label="新增隧道"
 					size="md"
-				>
-					<template
-						v-if="searchQuery"
-						#trailing
+					class="w-full sm:w-auto justify-center"
+				/>
+
+				<!-- 搜尋輸入框 -->
+				<div class="w-full sm:w-72">
+					<UInput
+						v-model="searchQuery"
+						icon="i-heroicons-magnifying-glass"
+						placeholder="搜尋名稱、IP 或網域..."
+						size="md"
 					>
-						<UButton
-							color="neutral"
-							variant="link"
-							icon="i-heroicons-x-mark-20-solid"
-							:padded="false"
-							@click="searchQuery = ''"
-						/>
-					</template>
-				</UInput>
+						<template
+							v-if="searchQuery"
+							#trailing
+						>
+							<UButton
+								color="neutral"
+								variant="link"
+								icon="i-heroicons-x-mark-20-solid"
+								:padded="false"
+								@click="searchQuery = ''"
+							/>
+						</template>
+					</UInput>
+				</div>
 			</div>
 		</div>
 
@@ -274,6 +285,25 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 				<!-- 連線狀態預留 -->
 				<template #connection_status-cell>
 					<span class="text-gray-400 dark:text-gray-500">-</span>
+				</template>
+
+				<template #actions-cell="{}">
+					<div class="flex items-center justify-center gap-1">
+						<UButton
+							color="neutral"
+							variant="ghost"
+							icon="i-heroicons-pencil-square"
+							size="lg"
+							title="編輯隧道"
+						/>
+						<UButton
+							color="error"
+							variant="ghost"
+							icon="i-heroicons-trash"
+							size="lg"
+							title="刪除隧道"
+						/>
+					</div>
 				</template>
 
 				<!-- 空狀態 -->
