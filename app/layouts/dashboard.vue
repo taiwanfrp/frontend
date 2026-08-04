@@ -21,6 +21,7 @@ const menuGroups = [
 			{ label: '概覽', icon: 'i-heroicons-squares-2x2', to: '/dashboard' },
 			{ label: '節點', icon: 'i-heroicons-server', to: '/dashboard/nodes' },
 			{ label: '隧道', icon: 'i-heroicons-arrows-right-left', to: '/dashboard/tunnels' },
+			{ label: '連接器', icon: 'i-heroicons-computer-desktop', to: '/dashboard/connectors' },
 			{ label: '子網域', icon: 'i-heroicons-globe-alt', to: '/dashboard/subdomains' },
 		],
 	},
@@ -42,15 +43,15 @@ const menuGroups = [
 		title: '帳號與系統',
 		items: [
 			{ label: '使用者', icon: 'i-heroicons-users', to: '/dashboard/users', disabled: true, badge: '即將推出' },
-			{ label: '通知', icon: 'i-heroicons-bell', to: '/dashboard/notifications', disabled: true, badge: '即將推出' },
-			{ label: '整合', icon: 'i-heroicons-puzzle-piece', to: '/dashboard/integrations', disabled: true, badge: '即將推出' },
+			// { label: '通知', icon: 'i-heroicons-bell', to: '/dashboard/notifications', disabled: true, badge: '即將推出' },
+			// { label: '整合', icon: 'i-heroicons-puzzle-piece', to: '/dashboard/integrations', disabled: true, badge: '即將推出' },
 			{ label: '設定', icon: 'i-heroicons-cog-6-tooth', to: '/dashboard/settings' },
 		],
 	},
 	{
 		title: '幫助',
 		items: [
-			{ label: '支援', icon: 'i-heroicons-lifebuoy', to: '/dashboard/support', disabled: true, badge: '即將推出' },
+			// { label: '支援', icon: 'i-heroicons-lifebuoy', to: '/dashboard/support', disabled: true, badge: '即將推出' },
 			{ label: '關於', icon: 'i-heroicons-information-circle', to: '/dashboard/about' },
 		],
 	},
