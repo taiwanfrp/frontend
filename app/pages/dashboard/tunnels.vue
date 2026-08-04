@@ -79,6 +79,8 @@ const isEditMode = ref(false)
 const editingTunnelId = ref<string | null>(null)
 const formErrorMessage = ref('')
 
+const originalTunnel = ref<Partial<AppTunnel>>({})
+
 const tunnelForm = ref({
 	name: '',
 	description: '',
@@ -109,6 +111,7 @@ const openAddModal = () => {
 		is_proxy_protocol_v2_enabled: false,
 		is_enabled: true,
 	}
+	originalTunnel.value = {}
 	isFormModalOpen.value = true
 }
 
@@ -117,6 +120,9 @@ const openEditModal = (tunnel: AppTunnel) => {
 	isEditMode.value = true
 	editingTunnelId.value = tunnel.id
 	formErrorMessage.value = ''
+
+	originalTunnel.value = { ...tunnel }
+
 	tunnelForm.value = {
 		name: tunnel.name,
 		description: tunnel.description || '',
@@ -250,16 +256,45 @@ const submitForm = async () => {
 			: '/api/v1/tunnels'
 		const apiMethod = isEditMode.value ? 'PATCH' : 'POST'
 
-		const requestBody: Record<string, string | number | boolean | null> = {
-			name: tunnelForm.value.name,
-			description: tunnelForm.value.description || null,
-			node_id: tunnelForm.value.node_id,
-			protocol: tunnelForm.value.protocol,
-			local_ip: tunnelForm.value.local_ip,
-			local_port: tunnelForm.value.local_port,
-			remote_port: tunnelForm.value.remote_port || null,
-			is_kcp_enabled: tunnelForm.value.is_kcp_enabled,
-			is_proxy_protocol_v2_enabled: tunnelForm.value.is_proxy_protocol_v2_enabled,
+		let requestBody: Record<string, string | number | boolean | null> = {}
+
+		if (isEditMode.value) {
+			const keysToCheck = [
+				'name', 'description', 'node_id', 'protocol',
+				'local_ip', 'local_port', 'remote_port',
+				'is_kcp_enabled', 'is_proxy_protocol_v2_enabled', 'is_enabled',
+			] as const
+
+			for (const key of keysToCheck) {
+				// 將表單的空字串轉為 null 來與後端原始資料對齊（特別是 description）
+				const formValue = tunnelForm.value[key] === '' && key === 'description' ? null : tunnelForm.value[key]
+				const originalValue = originalTunnel.value[key] as string | number | boolean | null | undefined
+
+				// 只有與原始資料不同的欄位才放進 requestBody
+				if (formValue !== originalValue) {
+					requestBody[key] = formValue as string | number | boolean | null
+				}
+			}
+
+			// 如果完全沒有修改任何東西則直接關閉視窗不發送請求
+			if (Object.keys(requestBody).length === 0) {
+				isFormModalOpen.value = false
+				isSubmitting.value = false
+				return
+			}
+		}
+		else {
+			requestBody = {
+				name: tunnelForm.value.name,
+				description: tunnelForm.value.description || null,
+				node_id: tunnelForm.value.node_id ?? null,
+				protocol: tunnelForm.value.protocol,
+				local_ip: tunnelForm.value.local_ip,
+				local_port: tunnelForm.value.local_port ?? null,
+				remote_port: tunnelForm.value.remote_port || null,
+				is_kcp_enabled: tunnelForm.value.is_kcp_enabled,
+				is_proxy_protocol_v2_enabled: tunnelForm.value.is_proxy_protocol_v2_enabled,
+			}
 		}
 
 		if (isEditMode.value) {
