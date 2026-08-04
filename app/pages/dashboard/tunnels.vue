@@ -72,9 +72,11 @@ const filteredTunnels = computed(() => {
 	)
 })
 
-// 新增隧道
-const isAddModalOpen = ref(false)
-const isAdding = ref(false)
+// 隧道表單 (新增與編輯共用)
+const isFormModalOpen = ref(false)
+const isSubmitting = ref(false)
+const isEditMode = ref(false)
+const editingTunnelId = ref<string | null>(null)
 const formErrorMessage = ref('')
 
 const tunnelForm = ref({
@@ -87,7 +89,48 @@ const tunnelForm = ref({
 	remote_port: undefined as number | undefined,
 	is_kcp_enabled: true,
 	is_proxy_protocol_v2_enabled: false,
+	is_enabled: true,
 })
+
+// 新增隧道
+const openAddModal = () => {
+	isEditMode.value = false
+	editingTunnelId.value = null
+	formErrorMessage.value = ''
+	tunnelForm.value = {
+		name: '',
+		description: '',
+		node_id: undefined,
+		protocol: '',
+		local_ip: '127.0.0.1',
+		local_port: undefined,
+		remote_port: undefined,
+		is_kcp_enabled: true,
+		is_proxy_protocol_v2_enabled: false,
+		is_enabled: true,
+	}
+	isFormModalOpen.value = true
+}
+
+// 編輯隧道
+const openEditModal = (tunnel: AppTunnel) => {
+	isEditMode.value = true
+	editingTunnelId.value = tunnel.id
+	formErrorMessage.value = ''
+	tunnelForm.value = {
+		name: tunnel.name,
+		description: tunnel.description || '',
+		node_id: tunnel.node_id,
+		protocol: tunnel.protocol,
+		local_ip: tunnel.local_ip,
+		local_port: tunnel.local_port,
+		remote_port: tunnel.remote_port || undefined,
+		is_kcp_enabled: tunnel.is_kcp_enabled,
+		is_proxy_protocol_v2_enabled: tunnel.is_proxy_protocol_v2_enabled,
+		is_enabled: tunnel.is_enabled,
+	}
+	isFormModalOpen.value = true
+}
 
 // 協議選項
 const protocolOptions = [
@@ -162,7 +205,7 @@ const enforcePortRange = () => {
 	}
 }
 
-const confirmAdd = async () => {
+const submitForm = async () => {
 	formErrorMessage.value = ''
 	if (!tunnelForm.value.name) {
 		formErrorMessage.value = '請填寫隧道名稱'
@@ -198,52 +241,51 @@ const confirmAdd = async () => {
 		}
 	}
 
-	isAdding.value = true
+	isSubmitting.value = true
 	const config = useRuntimeConfig()
 
 	try {
-		await $fetch('/api/v1/tunnels', {
-			method: 'POST',
+		const apiUrl = isEditMode.value
+			? `/api/v1/tunnels/${editingTunnelId.value}`
+			: '/api/v1/tunnels'
+		const apiMethod = isEditMode.value ? 'PATCH' : 'POST'
+
+		const requestBody: Record<string, string | number | boolean | null> = {
+			name: tunnelForm.value.name,
+			description: tunnelForm.value.description || null,
+			node_id: tunnelForm.value.node_id,
+			protocol: tunnelForm.value.protocol,
+			local_ip: tunnelForm.value.local_ip,
+			local_port: tunnelForm.value.local_port,
+			remote_port: tunnelForm.value.remote_port || null,
+			is_kcp_enabled: tunnelForm.value.is_kcp_enabled,
+			is_proxy_protocol_v2_enabled: tunnelForm.value.is_proxy_protocol_v2_enabled,
+		}
+
+		if (isEditMode.value) {
+			requestBody.is_enabled = tunnelForm.value.is_enabled
+		}
+
+		await $fetch(apiUrl, {
+			method: apiMethod,
 			baseURL: config.public.apiUrl as string,
 			credentials: 'include',
-			body: {
-				name: tunnelForm.value.name,
-				description: tunnelForm.value.description || null,
-				node_id: tunnelForm.value.node_id,
-				protocol: tunnelForm.value.protocol,
-				local_ip: tunnelForm.value.local_ip,
-				local_port: tunnelForm.value.local_port,
-				remote_port: tunnelForm.value.remote_port || null,
-				is_kcp_enabled: tunnelForm.value.is_kcp_enabled,
-				is_proxy_protocol_v2_enabled: tunnelForm.value.is_proxy_protocol_v2_enabled,
-			},
+			body: requestBody,
 		})
 
 		toast.add({
-			title: '新增成功',
-			description: `隧道 ${tunnelForm.value.name} 已成功建立。`,
+			title: isEditMode.value ? '編輯成功' : '新增成功',
+			description: `隧道 ${tunnelForm.value.name} 已成功${isEditMode.value ? '更新' : '建立'}。`,
 			color: 'success',
 			icon: 'i-heroicons-check-circle',
 		})
 
-		isAddModalOpen.value = false
+		isFormModalOpen.value = false
 		refreshTunnels()
-
-		tunnelForm.value = {
-			name: '',
-			description: '',
-			node_id: undefined,
-			protocol: '',
-			local_ip: '127.0.0.1',
-			local_port: undefined,
-			remote_port: undefined,
-			is_kcp_enabled: true,
-			is_proxy_protocol_v2_enabled: false,
-		}
 	}
 	catch (error: unknown) {
 		const err = error as { data?: { detail?: string } }
-		let errorMsg = '無法建立隧道，請檢查輸入資料或稍後再試。'
+		let errorMsg = `無法${isEditMode.value ? '更新' : '建立'}隧道，請檢查輸入資料或稍後再試。`
 
 		if (err.data && err.data.detail) {
 			const detail = err.data.detail
@@ -269,7 +311,7 @@ const confirmAdd = async () => {
 		formErrorMessage.value = errorMsg
 	}
 	finally {
-		isAdding.value = false
+		isSubmitting.value = false
 	}
 }
 
@@ -360,7 +402,7 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 					label="新增隧道"
 					size="md"
 					class="w-full sm:w-auto justify-center"
-					@click="isAddModalOpen = true"
+					@click="openAddModal"
 				/>
 
 				<!-- 搜尋輸入框 -->
@@ -547,6 +589,7 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 							icon="i-heroicons-pencil-square"
 							size="lg"
 							title="編輯隧道"
+							@click="openEditModal(row.original)"
 						/>
 						<UButton
 							color="error"
@@ -630,11 +673,11 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 			</UCard>
 		</div>
 
-		<!-- 新增隧道對話框 -->
+		<!-- 新增/編輯隧道對話框 -->
 		<div
-			v-if="isAddModalOpen"
+			v-if="isFormModalOpen"
 			class="fixed inset-0 z-100 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm p-4 transition-opacity"
-			@click.self="isAddModalOpen = false"
+			@click.self="isFormModalOpen = false"
 		>
 			<UCard
 				class="w-full max-w-2xl shadow-2xl ring-1 ring-gray-200/50 dark:ring-gray-800/50 divide-y divide-gray-100 dark:divide-gray-800 flex flex-col max-h-[90vh]"
@@ -642,14 +685,14 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
-							新增隧道
+							{{ isEditMode ? '編輯隧道' : '新增隧道' }}
 						</h3>
 						<UButton
 							color="neutral"
 							variant="ghost"
 							icon="i-heroicons-x-mark-20-solid"
 							class="-my-1"
-							@click="isAddModalOpen = false"
+							@click="isFormModalOpen = false"
 						/>
 					</div>
 				</template>
@@ -663,6 +706,18 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 						icon="i-heroicons-exclamation-triangle"
 						:title="formErrorMessage"
 					/>
+
+					<div class="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-gray-800/50 rounded-md border border-gray-200 dark:border-gray-700">
+						<div class="flex flex-col">
+							<span class="text-sm font-medium text-gray-700 dark:text-gray-200">
+								隧道狀態
+							</span>
+						</div>
+						<USwitch
+							v-model="tunnelForm.is_enabled"
+							color="success"
+						/>
+					</div>
 
 					<!-- 名稱與描述 -->
 					<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -718,6 +773,8 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 							<UInput
 								v-model="tunnelForm.local_port"
 								type="number"
+								:min="1"
+								:max="65535"
 								placeholder="例如：25565"
 								@blur="enforceLocalPortRange"
 							/>
@@ -779,14 +836,14 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 							color="neutral"
 							variant="ghost"
 							label="取消"
-							:disabled="isAdding"
-							@click="isAddModalOpen = false"
+							:disabled="isSubmitting"
+							@click="isFormModalOpen = false"
 						/>
 						<UButton
 							color="primary"
-							label="確認新增"
-							:loading="isAdding"
-							@click="confirmAdd"
+							:label="isEditMode ? '確認修改' : '確認新增'"
+							:loading="isSubmitting"
+							@click="submitForm"
 						/>
 					</div>
 				</template>
