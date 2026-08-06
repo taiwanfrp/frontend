@@ -559,7 +559,7 @@ onUnmounted(() => {
 								<div class="group relative flex items-center justify-between bg-gray-900 text-gray-300 font-mono text-sm sm:text-base rounded-xl p-4 overflow-hidden">
 									<div class="truncate mr-4 overflow-x-auto whitespace-nowrap hide-scrollbar">
 										<span class="text-green-400 select-none mr-2">$</span>
-										<span>curl -sfL `https://`get.taiwanfrp.me | sh -</span>
+										<span>curl -sfL https://get.taiwanfrp.me | sh -</span>
 									</div>
 									<UButton
 										icon="i-heroicons-clipboard-document"
