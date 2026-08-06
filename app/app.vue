@@ -25,29 +25,13 @@ const selectLanguage = (code: Parameters<typeof setLocale>[0]) => {
 
 const { user, isLoading, fetchUser, logout, getAvatarUrl } = useAuth()
 
-const isAtTop = ref(true)
-
 onMounted(() => {
-	const handleScroll = () => {
-		// 當往下滾動超過 10px 時 isAtTop 變為 false (顯示捲軸)
-		isAtTop.value = window.scrollY < 10
-	}
-
-	window.addEventListener('scroll', handleScroll, { passive: true })
-	handleScroll() // 初始化執行一次確認位置
-
-	// 元件卸載時清除監聽, 避免記憶體洩漏
-	onUnmounted(() => {
-		window.removeEventListener('scroll', handleScroll)
-	})
-
 	fetchUser()
 })
 
-// 將判斷結果綁定到 <html> tag 的 class 上
 useHead({
 	htmlAttrs: {
-		class: computed(() => isAtTop.value ? 'hide-scrollbar' : ''),
+		class: 'hide-scrollbar',
 	},
 })
 
