@@ -23,6 +23,7 @@ export default defineNuxtConfig({
 		public: {
 			version: pkg.version,
 			apiUrl: '',
+			discordUrl: '',
 		},
 	},
 	routeRules: {

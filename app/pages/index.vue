@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 
+const config = useRuntimeConfig()
+const discordUrl = config.public.discordUrl
+
 const snapEnabled = ref(true)
 
 useHead({
@@ -464,7 +467,7 @@ onUnmounted(() => {
 								variant="solid"
 								block
 								size="xl"
-								to="https://discord.gg/ueGFVVHp85"
+								:to="discordUrl"
 								target="_blank"
 								class="rounded-xl font-bold"
 							/>
@@ -624,7 +627,7 @@ onUnmounted(() => {
 						size="xl"
 						color="primary"
 						variant="solid"
-						to="https://discord.gg/ueGFVVHp85"
+						:to="discordUrl"
 						target="_blank"
 						class="rounded-xl font-bold px-8 shadow-md hover:shadow-lg transition-shadow"
 					/>
@@ -655,7 +658,7 @@ onUnmounted(() => {
 								<span class="text-sm font-semibold">support@taiwanfrp.me</span>
 							</a>
 							<a
-								href="https://discord.gg/ueGFVVHp85"
+								:href="discordUrl"
 								target="_blank"
 								class="group flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-[#5865F2] dark:hover:text-[#5865F2] transition-colors"
 							>
