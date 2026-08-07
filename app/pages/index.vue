@@ -4,6 +4,24 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 const config = useRuntimeConfig()
 const discordUrl = config.public.discordUrl
 
+const installCommand = 'curl -sfL https://get.taiwanfrp.me | sh -'
+// 切換圖示用
+const isCopied = ref(false)
+
+const copyCommand = async () => {
+	try {
+		await navigator.clipboard.writeText(installCommand)
+		isCopied.value = true
+
+		setTimeout(() => {
+			isCopied.value = false
+		}, 1000)
+	}
+	catch (err) {
+		console.error('複製失敗:', err)
+	}
+}
+
 const snapEnabled = ref(true)
 
 useHead({
@@ -562,14 +580,15 @@ onUnmounted(() => {
 								<div class="group relative flex items-center justify-between bg-gray-900 text-gray-300 font-mono text-sm sm:text-base rounded-xl p-4 overflow-hidden">
 									<div class="truncate mr-4 overflow-x-auto whitespace-nowrap hide-scrollbar">
 										<span class="text-green-400 select-none mr-2">$</span>
-										<span>curl -sfL https://get.taiwanfrp.me | sh -</span>
+										<span>{{ installCommand }}</span>
 									</div>
 									<UButton
-										icon="i-heroicons-clipboard-document"
-										color="neutral"
+										:icon="isCopied ? 'i-heroicons-check-circle' : 'i-heroicons-clipboard-document'"
+										:color="isCopied ? 'primary' : 'neutral'"
 										variant="ghost"
 										class="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-800/80 hover:bg-gray-700"
 										aria-label="Copy to clipboard"
+										@click="copyCommand"
 									/>
 								</div>
 								<p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
