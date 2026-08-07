@@ -599,6 +599,78 @@ onUnmounted(() => {
 					</div>
 				</div>
 			</section>
+
+			<!-- Join and Contact -->
+			<section class="snap-start min-h-dvh flex flex-col items-center justify-between relative pt-20">
+				<!-- CTA -->
+				<div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl w-full flex-1 flex flex-col justify-center items-center text-center pb-20">
+					<div class="w-20 h-20 bg-primary-100 dark:bg-primary-900/50 rounded-2xl flex items-center justify-center mb-8 shadow-sm">
+						<UIcon
+							name="i-heroicons-server-stack"
+							class="w-10 h-10 text-primary-600 dark:text-primary-400"
+						/>
+					</div>
+					<h2 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl mb-6">
+						加入社群，成為合作夥伴
+					</h2>
+					<p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+						TaiwanFRP 的運作仰賴每一位開發者的支持。我們歡迎您加入 Discord 進行技術交流與回報建議；<br class="hidden sm:block">
+						同時，如果您有閒置的伺服器與頻寬資源，也誠摯邀請您申請成為「節點贊助夥伴」，與我們一同擴大服務網路！
+					</p>
+
+					<UButton
+						label="加入 Discord 社群"
+						icon="i-simple-icons-discord"
+						size="xl"
+						color="primary"
+						variant="solid"
+						to="https://discord.gg/ueGFVVHp85"
+						target="_blank"
+						class="rounded-xl font-bold px-8 shadow-md hover:shadow-lg transition-shadow"
+					/>
+				</div>
+
+				<!-- Footer -->
+				<footer class="w-full bg-white/60 dark:bg-gray-950/60 backdrop-blur-lg border-t border-gray-200/50 dark:border-gray-800/50 py-6 sm:py-8 mt-auto z-10">
+					<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+						<div class="flex items-center gap-3 text-center md:text-left">
+							<span class="text-xl font-bold text-gray-900 dark:text-white">TaiwanFRP</span>
+							<span class="text-gray-400 dark:text-gray-600">|</span>
+							<span class="text-sm font-medium text-gray-500 dark:text-gray-400">
+								&copy; {{ new Date().getFullYear() }} All rights reserved.
+							</span>
+						</div>
+
+						<div class="flex items-center gap-6">
+							<a
+								href="mailto:support@taiwanfrp.me"
+								class="group flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+							>
+								<div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 group-hover:bg-primary-50 dark:group-hover:bg-primary-900/50 flex items-center justify-center transition-colors">
+									<UIcon
+										name="i-heroicons-envelope-solid"
+										class="w-4 h-4"
+									/>
+								</div>
+								<span class="text-sm font-semibold">support@taiwanfrp.me</span>
+							</a>
+							<a
+								href="https://discord.gg/ueGFVVHp85"
+								target="_blank"
+								class="group flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-[#5865F2] dark:hover:text-[#5865F2] transition-colors"
+							>
+								<div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 group-hover:bg-[#5865F2]/10 flex items-center justify-center transition-colors">
+									<UIcon
+										name="i-simple-icons-discord"
+										class="w-4 h-4"
+									/>
+								</div>
+								<span class="text-sm font-semibold">Discord 群組</span>
+							</a>
+						</div>
+					</div>
+				</footer>
+			</section>
 		</div>
 	</div>
 </template>
