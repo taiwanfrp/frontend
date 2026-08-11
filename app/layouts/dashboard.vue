@@ -29,7 +29,7 @@ const menuGroups = [
 		title: '進階配置',
 		items: [
 			{ label: '憑證', icon: 'i-heroicons-shield-check', to: '/dashboard/certificates', disabled: true, badge: '即將推出' },
-			{ label: 'API', icon: 'i-heroicons-command-line', to: '/dashboard/api', disabled: true, badge: '即將推出' },
+			{ label: 'API', icon: 'i-heroicons-command-line', to: '/dashboard/api' },
 		],
 	},
 	{
