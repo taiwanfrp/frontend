@@ -466,7 +466,7 @@ const columns: TableColumn<AppApiKey>[] = [
 						<label class="block text-sm font-medium text-gray-700 dark:text-gray-200">用途描述 <span class="text-red-500">*</span></label>
 						<UInput
 							v-model="apiKeyForm.description"
-							placeholder="例如：給 CI/CD 部署使用"
+							placeholder="例如：測試用"
 						/>
 					</div>
 
