@@ -2,7 +2,7 @@
   "name": "taiwanfrp-frontend",
   "type": "module",
   "private": true,
-  "version": "20260811-1-dev",
+  "version": "20260814-1-dev",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",

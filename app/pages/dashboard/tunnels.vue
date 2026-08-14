@@ -94,6 +94,88 @@ const tunnelForm = ref({
 	is_enabled: true,
 })
 
+const isSetupModalOpen = ref(false)
+const currentSetupTunnel = ref<(AppTunnel & { agent_token?: string }) | null>(null)
+
+const selectedOs = ref('linux')
+const selectedArch = ref('amd64')
+
+const osOptions = [
+	{
+		label: 'Linux',
+		value: 'linux',
+		archs: [
+			{ label: 'AMD64 (x86_64)', value: 'amd64' },
+			{ label: 'ARM64 (aarch64)', value: 'arm64' },
+			{ label: 'ARM32 (armv7)', value: 'arm' },
+		],
+	},
+	{
+		label: 'Windows',
+		value: 'windows',
+		archs: [
+			{ label: 'AMD64 (x86_64)', value: 'amd64' },
+			{ label: 'ARM64 (aarch64)', value: 'arm64' },
+		],
+	},
+	{
+		label: 'macOS',
+		value: 'darwin',
+		archs: [
+			{ label: 'Apple Silicon (M 系列)', value: 'arm64' },
+			{ label: 'Intel (x86_64)', value: 'amd64' },
+		],
+	},
+	{
+		label: 'Docker',
+		value: 'docker',
+		archs: [],
+	},
+]
+
+const currentArchOptions = computed(() => {
+	const os = osOptions.find(o => o.value === selectedOs.value)
+	return os ? os.archs : []
+})
+
+watch(selectedOs, (newOs) => {
+	const os = osOptions.find(o => o.value === newOs)
+	if (os && os.archs.length > 0) {
+		if (!os.archs.some(a => a.value === selectedArch.value)) {
+			const firstArch = os.archs[0]
+			if (firstArch) {
+				selectedArch.value = firstArch.value
+			}
+		}
+	}
+})
+
+// 下載指令
+const downloadCommand = computed(() => {
+	if (selectedOs.value === 'docker') return ''
+
+	if (selectedOs.value === 'windows') {
+		return `curl.exe -L -o taiwanfrp-agent.exe "https://get.taiwanfrp.me/agent/windows/${selectedArch.value}"`
+	}
+	else {
+		return `curl -sfL "https://get.taiwanfrp.me/agent/${selectedOs.value}/${selectedArch.value}" -o taiwanfrp-agent && chmod +x taiwanfrp-agent`
+	}
+})
+
+// 啟動指令
+const runCommand = computed(() => {
+	const token = currentSetupTunnel.value?.agent_token || '取得_Token_失敗'
+	if (selectedOs.value === 'windows') {
+		return `.\\taiwanfrp-agent.exe run --token ${token}`
+	}
+	else if (selectedOs.value === 'docker') {
+		return `docker run -d --restart always --name taiwanfrp-agent taiwanfrp/agent:latest run --token ${token}`
+	}
+	else {
+		return `./taiwanfrp-agent run --token ${token}`
+	}
+})
+
 // 新增隧道
 const openAddModal = () => {
 	isEditMode.value = false
@@ -301,7 +383,7 @@ const submitForm = async () => {
 			requestBody.is_enabled = tunnelForm.value.is_enabled
 		}
 
-		await $fetch(apiUrl, {
+		const response = await $fetch<AppTunnel & { agent_token?: string }>(apiUrl, {
 			method: apiMethod,
 			baseURL: config.public.apiUrl as string,
 			credentials: 'include',
@@ -317,6 +399,11 @@ const submitForm = async () => {
 
 		isFormModalOpen.value = false
 		refreshTunnels()
+
+		if (!isEditMode.value) {
+			currentSetupTunnel.value = response
+			isSetupModalOpen.value = true
+		}
 	}
 	catch (error: unknown) {
 		const err = error as { data?: { detail?: string } }
@@ -879,6 +966,152 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 							:label="isEditMode ? '確認修改' : '確認新增'"
 							:loading="isSubmitting"
 							@click="submitForm"
+						/>
+					</div>
+				</template>
+			</UCard>
+		</div>
+
+		<!-- 連接器安裝視窗 -->
+		<div
+			v-if="isSetupModalOpen"
+			class="fixed inset-0 z-110 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm p-4 transition-opacity"
+			@click.self="isSetupModalOpen = false"
+		>
+			<UCard class="w-full max-w-3xl shadow-2xl ring-1 ring-gray-200/50 dark:ring-gray-800/50 flex flex-col max-h-[90vh]">
+				<template #header>
+					<div class="flex items-center justify-between">
+						<h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white flex items-center gap-2">
+							<UIcon
+								name="i-heroicons-cpu-chip"
+								class="w-6 h-6 text-primary-500"
+							/>
+							安裝並啟動連接器
+						</h3>
+						<UButton
+							color="neutral"
+							variant="ghost"
+							icon="i-heroicons-x-mark-20-solid"
+							class="-my-1"
+							@click="isSetupModalOpen = false"
+						/>
+					</div>
+				</template>
+
+				<div class="py-2 space-y-8 overflow-y-auto px-1">
+					<!-- 安裝連接器 -->
+					<div class="space-y-4">
+						<h4 class="font-medium text-gray-900 dark:text-white flex items-center gap-2">
+							<UIcon
+								name="i-heroicons-command-line"
+								class="w-5 h-5 text-gray-500"
+							/>
+							1. 安裝並執行連接器
+						</h4>
+
+						<div class="flex flex-wrap gap-10 pl-7">
+							<div class="space-y-1">
+								<label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">選擇裝置的作業系統</label>
+								<USelect
+									v-model="selectedOs"
+									:items="osOptions"
+									class="w-45"
+								/>
+							</div>
+							<div
+								v-if="selectedOs !== 'docker'"
+								class="space-y-1"
+							>
+								<label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">選擇 CPU 架構</label>
+								<USelect
+									v-model="selectedArch"
+									:items="currentArchOptions"
+									class="w-52"
+								/>
+							</div>
+						</div>
+
+						<div class="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-5 space-y-5">
+							<p class="text-sm text-gray-500 dark:text-gray-400">
+								隧道「<span class="font-bold text-gray-900 dark:text-white">{{ currentSetupTunnel?.name }}</span>」已建立。請在您的本地伺服器依序執行以下指令：
+							</p>
+
+							<div
+								v-if="selectedOs !== 'docker'"
+								class="space-y-2"
+							>
+								<span class="text-xs font-bold text-gray-700 dark:text-gray-300">A. 下載連接器</span>
+								<div class="group relative flex items-center justify-between bg-gray-900 text-gray-300 font-mono text-sm sm:text-base rounded-xl p-4 overflow-hidden">
+									<div class="flex-1 min-w-0 overflow-x-auto whitespace-nowrap hide-scrollbar pr-10">
+										<span class="text-primary-400 mr-2 select-none">$</span>
+										<span class="select-all">{{ downloadCommand }}</span>
+									</div>
+									<UButton
+										icon="i-heroicons-clipboard-document"
+										color="neutral"
+										variant="ghost"
+										class="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all bg-gray-800/80 hover:bg-gray-700"
+										title="複製指令"
+									/>
+								</div>
+							</div>
+
+							<!-- 執行指令區塊 -->
+							<div class="space-y-2">
+								<span class="text-xs font-bold text-gray-700 dark:text-gray-300">
+									{{ selectedOs === 'docker' ? '啟動連接器' : 'B. 啟動連接器' }}
+								</span>
+								<div class="group relative flex items-center justify-between bg-gray-900 text-gray-300 font-mono text-sm sm:text-base rounded-xl p-4 overflow-hidden">
+									<div class="flex-1 min-w-0 overflow-x-auto whitespace-nowrap hide-scrollbar pr-10">
+										<span class="text-primary-400 mr-2 select-none">$</span>
+										<span class="select-all">{{ runCommand }}</span>
+									</div>
+									<UButton
+										icon="i-heroicons-clipboard-document"
+										color="neutral"
+										variant="ghost"
+										class="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all bg-gray-800/80 hover:bg-gray-700"
+										title="複製指令"
+									/>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="border-t border-gray-100 dark:border-gray-800" />
+
+					<!-- 顯示連線的連接器 -->
+					<div class="space-y-4">
+						<h4 class="font-medium text-gray-900 dark:text-white flex items-center gap-2">
+							<UIcon
+								name="i-heroicons-server"
+								class="w-5 h-5 text-gray-500"
+							/>
+							2. 使用此 Token 連線的連接器
+						</h4>
+
+						<!-- 狀態顯示區塊 -->
+						<div class="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
+							<UIcon
+								name="i-heroicons-arrow-path"
+								class="w-8 h-8 text-gray-400 animate-spin mb-3"
+							/>
+							<span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+								正在等待連接器上線...
+							</span>
+							<span class="text-xs text-gray-500 mt-1">
+								當您在本地端成功執行指令後，這裡會顯示連接器資訊。
+							</span>
+						</div>
+					</div>
+				</div>
+
+				<template #footer>
+					<div class="flex justify-end">
+						<UButton
+							color="primary"
+							label="完成"
+							@click="isSetupModalOpen = false"
 						/>
 					</div>
 				</template>
