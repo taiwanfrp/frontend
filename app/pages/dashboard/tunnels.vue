@@ -97,6 +97,13 @@ const tunnelForm = ref({
 const isSetupModalOpen = ref(false)
 const currentSetupTunnel = ref<(AppTunnel & { agent_token?: string }) | null>(null)
 
+const closeSetupModal = () => {
+	isSetupModalOpen.value = false
+	if (currentSetupTunnel.value) {
+		currentSetupTunnel.value.agent_token = undefined
+	}
+}
+
 const selectedOs = ref('linux')
 const selectedArch = ref('amd64')
 
@@ -1002,7 +1009,7 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 		<div
 			v-if="isSetupModalOpen"
 			class="fixed inset-0 z-110 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm p-4 transition-opacity"
-			@click.self="isSetupModalOpen = false"
+			@click.self="closeSetupModal"
 		>
 			<UCard class="w-full max-w-3xl shadow-2xl ring-1 ring-gray-200/50 dark:ring-gray-800/50 flex flex-col max-h-[90vh]">
 				<template #header>
@@ -1019,7 +1026,7 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 							variant="ghost"
 							icon="i-heroicons-x-mark-20-solid"
 							class="-my-1"
-							@click="isSetupModalOpen = false"
+							@click="closeSetupModal"
 						/>
 					</div>
 				</template>
@@ -1145,7 +1152,7 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 						<UButton
 							color="primary"
 							label="完成"
-							@click="isSetupModalOpen = false"
+							@click="closeSetupModal"
 						/>
 					</div>
 				</template>
