@@ -176,6 +176,32 @@ const runCommand = computed(() => {
 	}
 })
 
+const isDownloadCopied = ref(false)
+const isRunCopied = ref(false)
+
+const copyCommand = async (type: 'download' | 'run') => {
+	try {
+		const textToCopy = type === 'download' ? downloadCommand.value : runCommand.value
+		await navigator.clipboard.writeText(textToCopy)
+
+		if (type === 'download') {
+			isDownloadCopied.value = true
+			setTimeout(() => {
+				isDownloadCopied.value = false
+			}, 2000)
+		}
+		else {
+			isRunCopied.value = true
+			setTimeout(() => {
+				isRunCopied.value = false
+			}, 2000)
+		}
+	}
+	catch {
+		toast.add({ title: '複製失敗，請手動選取', color: 'error' })
+	}
+}
+
 // 新增隧道
 const openAddModal = () => {
 	isEditMode.value = false
@@ -1044,14 +1070,18 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 								<div class="group relative flex items-center justify-between bg-gray-900 text-gray-300 font-mono text-sm sm:text-base rounded-xl p-4 overflow-hidden">
 									<div class="flex-1 min-w-0 overflow-x-auto whitespace-nowrap hide-scrollbar pr-10">
 										<span class="text-primary-400 mr-2 select-none">$</span>
-										<span class="select-all">{{ downloadCommand }}</span>
+										<span
+											class="select-all cursor-pointer"
+											@click="copyCommand('download')"
+										>{{ downloadCommand }}</span>
 									</div>
 									<UButton
-										icon="i-heroicons-clipboard-document"
-										color="neutral"
+										:icon="isDownloadCopied ? 'i-heroicons-check-circle' : 'i-heroicons-clipboard-document'"
+										:color="isDownloadCopied ? 'primary' : 'neutral'"
 										variant="ghost"
 										class="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all bg-gray-800/80 hover:bg-gray-700"
 										title="複製指令"
+										@click="copyCommand('download')"
 									/>
 								</div>
 							</div>
@@ -1064,14 +1094,18 @@ const protocolColors: Record<string, 'primary' | 'secondary' | 'success' | 'info
 								<div class="group relative flex items-center justify-between bg-gray-900 text-gray-300 font-mono text-sm sm:text-base rounded-xl p-4 overflow-hidden">
 									<div class="flex-1 min-w-0 overflow-x-auto whitespace-nowrap hide-scrollbar pr-10">
 										<span class="text-primary-400 mr-2 select-none">$</span>
-										<span class="select-all">{{ runCommand }}</span>
+										<span
+											class="select-all cursor-pointer"
+											@click="copyCommand('run')"
+										>{{ runCommand }}</span>
 									</div>
 									<UButton
-										icon="i-heroicons-clipboard-document"
-										color="neutral"
+										:icon="isRunCopied ? 'i-heroicons-check-circle' : 'i-heroicons-clipboard-document'"
+										:color="isRunCopied ? 'primary' : 'neutral'"
 										variant="ghost"
 										class="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all bg-gray-800/80 hover:bg-gray-700"
 										title="複製指令"
+										@click="copyCommand('run')"
 									/>
 								</div>
 							</div>
