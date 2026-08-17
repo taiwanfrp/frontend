@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 
 definePageMeta({
@@ -58,6 +59,87 @@ const statusMap: Record<string, { label: string, color: 'success' | 'neutral' | 
 	maintenance: { label: '維護中', color: 'info' },
 	disabled: { label: '停用', color: 'error' },
 }
+
+// 新增/編輯節點表單
+const isFormModalOpen = ref(false)
+const isSubmitting = ref(false)
+const isEditMode = ref(false)
+const editingNodeId = ref<number | null>(null)
+const formErrorMessage = ref('')
+
+const originalNode = ref<Partial<AppNode>>({})
+
+const nodeForm = ref({
+	name: '',
+	description: '',
+	host: '',
+	port_start: undefined as number | undefined,
+	port_end: undefined as number | undefined,
+	is_public: false,
+})
+
+// 新增節點
+const openAddModal = () => {
+	isEditMode.value = false
+	editingNodeId.value = null
+	formErrorMessage.value = ''
+	nodeForm.value = {
+		name: '',
+		description: '',
+		host: '',
+		port_start: undefined,
+		port_end: undefined,
+		is_public: false,
+	}
+	originalNode.value = {}
+	isFormModalOpen.value = true
+}
+
+// 編輯節點
+const openEditModal = (node: AppNode) => {
+	isEditMode.value = true
+	editingNodeId.value = node.id
+	formErrorMessage.value = ''
+
+	originalNode.value = { ...node }
+
+	nodeForm.value = {
+		name: node.name,
+		description: node.description || '',
+		host: node.host,
+		port_start: node.port_start,
+		port_end: node.port_end,
+		is_public: node.is_public,
+	}
+	isFormModalOpen.value = true
+}
+
+const submitForm = async () => {
+	formErrorMessage.value = ''
+	if (!nodeForm.value.name) {
+		formErrorMessage.value = '請填寫節點名稱'
+		return
+	}
+	if (!nodeForm.value.host) {
+		formErrorMessage.value = '請填寫伺服器位址'
+		return
+	}
+	if (!nodeForm.value.port_start || !nodeForm.value.port_end) {
+		formErrorMessage.value = '請填寫完整的連接埠範圍'
+		return
+	}
+	if (nodeForm.value.port_start > nodeForm.value.port_end) {
+		formErrorMessage.value = '起始連接埠不能大於結束連接埠'
+		return
+	}
+	if (nodeForm.value.port_start < 1 || nodeForm.value.port_end > 65535) {
+		formErrorMessage.value = '連接埠範圍必須介於 1 到 65535'
+		return
+	}
+
+	console.log('準備送出表單資料：', nodeForm.value)
+	isFormModalOpen.value = false
+}
 </script>
 
 <template>
@@ -68,28 +150,39 @@ const statusMap: Record<string, { label: string, color: 'success' | 'neutral' | 
 				節點列表
 			</h1>
 
-			<!-- 搜尋輸入框 -->
-			<div class="w-full sm:w-72">
-				<UInput
-					v-model="searchQuery"
-					icon="i-heroicons-magnifying-glass"
-					placeholder="搜尋節點名稱或位址..."
+			<div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+				<!-- 新增：建立節點按鈕 -->
+				<UButton
+					icon="i-heroicons-plus"
+					color="primary"
+					label="新增節點"
 					size="md"
-				>
-					<!-- 如果有輸入文字就顯示清除按鈕 -->
-					<template
-						v-if="searchQuery"
-						#trailing
+					class="w-full sm:w-auto justify-center"
+					@click="openAddModal"
+				/>
+
+				<!-- 搜尋輸入框 -->
+				<div class="w-full sm:w-72">
+					<UInput
+						v-model="searchQuery"
+						icon="i-heroicons-magnifying-glass"
+						placeholder="搜尋節點名稱或位址..."
+						size="md"
 					>
-						<UButton
-							color="neutral"
-							variant="link"
-							icon="i-heroicons-x-mark-20-solid"
-							:padded="false"
-							@click="searchQuery = ''"
-						/>
-					</template>
-				</UInput>
+						<template
+							v-if="searchQuery"
+							#trailing
+						>
+							<UButton
+								color="neutral"
+								variant="link"
+								icon="i-heroicons-x-mark-20-solid"
+								:padded="false"
+								@click="searchQuery = ''"
+							/>
+						</template>
+					</UInput>
+				</div>
 			</div>
 		</div>
 
@@ -155,6 +248,27 @@ const statusMap: Record<string, { label: string, color: 'success' | 'neutral' | 
 					<span class="text-gray-400 dark:text-gray-500">-</span>
 				</template>
 
+				<template #actions-cell="{ row }">
+					<div class="flex items-center justify-center gap-1">
+						<UButton
+							color="neutral"
+							variant="ghost"
+							icon="i-heroicons-pencil-square"
+							size="lg"
+							title="編輯節點"
+							@click="openEditModal(row.original)"
+						/>
+						<UButton
+							color="error"
+							variant="ghost"
+							icon="i-heroicons-trash"
+							size="lg"
+							title="刪除節點"
+							@click="() => {}"
+						/>
+					</div>
+				</template>
+
 				<!-- 空狀態 -->
 				<template #empty>
 					<div class="flex flex-col items-center justify-center py-12 text-center">
@@ -175,5 +289,58 @@ const statusMap: Record<string, { label: string, color: 'success' | 'neutral' | 
 				</template>
 			</UTable>
 		</UCard>
+
+		<!-- 新增/編輯節點對話框 -->
+		<div
+			v-if="isFormModalOpen"
+			class="fixed inset-0 z-100 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm p-4 transition-opacity"
+			@click.self="isFormModalOpen = false"
+		>
+			<UCard
+				class="w-full max-w-2xl shadow-2xl ring-1 ring-gray-200/50 dark:ring-gray-800/50 flex flex-col max-h-[90vh]"
+			>
+				<template #header>
+					<div class="flex items-center justify-between">
+						<h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
+							{{ isEditMode ? '編輯節點' : '新增節點' }}
+						</h3>
+						<UButton
+							color="neutral"
+							variant="ghost"
+							icon="i-heroicons-x-mark-20-solid"
+							class="-my-1"
+							@click="isFormModalOpen = false"
+						/>
+					</div>
+				</template>
+
+				<!-- 表單內容 -->
+				<div class="py-8 space-y-4 overflow-y-auto px-1 flex flex-col items-center justify-center text-gray-500">
+					<UIcon
+						name="i-heroicons-wrench-screwdriver"
+						class="w-10 h-10 mb-2 opacity-50"
+					/>
+					<span>建設中...</span>
+				</div>
+
+				<template #footer>
+					<div class="flex justify-end gap-3">
+						<UButton
+							color="neutral"
+							variant="ghost"
+							label="取消"
+							:disabled="isSubmitting"
+							@click="isFormModalOpen = false"
+						/>
+						<UButton
+							color="primary"
+							:label="isEditMode ? '確認修改' : '確認新增'"
+							:loading="isSubmitting"
+							@click="submitForm"
+						/>
+					</div>
+				</template>
+			</UCard>
+		</div>
 	</div>
 </template>
