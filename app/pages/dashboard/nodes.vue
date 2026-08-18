@@ -28,6 +28,23 @@ const { data: nodes, pending: isNodesLoading } = useApiFetch<AppNode[]>('/api/v1
 
 const { user } = useAuth()
 const canCreateNode = computed(() => user.value?.permissions?.includes('node.create') || false)
+const canEditNode = (node: AppNode) => {
+	if (!user.value?.permissions) return false
+	if (user.value.permissions.includes('node.update.all')) return true
+
+	const hasOwnerPermission = user.value.permissions.includes('node.update.own')
+	const isOwner = user.value.internal_user_id === node.owner_id
+	return hasOwnerPermission && isOwner
+}
+
+const canDeleteNode = (node: AppNode) => {
+	if (!user.value?.permissions) return false
+	if (user.value.permissions.includes('node.delete.all')) return true
+
+	const hasOwnerPermission = user.value.permissions.includes('node.delete.own')
+	const isOwner = user.value.internal_user_id === node.owner_id
+	return hasOwnerPermission && isOwner
+}
 
 const searchQuery = ref('')
 
@@ -255,6 +272,7 @@ const submitForm = async () => {
 				<template #actions-cell="{ row }">
 					<div class="flex items-center justify-center gap-1">
 						<UButton
+							v-if="canEditNode(row.original)"
 							color="neutral"
 							variant="ghost"
 							icon="i-heroicons-pencil-square"
@@ -263,6 +281,7 @@ const submitForm = async () => {
 							@click="openEditModal(row.original)"
 						/>
 						<UButton
+							v-if="canDeleteNode(row.original)"
 							color="error"
 							variant="ghost"
 							icon="i-heroicons-trash"
