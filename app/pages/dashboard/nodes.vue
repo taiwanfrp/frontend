@@ -26,6 +26,9 @@ const { data: nodes, pending: isNodesLoading } = useApiFetch<AppNode[]>('/api/v1
 	default: () => [],
 })
 
+const { user } = useAuth()
+const canCreateNode = computed(() => user.value?.permissions?.includes('node.create') || false)
+
 const searchQuery = ref('')
 
 const filteredNodes = computed(() => {
@@ -151,8 +154,9 @@ const submitForm = async () => {
 			</h1>
 
 			<div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-				<!-- 新增：建立節點按鈕 -->
+				<!-- 建立節點按鈕 -->
 				<UButton
+					v-if="canCreateNode"
 					icon="i-heroicons-plus"
 					color="primary"
 					label="新增節點"
