@@ -437,7 +437,10 @@ const columns: TableColumn<AppApiKey>[] = [
 			class="fixed inset-0 z-100 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm p-4 transition-opacity"
 			@click.self="isFormModalOpen = false"
 		>
-			<UCard class="w-full max-w-2xl shadow-2xl ring-1 ring-gray-200/50 dark:ring-gray-800/50 divide-y divide-gray-100 dark:divide-gray-800 flex flex-col max-h-[90vh]">
+			<UCard
+				class="w-full max-w-2xl shadow-2xl ring-1 ring-gray-200/50 dark:ring-gray-800/50 divide-y divide-gray-100 dark:divide-gray-800 flex flex-col max-h-[90vh]"
+				:ui="{ body: 'flex-1 overflow-y-auto min-h-0' }"
+			>
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
@@ -453,7 +456,7 @@ const columns: TableColumn<AppApiKey>[] = [
 					</div>
 				</template>
 
-				<div class="py-2 space-y-5 overflow-y-auto px-1">
+				<div class="py-2 space-y-5 px-1">
 					<UAlert
 						v-if="formErrorMessage"
 						color="error"
