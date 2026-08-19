@@ -362,12 +362,17 @@ const columns: TableColumn<AppApiKey>[] = [
 
 						<!-- 滑鼠移上去後顯示的完整列表 -->
 						<template #content>
-							<div class="p-3 text-left">
+							<div
+								class="p-3 text-left max-h-[50vh] overflow-y-auto"
+								:class="row.original.permission_ids.length > 16 ? 'sm:w-140' : 'sm:w-70'"
+							>
 								<div class="text-xs font-medium text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700 pb-1.5 mb-2.5">
 									完整權限清單 (共 {{ row.original.permission_ids.length }} 項)
 								</div>
-								<!-- flex-col 一行一個 -->
-								<div class="flex flex-col gap-2">
+								<div
+									class="grid gap-x-6 gap-y-2"
+									:class="row.original.permission_ids.length > 16 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'"
+								>
 									<div
 										v-for="permId in row.original.permission_ids"
 										:key="permId"
@@ -382,7 +387,7 @@ const columns: TableColumn<AppApiKey>[] = [
 										</UBadge>
 
 										<!-- 權限節點名稱 -->
-										<span class="text-xs text-gray-400 font-mono">
+										<span class="text-[10px] text-gray-400 font-mono text-right">
 											{{ permissionMap[permId]?.name }}
 										</span>
 									</div>
