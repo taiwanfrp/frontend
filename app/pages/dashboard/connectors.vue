@@ -74,7 +74,20 @@ const filteredConnectors = computed(() => {
 	)
 })
 
-const handleRegenerateToken = (_connector: AppConnector) => {}
+const isConfirmModalOpen = ref(false)
+const isResetting = ref(false)
+const connectorToReset = ref<AppConnector | null>(null)
+
+const handleRegenerateToken = (connector: AppConnector) => {
+	connectorToReset.value = connector
+	isConfirmModalOpen.value = true
+}
+
+const confirmRegenerate = async () => {
+	if (!connectorToReset.value) return
+
+	isConfirmModalOpen.value = false
+}
 </script>
 
 <template>
@@ -223,5 +236,59 @@ const handleRegenerateToken = (_connector: AppConnector) => {}
 				</template>
 			</UTable>
 		</UCard>
+
+		<!-- 確認重置對話框 -->
+		<div
+			v-if="isConfirmModalOpen"
+			class="fixed inset-0 z-100 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm p-4 transition-opacity"
+			@click.self="isConfirmModalOpen = false"
+		>
+			<UCard class="w-full max-w-lg shadow-2xl ring-1 ring-gray-200/50 dark:ring-gray-800/50 divide-y divide-gray-100 dark:divide-gray-800">
+				<template #header>
+					<div class="flex items-center justify-between">
+						<h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white flex items-center gap-2">
+							<UIcon
+								name="i-heroicons-exclamation-triangle"
+								class="w-5 h-5 text-warning-500"
+							/>
+							重新產生 Agent Token
+						</h3>
+						<UButton
+							color="neutral"
+							variant="ghost"
+							icon="i-heroicons-x-mark-20-solid"
+							class="-my-1"
+							@click="isConfirmModalOpen = false"
+						/>
+					</div>
+				</template>
+
+				<div class="py-2">
+					<p class="text-sm text-gray-500 dark:text-gray-400">
+						確定要為隧道 <span class="font-bold text-gray-900 dark:text-white">{{ connectorToReset?.tunnel_name }}</span> 重新產生 Token 嗎？
+						<br><br>
+						<span class="text-warning-600 dark:text-warning-500 font-medium">注意：此操作將會導致使用舊 Token 的連接器斷線。</span>
+					</p>
+				</div>
+
+				<template #footer>
+					<div class="flex justify-end gap-3">
+						<UButton
+							color="neutral"
+							variant="ghost"
+							label="取消"
+							:disabled="isResetting"
+							@click="isConfirmModalOpen = false"
+						/>
+						<UButton
+							color="warning"
+							label="確認重置"
+							:loading="isResetting"
+							@click="confirmRegenerate"
+						/>
+					</div>
+				</template>
+			</UCard>
+		</div>
 	</div>
 </template>
