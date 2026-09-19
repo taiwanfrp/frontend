@@ -36,8 +36,8 @@ useHead({
 })
 
 const navLinks = computed(() => [
-	{ label: t('nav.about'), to: '#' },
-	{ label: t('nav.services'), to: '#' },
+	{ label: t('nav.about'), to: '/#what-is-frp' },
+	{ label: t('nav.services'), to: '/#why-use-frp' },
 	{ label: t('nav.download'), to: '#' },
 	{ label: t('nav.tutorials'), to: '#' },
 	{ label: t('nav.blacklist_lookup'), to: '#' },

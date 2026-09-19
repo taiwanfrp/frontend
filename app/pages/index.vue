@@ -194,7 +194,10 @@ onUnmounted(() => {
 
 		<div class="bg-white/40 dark:bg-gray-900/30 backdrop-blur-md border-t border-gray-200/50 dark:border-gray-800/50">
 			<!-- What is FRP -->
-			<section class="snap-start min-h-dvh flex flex-col items-center justify-center relative py-20">
+			<section
+				id="what-is-frp"
+				class="snap-start min-h-dvh flex flex-col items-center justify-center relative py-20"
+			>
 				<div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
 					<div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
 						<!-- Text -->
@@ -257,7 +260,10 @@ onUnmounted(() => {
 			</section>
 
 			<!-- Why you should use FRP -->
-			<section class="snap-start min-h-dvh flex flex-col items-center justify-center relative py-20">
+			<section
+				id="why-use-frp"
+				class="snap-start min-h-dvh flex flex-col items-center justify-center relative py-20"
+			>
 				<div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
 					<div class="text-center max-w-3xl mx-auto mb-10 md:mb-14">
 						<h2 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
