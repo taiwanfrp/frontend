@@ -11,6 +11,7 @@ const isDark = computed({
 })
 
 const { locale, locales, setLocale, t } = useI18n()
+const localePath = useLocalePath()
 
 const isLangOpen = ref(false)
 const isMobileMenuOpen = ref(false)
@@ -36,8 +37,8 @@ useHead({
 })
 
 const navLinks = computed(() => [
-	{ label: t('nav.about'), to: '/#what-is-frp' },
-	{ label: t('nav.services'), to: '/#why-use-frp' },
+	{ label: t('nav.about'), to: `${localePath('/')}#what-is-frp` },
+	{ label: t('nav.services'), to: `${localePath('/')}#why-use-frp` },
 	{ label: t('nav.download'), to: '#' },
 	{ label: t('nav.tutorials'), to: '#' },
 	{ label: t('nav.blacklist_lookup'), to: '#' },
