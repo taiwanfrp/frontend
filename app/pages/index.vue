@@ -203,15 +203,11 @@ onUnmounted(() => {
 						<!-- Text -->
 						<div class="flex-1 text-center lg:text-left">
 							<h2 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl mb-6">
-								什麼是內網穿透 (FRP)？<br class="hidden sm:block">它解決了什麼問題？
+								{{ $t('home.what_is_frp.title_line1') }}<br class="hidden sm:block">{{ $t('home.what_is_frp.title_line2') }}
 							</h2>
 							<div class="space-y-6 text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
-								<p>
-									在一般的網路環境中（如社區網路、學校或辦公室），設備通常處於複雜的網路架構下，面臨著<strong>浮動 IP 經常變動</strong>，且往往<strong>無法登入路由器去設定 Port Forwarding (端口轉發)</strong> 的困境。這導致外部網路根本無法穩定地連線到你電腦或伺服器上的服務。
-								</p>
-								<p>
-									<strong>FRP (Fast Reverse Proxy)</strong> 的出現正是為了解決這個痛點。它透過在「帶有固定公網 IP 的節點」與「你的本地主機」之間主動建立一條加密的安全隧道，將外部請求精準地轉發回本地端，讓你免去設定複雜路由器的煩惱。
-								</p>
+								<p v-html="$t('home.what_is_frp.paragraph1')" />
+								<p v-html="$t('home.what_is_frp.paragraph2')" />
 							</div>
 						</div>
 
@@ -227,8 +223,8 @@ onUnmounted(() => {
 											class="w-7 h-7 text-gray-600 dark:text-gray-300"
 										/>
 									</div>
-									<span class="text-sm font-medium text-gray-700 dark:text-gray-200">本地主機</span>
-									<span class="text-xs text-gray-500 dark:text-gray-400 mt-1">內網 IP</span>
+									<span class="text-sm font-medium text-gray-700 dark:text-gray-200">{{ $t('home.what_is_frp.local_host') }}</span>
+									<span class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $t('home.what_is_frp.local_ip') }}</span>
 								</div>
 
 								<!-- Tunnel -->
@@ -239,7 +235,7 @@ onUnmounted(() => {
 											class="w-8 h-8 text-primary-600 dark:text-primary-400"
 										/>
 									</div>
-									<span class="text-sm font-bold text-primary-600 dark:text-primary-400">安全隧道</span>
+									<span class="text-sm font-bold text-primary-600 dark:text-primary-400">{{ $t('home.what_is_frp.secure_tunnel') }}</span>
 								</div>
 
 								<!-- Internet -->
@@ -250,8 +246,8 @@ onUnmounted(() => {
 											class="w-7 h-7 text-gray-600 dark:text-gray-300"
 										/>
 									</div>
-									<span class="text-sm font-medium text-gray-700 dark:text-gray-200">網際網路</span>
-									<span class="text-xs text-gray-500 dark:text-gray-400 mt-1">公網訪客</span>
+									<span class="text-sm font-medium text-gray-700 dark:text-gray-200">{{ $t('home.what_is_frp.internet') }}</span>
+									<span class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $t('home.what_is_frp.public_visitor') }}</span>
 								</div>
 							</div>
 						</div>
@@ -267,10 +263,10 @@ onUnmounted(() => {
 				<div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
 					<div class="text-center max-w-3xl mx-auto mb-10 md:mb-14">
 						<h2 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
-							你能在什麼情境下使用？
+							{{ $t('home.why_use_frp.title') }}
 						</h2>
 						<p class="mt-4 text-lg text-gray-600 dark:text-gray-400">
-							打破網路限制，提供輕量、彈性且具隱私的連線方案。
+							{{ $t('home.why_use_frp.subtitle') }}
 						</p>
 					</div>
 
@@ -281,10 +277,10 @@ onUnmounted(() => {
 								class="w-12 h-12 text-primary-600 dark:text-primary-400 mb-5"
 							/>
 							<h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-								網站架設與開發測試
+								{{ $t('home.why_use_frp.case1_title') }}
 							</h3>
 							<p class="text-gray-600 dark:text-gray-400 leading-relaxed text-sm sm:text-base">
-								無需為了單一 Port 特地租用 VPS。完美解決 Ngrok 高延遲的痛點，為本地專案、API 測試或個人網站提供極速的對外連線。
+								{{ $t('home.why_use_frp.case1_desc') }}
 							</p>
 						</div>
 
@@ -294,10 +290,10 @@ onUnmounted(() => {
 								class="w-12 h-12 text-primary-600 dark:text-primary-400 mb-5"
 							/>
 							<h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-								遊戲伺服器自架連線
+								{{ $t('home.why_use_frp.case2_title') }}
 							</h3>
 							<p class="text-gray-600 dark:text-gray-400 leading-relaxed text-sm sm:text-base">
-								自架 Minecraft 或帕魯伺服器，朋友免裝 Radmin VPN 即可輕鬆直連。享受低延遲暢玩的同時，完美隱藏自家真實 IP 以保護隱私。
+								{{ $t('home.why_use_frp.case2_desc') }}
 							</p>
 						</div>
 
@@ -307,10 +303,10 @@ onUnmounted(() => {
 								class="w-12 h-12 text-primary-600 dark:text-primary-400 mb-5"
 							/>
 							<h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-								遠端桌面與主機管理
+								{{ $t('home.why_use_frp.case3_title') }}
 							</h3>
 							<p class="text-gray-600 dark:text-gray-400 leading-relaxed text-sm sm:text-base">
-								出門在外需要連回主機？擺脫 TeamViewer 等第三方軟體的商業限制與緩慢連線。透過映射 SSH 或遠端桌面 (RDP) 端口，享受台灣在地節點的大頻寬直連通道。
+								{{ $t('home.why_use_frp.case3_desc') }}
 							</p>
 						</div>
 					</div>
@@ -322,10 +318,10 @@ onUnmounted(() => {
 				<div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
 					<div class="text-center max-w-3xl mx-auto mb-10 md:mb-14">
 						<h2 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
-							我們的核心優勢
+							{{ $t('home.service_features.title') }}
 						</h2>
 						<p class="mt-4 text-lg text-gray-600 dark:text-gray-400">
-							告別繁雜的指令與設定檔，用最現代化的方式管理你的內網穿透。
+							{{ $t('home.service_features.subtitle') }}
 						</p>
 					</div>
 
@@ -338,10 +334,10 @@ onUnmounted(() => {
 								/>
 							</div>
 							<h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-								全平台支援，極簡啟動
+								{{ $t('home.service_features.feature1_title') }}
 							</h3>
 							<p class="text-gray-600 dark:text-gray-400 leading-relaxed text-sm sm:text-base">
-								完美相容 Windows、Linux、ARM 架構與 Docker。徹底告別繁瑣的本地設定檔，只需一行指令啟動連接器，即可全自動上線。
+								{{ $t('home.service_features.feature1_desc') }}
 							</p>
 						</div>
 						<div class="p-8 rounded-3xl bg-white dark:bg-gray-900/80 border border-gray-200 dark:border-gray-800 hover:shadow-md transition-shadow">
@@ -352,10 +348,10 @@ onUnmounted(() => {
 								/>
 							</div>
 							<h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-								網頁面板全權管理
+								{{ $t('home.service_features.feature2_title') }}
 							</h3>
 							<p class="text-gray-600 dark:text-gray-400 leading-relaxed text-sm sm:text-base">
-								將控制權完全轉移至雲端。隧道新增、通訊埠修改、流量監控到節點狀態，皆可透過直覺的視覺化儀表板即時操作與管理。
+								{{ $t('home.service_features.feature2_desc') }}
 							</p>
 						</div>
 						<div class="p-8 rounded-3xl bg-white dark:bg-gray-900/80 border border-gray-200 dark:border-gray-800 hover:shadow-md transition-shadow">
@@ -366,10 +362,10 @@ onUnmounted(() => {
 								/>
 							</div>
 							<h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-								API First 優先設計
+								{{ $t('home.service_features.feature3_title') }}
 							</h3>
 							<p class="text-gray-600 dark:text-gray-400 leading-relaxed text-sm sm:text-base">
-								提供完整的 OpenAPI (Swagger) 文件。讓開發者能輕鬆呼叫 API 來控制與管理服務，自由整合至自製的應用程式中。
+								{{ $t('home.service_features.feature3_desc') }}
 							</p>
 						</div>
 					</div>
@@ -381,10 +377,10 @@ onUnmounted(() => {
 				<div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
 					<div class="text-center max-w-3xl mx-auto mb-10 md:mb-14">
 						<h2 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
-							簡單透明的方案
+							{{ $t('home.pricing.title') }}
 						</h2>
 						<p class="mt-4 text-lg text-gray-600 dark:text-gray-400">
-							我們提供穩定免費的基礎服務。若有更高規格的需求，歡迎與我們聯繫。
+							{{ $t('home.pricing.subtitle') }}
 						</p>
 					</div>
 
@@ -392,17 +388,17 @@ onUnmounted(() => {
 						<!-- Free -->
 						<div class="flex flex-col p-8 bg-white dark:bg-gray-900/90 rounded-3xl border-2 border-primary-500/20 dark:border-primary-500/30 shadow-lg relative overflow-hidden">
 							<div class="absolute top-0 right-0 bg-primary-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
-								最受歡迎
+								{{ $t('home.pricing.free_badge') }}
 							</div>
 							<h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-								免費版
+								{{ $t('home.pricing.free_title') }}
 							</h3>
 							<p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">
-								適合個人與小型專案
+								{{ $t('home.pricing.free_subtitle') }}
 							</p>
 							<div class="flex items-baseline gap-2 mb-8">
-								<span class="text-5xl font-extrabold text-gray-900 dark:text-white">NT$ 0</span>
-								<span class="text-gray-500 dark:text-gray-400 font-medium">/ 永久</span>
+								<span class="text-5xl font-extrabold text-gray-900 dark:text-white">{{ $t('home.pricing.free_price') }}</span>
+								<span class="text-gray-500 dark:text-gray-400 font-medium">{{ $t('home.pricing.free_period') }}</span>
 							</div>
 							<ul class="space-y-4 mb-8 flex-1">
 								<li class="flex items-center gap-3 text-gray-700 dark:text-gray-300 font-medium">
@@ -410,32 +406,32 @@ onUnmounted(() => {
 										name="i-heroicons-check-circle"
 										class="w-6 h-6 text-primary-500 shrink-0"
 									/>
-									最多支援 3 條隧道
+									{{ $t('home.pricing.free_feature1') }}
 								</li>
 								<li class="flex items-center gap-3 text-gray-700 dark:text-gray-300 font-medium">
 									<UIcon
 										name="i-heroicons-check-circle"
 										class="w-6 h-6 text-primary-500 shrink-0"
 									/>
-									單一隧道限速 24 Mbps (3 MB/s)
+									{{ $t('home.pricing.free_feature2') }}
 								</li>
 								<li class="flex items-center gap-3 text-gray-700 dark:text-gray-300 font-medium">
 									<UIcon
 										name="i-heroicons-check-circle"
 										class="w-6 h-6 text-primary-500 shrink-0"
 									/>
-									流量完全不限
+									{{ $t('home.pricing.free_feature3') }}
 								</li>
 								<li class="flex items-center gap-3 text-gray-700 dark:text-gray-300 font-medium">
 									<UIcon
 										name="i-heroicons-check-circle"
 										class="w-6 h-6 text-primary-500 shrink-0"
 									/>
-									社群與工單客服協助
+									{{ $t('home.pricing.free_feature4') }}
 								</li>
 							</ul>
 							<UButton
-								label="立即開始"
+								:label="$t('home.pricing.free_btn')"
 								color="primary"
 								block
 								size="xl"
@@ -447,13 +443,13 @@ onUnmounted(() => {
 						<!-- Advanced Customized -->
 						<div class="flex flex-col p-8 bg-gray-50/80 dark:bg-gray-800/50 rounded-3xl border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow relative">
 							<h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-								進階客製版
+								{{ $t('home.pricing.advanced_title') }}
 							</h3>
 							<p class="text-gray-500 dark:text-gray-400 mb-6 text-sm">
-								適合需要大頻寬與客製化需求的專案
+								{{ $t('home.pricing.advanced_subtitle') }}
 							</p>
 							<div class="flex items-baseline gap-2 mb-8">
-								<span class="text-4xl font-extrabold text-gray-900 dark:text-white">聯繫客服</span>
+								<span class="text-4xl font-extrabold text-gray-900 dark:text-white">{{ $t('home.pricing.advanced_price') }}</span>
 							</div>
 							<ul class="space-y-4 mb-8 flex-1">
 								<li class="flex items-center gap-3 text-gray-600 dark:text-gray-400">
@@ -461,32 +457,32 @@ onUnmounted(() => {
 										name="i-heroicons-check"
 										class="w-5 h-5 text-gray-400 shrink-0"
 									/>
-									自訂隧道數量與資源上限
+									{{ $t('home.pricing.advanced_feature1') }}
 								</li>
 								<li class="flex items-center gap-3 text-gray-600 dark:text-gray-400">
 									<UIcon
 										name="i-heroicons-check"
 										class="w-5 h-5 text-gray-400 shrink-0"
 									/>
-									解除限速，大頻寬連線保證
+									{{ $t('home.pricing.advanced_feature2') }}
 								</li>
 								<li class="flex items-center gap-3 text-gray-600 dark:text-gray-400">
 									<UIcon
 										name="i-heroicons-check"
 										class="w-5 h-5 text-gray-400 shrink-0"
 									/>
-									客製化網路架構諮詢與整合建議
+									{{ $t('home.pricing.advanced_feature3') }}
 								</li>
 								<li class="flex items-center gap-3 text-gray-600 dark:text-gray-400">
 									<UIcon
 										name="i-heroicons-check"
 										class="w-5 h-5 text-gray-400 shrink-0"
 									/>
-									優先處理的專屬技術支援
+									{{ $t('home.pricing.advanced_feature4') }}
 								</li>
 							</ul>
 							<UButton
-								label="聯繫客服"
+								:label="$t('home.pricing.advanced_btn')"
 								color="neutral"
 								variant="solid"
 								block
@@ -509,14 +505,14 @@ onUnmounted(() => {
 						<div class="relative p-10 sm:p-16 flex flex-col lg:flex-row items-center justify-between gap-12">
 							<div class="text-left max-w-xl">
 								<h2 class="text-3xl font-bold text-white sm:text-4xl mb-4">
-									擁抱開源，安全透明
+									{{ $t('home.open_source.title') }}
 								</h2>
 								<p class="text-gray-300 text-lg mb-8 leading-relaxed">
-									我們深知安全與信任的重要性。我們的核心元件遵循 MIT 與 Apache-2.0 開源協議託管於 GitHub，讓每一行程式碼都公開透明、經得起社群檢視，並隨時歡迎參與貢獻。
+									{{ $t('home.open_source.desc') }}
 								</p>
 								<div class="flex gap-4">
 									<UButton
-										label="前往 GitHub"
+										:label="$t('home.open_source.btn')"
 										icon="i-simple-icons-github"
 										color="neutral"
 										variant="solid"
@@ -565,10 +561,10 @@ onUnmounted(() => {
 				<div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl w-full">
 					<div class="text-center max-w-3xl mx-auto mb-10 md:mb-14">
 						<h2 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
-							快速安裝連接器
+							{{ $t('home.quick_start.title') }}
 						</h2>
 						<p class="mt-4 text-lg text-gray-600 dark:text-gray-400">
-							支援 Linux, Windows, macOS 與 Docker。複製指令，快速完成部署。
+							{{ $t('home.quick_start.subtitle') }}
 						</p>
 					</div>
 
@@ -580,7 +576,7 @@ onUnmounted(() => {
 										name="i-heroicons-command-line"
 										class="w-5 h-5 text-primary-500"
 									/>
-									Linux / macOS 一鍵安裝腳本
+									{{ $t('home.quick_start.script_title') }}
 								</h3>
 
 								<div class="group relative flex items-center justify-between bg-gray-900 text-gray-300 font-mono text-sm sm:text-base rounded-xl p-4 overflow-hidden">
@@ -598,7 +594,7 @@ onUnmounted(() => {
 									/>
 								</div>
 								<p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
-									執行上述指令即可自動下載並安裝適合您系統架構的連接器。
+									{{ $t('home.quick_start.script_desc') }}
 								</p>
 							</div>
 
@@ -607,13 +603,13 @@ onUnmounted(() => {
 
 							<div class="w-full md:w-2/5 flex flex-col items-center text-center">
 								<h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-									其他平台與手動下載
+									{{ $t('home.quick_start.other_title') }}
 								</h3>
 								<p class="text-sm text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
-									需要 Windows 版本或想取得二進位檔？立即前往下載頁面。
+									{{ $t('home.quick_start.other_desc') }}
 								</p>
 								<UButton
-									label="前往下載頁面"
+									:label="$t('home.quick_start.other_btn')"
 									icon="i-heroicons-arrow-down-tray"
 									size="lg"
 									color="neutral"
@@ -639,15 +635,15 @@ onUnmounted(() => {
 						/>
 					</div>
 					<h2 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl mb-6">
-						加入社群，成為合作夥伴
+						{{ $t('home.join_contact.title') }}
 					</h2>
 					<p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-						TaiwanFRP 的運作仰賴每一位開發者的支持。我們歡迎您加入 Discord 進行技術交流與回報建議；<br class="hidden sm:block">
-						同時，如果您有閒置的伺服器與頻寬資源，也誠摯邀請您申請成為「節點贊助夥伴」，與我們一同擴大服務網路！
+						{{ $t('home.join_contact.desc_line1') }}<br class="hidden sm:block">
+						{{ $t('home.join_contact.desc_line2') }}
 					</p>
 
 					<UButton
-						label="加入 Discord 社群"
+						:label="$t('home.join_contact.btn')"
 						icon="i-simple-icons-discord"
 						size="xl"
 						color="primary"
@@ -693,7 +689,7 @@ onUnmounted(() => {
 										class="w-4 h-4"
 									/>
 								</div>
-								<span class="text-sm font-semibold">Discord 群組</span>
+								<span class="text-sm font-semibold">{{ $t('home.join_contact.footer_discord') }}</span>
 							</a>
 						</div>
 					</div>

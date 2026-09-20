@@ -15,6 +15,80 @@
             "subtitle_line2": "No public IP needed, no router configuration required. We provide a free and stable internal network penetration service, making it easy for you to go live with your exclusive game server and development projects.",
             "btn_start": "Get started for free",
             "btn_video": "Watch Tutorials"
+        },
+        "what_is_frp": {
+            "title_line1": "What is a reverse proxy tunnel (FRP)?",
+            "title_line2": "What problem does it solve?",
+            "paragraph1": "In a typical network environment (such as a community network, school, or office), devices are often behind a complex network setup, facing <strong>frequently changing dynamic IPs</strong> and often being <strong>unable to log into the router to configure port forwarding</strong>. This makes it impossible for the outside network to reliably reach services running on your computer or server.",
+            "paragraph2": "<strong>FRP (Fast Reverse Proxy)</strong> was created to solve exactly this pain point. It actively establishes an encrypted, secure tunnel between a \"node with a fixed public IP\" and \"your local host\", forwarding external requests precisely back to your local machine, so you never have to deal with complicated router configuration again.",
+            "local_host": "Local Host",
+            "local_ip": "Private IP",
+            "secure_tunnel": "Secure Tunnel",
+            "internet": "Internet",
+            "public_visitor": "Public Visitor"
+        },
+        "why_use_frp": {
+            "title": "What can you use it for?",
+            "subtitle": "Break through network restrictions with a lightweight, flexible, and privacy-friendly connection solution.",
+            "case1_title": "Website Hosting & Development Testing",
+            "case1_desc": "No need to rent a VPS just for a single port. Perfectly solves Ngrok's high-latency pain point, providing blazing-fast external connections for local projects, API testing, or personal websites.",
+            "case2_title": "Self-Hosted Game Servers",
+            "case2_desc": "Self-host a Minecraft or Palworld server, and let your friends connect directly without installing Radmin VPN. Enjoy low-latency gaming while keeping your real IP completely hidden for privacy.",
+            "case3_title": "Remote Desktop & Host Management",
+            "case3_desc": "Need to connect back to your host while you're out? Ditch the commercial limits and slow connections of third-party tools like TeamViewer. Map SSH or Remote Desktop (RDP) ports to enjoy a high-bandwidth direct connection through a local Taiwan node."
+        },
+        "service_features": {
+            "title": "Our Core Advantages",
+            "subtitle": "Say goodbye to complicated commands and config files, and manage your reverse proxy tunnels the modern way.",
+            "feature1_title": "Cross-Platform, Minimal Setup",
+            "feature1_desc": "Fully compatible with Windows, Linux, ARM architectures, and Docker. No more messy local config files — just one command to start the connector and go fully automatic online.",
+            "feature2_title": "Full Control from a Web Dashboard",
+            "feature2_desc": "Move full control to the cloud. Adding tunnels, changing ports, monitoring traffic, and checking node status can all be done in real time through an intuitive visual dashboard.",
+            "feature3_title": "API First Design",
+            "feature3_desc": "Complete OpenAPI (Swagger) documentation is provided, letting developers easily call the API to control and manage the service, and freely integrate it into their own applications."
+        },
+        "pricing": {
+            "title": "Simple, Transparent Plans",
+            "subtitle": "We offer a stable, free base service. For higher-spec needs, feel free to reach out to us.",
+            "free_badge": "Most Popular",
+            "free_title": "Free Plan",
+            "free_subtitle": "Great for individuals and small projects",
+            "free_price": "NT$ 0",
+            "free_period": "/ forever",
+            "free_feature1": "Up to 3 tunnels supported",
+            "free_feature2": "Per-tunnel speed limit of 24 Mbps (3 MB/s)",
+            "free_feature3": "Unlimited traffic",
+            "free_feature4": "Community and ticket-based support",
+            "free_btn": "Get Started",
+            "advanced_title": "Advanced Custom Plan",
+            "advanced_subtitle": "For projects that need large bandwidth and custom requirements",
+            "advanced_price": "Contact Us",
+            "advanced_feature1": "Custom tunnel count and resource limits",
+            "advanced_feature2": "No speed limits, guaranteed high bandwidth",
+            "advanced_feature3": "Custom network architecture consulting and integration advice",
+            "advanced_feature4": "Priority dedicated technical support",
+            "advanced_btn": "Contact Us"
+        },
+        "open_source": {
+            "title": "Open Source, Secure & Transparent",
+            "desc": "We understand how important security and trust are. Our core components are hosted on GitHub under the MIT and Apache-2.0 open-source licenses, keeping every line of code open, transparent, and open to community review, with contributions always welcome.",
+            "btn": "Go to GitHub"
+        },
+        "quick_start": {
+            "title": "Quick Connector Installation",
+            "subtitle": "Supports Linux, Windows, macOS, and Docker. Copy the command and deploy in seconds.",
+            "script_title": "Linux / macOS One-Line Install Script",
+            "script_desc": "Run the command above to automatically download and install the connector for your system architecture.",
+            "other_title": "Other Platforms & Manual Download",
+            "other_desc": "Need a Windows version or want the raw binaries? Head to the download page.",
+            "other_btn": "Go to Download Page"
+        },
+        "join_contact": {
+            "title": "Join the Community, Become a Partner",
+            "desc_line1": "TaiwanFRP relies on the support of every developer. We welcome you to join our Discord for technical discussion and feedback;",
+            "desc_line2": "and if you have spare server and bandwidth resources, we sincerely invite you to apply to become a \"Node Sponsor Partner\" and help us expand our service network together!",
+            "btn": "Join our Discord",
+            "footer_discord": "Discord Server"
         }
     }
 }

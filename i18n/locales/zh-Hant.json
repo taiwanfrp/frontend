@@ -15,6 +15,80 @@
             "subtitle_line2": "無需公網 IP、免設定路由器，提供免費且穩定的內網穿透服務，讓你的專屬遊戲伺服器與開發專案輕鬆上線",
             "btn_start": "免費開始使用",
             "btn_video": "觀看教學影片"
+        },
+        "what_is_frp": {
+            "title_line1": "什麼是內網穿透 (FRP)？",
+            "title_line2": "它解決了什麼問題？",
+            "paragraph1": "在一般的網路環境中（如社區網路、學校或辦公室），設備通常處於複雜的網路架構下，面臨著<strong>浮動 IP 經常變動</strong>，且往往<strong>無法登入路由器去設定 Port Forwarding (端口轉發)</strong> 的困境。這導致外部網路根本無法穩定地連線到你電腦或伺服器上的服務。",
+            "paragraph2": "<strong>FRP (Fast Reverse Proxy)</strong> 的出現正是為了解決這個痛點。它透過在「帶有固定公網 IP 的節點」與「你的本地主機」之間主動建立一條加密的安全隧道，將外部請求精準地轉發回本地端，讓你免去設定複雜路由器的煩惱。",
+            "local_host": "本地主機",
+            "local_ip": "內網 IP",
+            "secure_tunnel": "安全隧道",
+            "internet": "網際網路",
+            "public_visitor": "公網訪客"
+        },
+        "why_use_frp": {
+            "title": "你能在什麼情境下使用？",
+            "subtitle": "打破網路限制，提供輕量、彈性且具隱私的連線方案。",
+            "case1_title": "網站架設與開發測試",
+            "case1_desc": "無需為了單一 Port 特地租用 VPS。完美解決 Ngrok 高延遲的痛點，為本地專案、API 測試或個人網站提供極速的對外連線。",
+            "case2_title": "遊戲伺服器自架連線",
+            "case2_desc": "自架 Minecraft 或帕魯伺服器，朋友免裝 Radmin VPN 即可輕鬆直連。享受低延遲暢玩的同時，完美隱藏自家真實 IP 以保護隱私。",
+            "case3_title": "遠端桌面與主機管理",
+            "case3_desc": "出門在外需要連回主機？擺脫 TeamViewer 等第三方軟體的商業限制與緩慢連線。透過映射 SSH 或遠端桌面 (RDP) 端口，享受台灣在地節點的大頻寬直連通道。"
+        },
+        "service_features": {
+            "title": "我們的核心優勢",
+            "subtitle": "告別繁雜的指令與設定檔，用最現代化的方式管理你的內網穿透。",
+            "feature1_title": "全平台支援，極簡啟動",
+            "feature1_desc": "完美相容 Windows、Linux、ARM 架構與 Docker。徹底告別繁瑣的本地設定檔，只需一行指令啟動連接器，即可全自動上線。",
+            "feature2_title": "網頁面板全權管理",
+            "feature2_desc": "將控制權完全轉移至雲端。隧道新增、通訊埠修改、流量監控到節點狀態，皆可透過直覺的視覺化儀表板即時操作與管理。",
+            "feature3_title": "API First 優先設計",
+            "feature3_desc": "提供完整的 OpenAPI (Swagger) 文件。讓開發者能輕鬆呼叫 API 來控制與管理服務，自由整合至自製的應用程式中。"
+        },
+        "pricing": {
+            "title": "簡單透明的方案",
+            "subtitle": "我們提供穩定免費的基礎服務。若有更高規格的需求，歡迎與我們聯繫。",
+            "free_badge": "最受歡迎",
+            "free_title": "免費版",
+            "free_subtitle": "適合個人與小型專案",
+            "free_price": "NT$ 0",
+            "free_period": "/ 永久",
+            "free_feature1": "最多支援 3 條隧道",
+            "free_feature2": "單一隧道限速 24 Mbps (3 MB/s)",
+            "free_feature3": "流量完全不限",
+            "free_feature4": "社群與工單客服協助",
+            "free_btn": "立即開始",
+            "advanced_title": "進階客製版",
+            "advanced_subtitle": "適合需要大頻寬與客製化需求的專案",
+            "advanced_price": "聯繫客服",
+            "advanced_feature1": "自訂隧道數量與資源上限",
+            "advanced_feature2": "解除限速，大頻寬連線保證",
+            "advanced_feature3": "客製化網路架構諮詢與整合建議",
+            "advanced_feature4": "優先處理的專屬技術支援",
+            "advanced_btn": "聯繫客服"
+        },
+        "open_source": {
+            "title": "擁抱開源，安全透明",
+            "desc": "我們深知安全與信任的重要性。我們的核心元件遵循 MIT 與 Apache-2.0 開源協議託管於 GitHub，讓每一行程式碼都公開透明、經得起社群檢視，並隨時歡迎參與貢獻。",
+            "btn": "前往 GitHub"
+        },
+        "quick_start": {
+            "title": "快速安裝連接器",
+            "subtitle": "支援 Linux, Windows, macOS 與 Docker。複製指令，快速完成部署。",
+            "script_title": "Linux / macOS 一鍵安裝腳本",
+            "script_desc": "執行上述指令即可自動下載並安裝適合您系統架構的連接器。",
+            "other_title": "其他平台與手動下載",
+            "other_desc": "需要 Windows 版本或想取得二進位檔？立即前往下載頁面。",
+            "other_btn": "前往下載頁面"
+        },
+        "join_contact": {
+            "title": "加入社群，成為合作夥伴",
+            "desc_line1": "TaiwanFRP 的運作仰賴每一位開發者的支持。我們歡迎您加入 Discord 進行技術交流與回報建議；",
+            "desc_line2": "同時，如果您有閒置的伺服器與頻寬資源，也誠摯邀請您申請成為「節點贊助夥伴」，與我們一同擴大服務網路！",
+            "btn": "加入 Discord 社群",
+            "footer_discord": "Discord 群組"
         }
     }
 }

@@ -3,18 +3,92 @@
         "about": "这是什么",
         "services": "服务介绍",
         "download": "软件下载",
-        "tutorials": "教学影片",
+        "tutorials": "教学视频",
         "blacklist_lookup": "黑名单查询",
         "docs": "文档"
     },
     "home": {
         "hero": {
-            "badge": "专为学生、开发者与麦块服主打造",
+            "badge": "专为学生、开发者与我的世界服主打造",
             "title": "TaiwanFRP",
             "subtitle_line1": "轻松将隐藏在 NAT 或防火墙后的本地服务器连接至互联网",
-            "subtitle_line2": "无需公网 IP、免设置路由器，提供免费且稳定的内网穿透服务，让你的专属游戏服务器与开发项目轻松上线",
+            "subtitle_line2": "无需公网 IP、无需配置路由器，提供免费且稳定的内网穿透服务，让你的专属游戏服务器与开发项目轻松上线",
             "btn_start": "免费开始使用",
-            "btn_video": "观看教学影片"
+            "btn_video": "观看教学视频"
+        },
+        "what_is_frp": {
+            "title_line1": "什么是内网穿透 (FRP)？",
+            "title_line2": "它解决了什么问题？",
+            "paragraph1": "在一般的网络环境中（如小区网络、学校或办公室），设备通常处于复杂的网络架构下，面临着<strong>动态 IP 经常变动</strong>，且往往<strong>无法登录路由器去设置端口转发 (Port Forwarding)</strong> 的困境。这导致外部网络根本无法稳定地连接到你电脑或服务器上的服务。",
+            "paragraph2": "<strong>FRP (Fast Reverse Proxy)</strong> 的出现正是为了解决这个痛点。它通过在「带有固定公网 IP 的节点」与「你的本地主机」之间主动建立一条加密的安全隧道，将外部请求精准地转发回本地端，让你免去配置复杂路由器的烦恼。",
+            "local_host": "本地主机",
+            "local_ip": "内网 IP",
+            "secure_tunnel": "安全隧道",
+            "internet": "互联网",
+            "public_visitor": "公网访客"
+        },
+        "why_use_frp": {
+            "title": "你能在什么场景下使用？",
+            "subtitle": "打破网络限制，提供轻量、灵活且具隐私的连接方案。",
+            "case1_title": "网站搭建与开发测试",
+            "case1_desc": "无需为了单个端口专门租用 VPS。完美解决 Ngrok 高延迟的痛点，为本地项目、API 测试或个人网站提供极速的对外连接。",
+            "case2_title": "游戏服务器自建连接",
+            "case2_desc": "自建 Minecraft 或幻兽帕鲁服务器，朋友无需安装 Radmin VPN 即可轻松直连。享受低延迟畅玩的同时，完美隐藏自己的真实 IP 以保护隐私。",
+            "case3_title": "远程桌面与主机管理",
+            "case3_desc": "出门在外需要连回主机？摆脱 TeamViewer 等第三方软件的商业限制与缓慢连接。通过映射 SSH 或远程桌面 (RDP) 端口，享受台湾本地节点的大带宽直连通道。"
+        },
+        "service_features": {
+            "title": "我们的核心优势",
+            "subtitle": "告别繁杂的指令与配置文件，用最现代化的方式管理你的内网穿透。",
+            "feature1_title": "全平台支持，极简启动",
+            "feature1_desc": "完美兼容 Windows、Linux、ARM 架构与 Docker。彻底告别繁琐的本地配置文件，只需一行命令启动连接器，即可全自动上线。",
+            "feature2_title": "网页面板全权管理",
+            "feature2_desc": "将控制权完全转移至云端。隧道新增、端口修改、流量监控到节点状态，皆可通过直观的可视化仪表盘实时操作与管理。",
+            "feature3_title": "API First 优先设计",
+            "feature3_desc": "提供完整的 OpenAPI (Swagger) 文档。让开发者能轻松调用 API 来控制与管理服务，自由集成至自制的应用程序中。"
+        },
+        "pricing": {
+            "title": "简单透明的方案",
+            "subtitle": "我们提供稳定免费的基础服务。若有更高规格的需求，欢迎与我们联系。",
+            "free_badge": "最受欢迎",
+            "free_title": "免费版",
+            "free_subtitle": "适合个人与小型项目",
+            "free_price": "NT$ 0",
+            "free_period": "/ 永久",
+            "free_feature1": "最多支持 3 条隧道",
+            "free_feature2": "单条隧道限速 24 Mbps (3 MB/s)",
+            "free_feature3": "流量完全不限",
+            "free_feature4": "社区与工单客服协助",
+            "free_btn": "立即开始",
+            "advanced_title": "高级定制版",
+            "advanced_subtitle": "适合需要大带宽与定制化需求的项目",
+            "advanced_price": "联系客服",
+            "advanced_feature1": "自定义隧道数量与资源上限",
+            "advanced_feature2": "解除限速，大带宽连接保证",
+            "advanced_feature3": "定制化网络架构咨询与集成建议",
+            "advanced_feature4": "优先处理的专属技术支持",
+            "advanced_btn": "联系客服"
+        },
+        "open_source": {
+            "title": "拥抱开源，安全透明",
+            "desc": "我们深知安全与信任的重要性。我们的核心组件遵循 MIT 与 Apache-2.0 开源协议托管于 GitHub，让每一行代码都公开透明、经得起社区检验，并随时欢迎参与贡献。",
+            "btn": "前往 GitHub"
+        },
+        "quick_start": {
+            "title": "快速安装连接器",
+            "subtitle": "支持 Linux, Windows, macOS 与 Docker。复制命令，快速完成部署。",
+            "script_title": "Linux / macOS 一键安装脚本",
+            "script_desc": "执行上述命令即可自动下载并安装适合您系统架构的连接器。",
+            "other_title": "其他平台与手动下载",
+            "other_desc": "需要 Windows 版本或想获取二进制文件？立即前往下载页面。",
+            "other_btn": "前往下载页面"
+        },
+        "join_contact": {
+            "title": "加入社区，成为合作伙伴",
+            "desc_line1": "TaiwanFRP 的运作依赖每一位开发者的支持。我们欢迎您加入 Discord 进行技术交流与反馈建议；",
+            "desc_line2": "同时，如果您有闲置的服务器与带宽资源，也诚挚邀请您申请成为「节点赞助伙伴」，与我们一同扩大服务网络！",
+            "btn": "加入 Discord 社区",
+            "footer_discord": "Discord 群组"
         }
     }
 }
