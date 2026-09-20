@@ -47,5 +47,8 @@ export default defineNuxtConfig({
 			{ code: 'zh-Hans', name: '简体中文', file: 'zh-Hans.json' },
 			{ code: 'en-US', name: 'English', file: 'en-US.json' },
 		],
+		compilation: {
+			strictMessage: false,
+		},
 	},
 })
