@@ -42,7 +42,7 @@ const navLinks = computed(() => [
 	{ label: t('nav.download'), to: '#' },
 	{ label: t('nav.tutorials'), to: '#' },
 	{ label: t('nav.blacklist_lookup'), to: '#' },
-	{ label: t('nav.docs'), to: '#' },
+	{ label: t('nav.docs'), to: 'https://docs.taiwanfrp.me', target: '_blank' },
 ])
 </script>
 
@@ -89,6 +89,7 @@ const navLinks = computed(() => [
 						v-for="link in navLinks"
 						:key="link.label"
 						:to="link.to"
+						:target="link.target"
 						class="text-sm font-medium text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary-400 transition-colors"
 					>
 						{{ link.label }}
@@ -360,6 +361,7 @@ const navLinks = computed(() => [
 							v-for="link in navLinks"
 							:key="link.label"
 							:to="link.to"
+							:target="link.target"
 							class="px-4 py-3 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
 							@click="isMobileMenuOpen = false"
 						>
