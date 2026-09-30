@@ -4,7 +4,7 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 const config = useRuntimeConfig()
 const discordUrl = config.public.discordUrl
 
-const installCommand = 'curl -sfL https://get.taiwanfrp.me | sh -'
+const installCommand = 'curl -fsSL https://get.taiwanfrp.me | bash'
 // 切換圖示用
 const isCopied = ref(false)
 
