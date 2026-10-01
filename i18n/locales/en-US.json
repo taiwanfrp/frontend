@@ -77,10 +77,10 @@
         "quick_start": {
             "title": "Quick Connector Installation",
             "subtitle": "Supports Linux, Windows, macOS, and Docker. Copy the command and deploy in seconds.",
-            "script_title": "Linux / macOS One-Line Install Script",
+            "script_title": "One-Line Install Script",
             "script_desc": "Run the command above to automatically download and install the connector for your system architecture.",
             "other_title": "Other Platforms & Manual Download",
-            "other_desc": "Need a Windows version or want the raw binaries? Head to the download page.",
+            "other_desc": "Prefer a manual install or want the raw binaries? Head to the download page.",
             "other_btn": "Go to Download Page"
         },
         "join_contact": {

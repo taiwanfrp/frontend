@@ -77,10 +77,10 @@
         "quick_start": {
             "title": "快速安装连接器",
             "subtitle": "支持 Linux, Windows, macOS 与 Docker。复制命令，快速完成部署。",
-            "script_title": "Linux / macOS 一键安装脚本",
+            "script_title": "一键安装脚本",
             "script_desc": "执行上述命令即可自动下载并安装适合您系统架构的连接器。",
             "other_title": "其他平台与手动下载",
-            "other_desc": "需要 Windows 版本或想获取二进制文件？立即前往下载页面。",
+            "other_desc": "想手动安装或获取二进制文件？立即前往下载页面。",
             "other_btn": "前往下载页面"
         },
         "join_contact": {

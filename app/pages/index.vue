@@ -4,13 +4,32 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 const config = useRuntimeConfig()
 const discordUrl = config.public.discordUrl
 
-const installCommand = 'curl -fsSL https://get.taiwanfrp.me | bash'
+const installCommands = {
+	unix: { prompt: '$', command: 'curl -fsSL https://get.taiwanfrp.me | bash' },
+	windows: { prompt: 'PS>', command: 'irm https://get.taiwanfrp.me/install.ps1 | iex' },
+}
+type InstallPlatform = keyof typeof installCommands
+
+const installTabs = [
+	{ label: 'Linux / macOS', value: 'unix' },
+	{ label: 'Windows', value: 'windows' },
+]
+const installPlatform = ref<InstallPlatform>('unix')
+const installCommand = computed(() => installCommands[installPlatform.value])
+
+// 依使用者的作業系統預設顯示對應的指令
+onMounted(() => {
+	if (navigator.userAgent.includes('Windows')) {
+		installPlatform.value = 'windows'
+	}
+})
+
 // 切換圖示用
 const isCopied = ref(false)
 
 const copyCommand = async () => {
 	try {
-		await navigator.clipboard.writeText(installCommand)
+		await navigator.clipboard.writeText(installCommand.value.command)
 		isCopied.value = true
 
 		setTimeout(() => {
@@ -579,10 +598,18 @@ onUnmounted(() => {
 									{{ $t('home.quick_start.script_title') }}
 								</h3>
 
+								<UTabs
+									v-model="installPlatform"
+									:items="installTabs"
+									:content="false"
+									size="md"
+									class="mb-3"
+								/>
+
 								<div class="group relative flex items-center justify-between bg-gray-900 text-gray-300 font-mono text-sm sm:text-base rounded-xl p-4 overflow-hidden">
 									<div class="truncate mr-4 overflow-x-auto whitespace-nowrap hide-scrollbar">
-										<span class="text-green-400 select-none mr-2">$</span>
-										<span>{{ installCommand }}</span>
+										<span class="text-green-400 select-none mr-2">{{ installCommand.prompt }}</span>
+										<span>{{ installCommand.command }}</span>
 									</div>
 									<UButton
 										:icon="isCopied ? 'i-heroicons-check-circle' : 'i-heroicons-clipboard-document'"
@@ -614,7 +641,7 @@ onUnmounted(() => {
 									size="lg"
 									color="neutral"
 									variant="solid"
-									to="#"
+									to="https://github.com/taiwanfrp/agent/releases"
 									target="_blank"
 									class="rounded-xl font-medium w-full max-w-50"
 								/>
