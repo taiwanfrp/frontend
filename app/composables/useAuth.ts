@@ -58,7 +58,7 @@ export const useAuth = () => {
 		}
 	}
 
-	const getAvatarUrl = (user: User | null) => {
+	const getAvatarUrl = (user: Pick<User, 'discord_id' | 'avatar'> | null) => {
 		if (!user || !user.discord_id) return ''
 
 		// 如果有自訂頭像

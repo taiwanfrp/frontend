@@ -225,8 +225,10 @@ onUnmounted(() => {
 								{{ $t('home.what_is_frp.title_line1') }}<br class="hidden sm:block">{{ $t('home.what_is_frp.title_line2') }}
 							</h2>
 							<div class="space-y-6 text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+								<!-- eslint-disable vue/no-v-html -->
 								<p v-html="$t('home.what_is_frp.paragraph1')" />
 								<p v-html="$t('home.what_is_frp.paragraph2')" />
+								<!-- eslint-enable vue/no-v-html -->
 							</div>
 						</div>
 

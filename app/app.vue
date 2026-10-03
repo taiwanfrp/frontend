@@ -197,7 +197,7 @@ const navLinks = computed(() => [
 										class="w-5 h-5 rounded-full object-cover"
 										alt="Avatar"
 									>
-									<span>{{ user.username || 'User' }}</span>
+									<span>{{ user?.username || 'User' }}</span>
 								</div>
 							</UButton>
 
@@ -217,6 +217,17 @@ const navLinks = computed(() => [
 											class="w-4 h-4 shrink-0"
 										/>
 										儀表板
+									</NuxtLink>
+									<NuxtLink
+										to="/tickets"
+										class="flex items-center gap-2 px-2.5 py-2 text-sm rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors w-full text-left font-medium mb-1"
+										@click="isUserMenuOpen = false"
+									>
+										<UIcon
+											name="i-heroicons-lifebuoy-20-solid"
+											class="w-4 h-4 shrink-0"
+										/>
+										工單
 									</NuxtLink>
 									<NuxtLink
 										to="/profile"
@@ -301,6 +312,19 @@ const navLinks = computed(() => [
 											{{ user.username }}
 										</p>
 									</div>
+
+									<!-- 工單 -->
+									<NuxtLink
+										to="/tickets"
+										class="flex items-center gap-2 px-2.5 py-2 text-sm rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors w-full text-left font-medium mb-1"
+										@click="isMobileUserMenuOpen = false"
+									>
+										<UIcon
+											name="i-heroicons-lifebuoy-20-solid"
+											class="w-4 h-4 shrink-0"
+										/>
+										工單
+									</NuxtLink>
 
 									<!-- 個人資料 -->
 									<NuxtLink
