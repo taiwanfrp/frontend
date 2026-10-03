@@ -29,6 +29,7 @@ export default defineNuxtConfig({
 	routeRules: {
 		'/': { prerender: true },	// 官網首頁使用 SSG
 		'/dash/**': { ssr: false },	// Dash 相關頁面使用 CSR
+		'/tickets/**': { ssr: false },	// 工單頁面使用 CSR
 	},
 	compatibilityDate: '2025-07-15',
 	eslint: {
