@@ -193,7 +193,7 @@ const submitForm = async () => {
 
 const copyApiKey = async () => {
 	try {
-		await navigator.clipboard.writeText(newlyCreatedKey.value)
+		await copyText(newlyCreatedKey.value)
 		isCopied.value = true
 		setTimeout(() => {
 			isCopied.value = false

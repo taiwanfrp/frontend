@@ -189,7 +189,7 @@ const isRunCopied = ref(false)
 const copyCommand = async (type: 'download' | 'run') => {
 	try {
 		const textToCopy = type === 'download' ? downloadCommand.value : runCommand.value
-		await navigator.clipboard.writeText(textToCopy)
+		await copyText(textToCopy)
 
 		if (type === 'download') {
 			isDownloadCopied.value = true

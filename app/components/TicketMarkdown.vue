@@ -11,25 +11,6 @@ const html = computed(() => renderDiscordMarkdown(props.content, {
 	copyCode: t('tickets.markdown.copy_code'),
 }))
 
-// navigator.clipboard 只在 HTTPS 或 localhost 下存在, 其他情況改用 execCommand
-const copyText = async (text: string) => {
-	if (navigator.clipboard && window.isSecureContext) {
-		await navigator.clipboard.writeText(text)
-		return
-	}
-
-	const textarea = document.createElement('textarea')
-	textarea.value = text
-	textarea.setAttribute('readonly', '')
-	textarea.style.position = 'fixed'
-	textarea.style.opacity = '0'
-	document.body.appendChild(textarea)
-	textarea.select()
-	const copied = document.execCommand('copy')
-	textarea.remove()
-	if (!copied) throw new Error('copy failed')
-}
-
 // 複製程式碼區塊, 失敗時改為選取內容讓使用者自行複製
 const copyCodeBlock = async (button: HTMLElement) => {
 	const code = button.parentElement?.querySelector('code')

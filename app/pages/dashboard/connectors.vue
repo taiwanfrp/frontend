@@ -112,7 +112,7 @@ const confirmRegenerate = async () => {
 
 const copyToken = async () => {
 	try {
-		await navigator.clipboard.writeText(newlyCreatedToken.value)
+		await copyText(newlyCreatedToken.value)
 		isCopied.value = true
 		setTimeout(() => {
 			isCopied.value = false

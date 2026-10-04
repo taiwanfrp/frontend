@@ -29,7 +29,7 @@ const isCopied = ref(false)
 
 const copyCommand = async () => {
 	try {
-		await navigator.clipboard.writeText(installCommand.value.command)
+		await copyText(installCommand.value.command)
 		isCopied.value = true
 
 		setTimeout(() => {
