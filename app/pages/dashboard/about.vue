@@ -10,7 +10,7 @@ const resources = [
 		label: '說明文件',
 		description: '閱讀完整的使用教學與 API 串接指南',
 		icon: 'i-heroicons-book-open',
-		url: '#',
+		url: 'https://docs.taiwanfrp.me/',
 		iconColor: 'text-emerald-600 dark:text-emerald-400',
 		iconBg: 'bg-emerald-100 dark:bg-emerald-900/50',
 	},
