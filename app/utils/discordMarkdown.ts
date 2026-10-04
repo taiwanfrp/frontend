@@ -158,6 +158,14 @@ md.renderer.rules.strong_open = (tokens, idx, options, _env, self) =>
 md.renderer.rules.strong_close = (tokens, idx, options, _env, self) =>
 	tokens[idx]!.markup === '__' ? '</u>' : self.renderToken(tokens, idx, options)
 
+// 程式碼區塊加上複製按鈕 (點擊由 TicketMarkdown 處理), 圖示來自 Lucide
+const COPY_ICON = '<svg class="md-copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>'
+const CHECK_ICON = '<svg class="md-copy-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>'
+
+const renderFence = md.renderer.rules.fence!
+md.renderer.rules.fence = (tokens, idx, options, env, self) =>
+	`<div class="md-codeblock">${renderFence(tokens, idx, options, env, self)}<button type="button" class="md-copy" title="複製" aria-label="複製程式碼">${COPY_ICON}${CHECK_ICON}</button></div>`
+
 // 連結一律開新分頁
 md.renderer.rules.link_open = (tokens, idx, options, _env, self) => {
 	tokens[idx]!.attrSet('target', '_blank')

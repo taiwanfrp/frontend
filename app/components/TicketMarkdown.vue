@@ -5,13 +5,60 @@ const props = defineProps<{
 
 const html = computed(() => renderDiscordMarkdown(props.content))
 
+// navigator.clipboard 只在 HTTPS 或 localhost 下存在, 其他情況改用 execCommand
+const copyText = async (text: string) => {
+	if (navigator.clipboard && window.isSecureContext) {
+		await navigator.clipboard.writeText(text)
+		return
+	}
+
+	const textarea = document.createElement('textarea')
+	textarea.value = text
+	textarea.setAttribute('readonly', '')
+	textarea.style.position = 'fixed'
+	textarea.style.opacity = '0'
+	document.body.appendChild(textarea)
+	textarea.select()
+	const copied = document.execCommand('copy')
+	textarea.remove()
+	if (!copied) throw new Error('copy failed')
+}
+
+// 複製程式碼區塊, 失敗時改為選取內容讓使用者自行複製
+const copyCodeBlock = async (button: HTMLElement) => {
+	const code = button.parentElement?.querySelector('code')
+	if (!code) return
+
+	try {
+		await copyText((code.textContent ?? '').replace(/\n$/, ''))
+		button.classList.add('is-copied')
+		button.title = '已複製'
+		setTimeout(() => {
+			button.classList.remove('is-copied')
+			button.title = '複製'
+		}, 2000)
+	}
+	catch {
+		window.getSelection()?.selectAllChildren(code)
+	}
+}
+
 // 點擊防雷內容後顯示, 尚未顯示前點到裡面的連結不會跳轉
-const revealSpoiler = (event: MouseEvent) => {
-	const spoiler = (event.target as HTMLElement).closest('.md-spoiler')
-	if (!spoiler || spoiler.classList.contains('is-revealed')) return
+const revealSpoiler = (event: MouseEvent, spoiler: HTMLElement) => {
+	if (spoiler.classList.contains('is-revealed')) return
 
 	event.preventDefault()
 	spoiler.classList.add('is-revealed')
+}
+
+const handleClick = (event: MouseEvent) => {
+	const target = event.target as HTMLElement
+
+	const copyButton = target.closest<HTMLElement>('.md-copy')
+	if (copyButton) return copyCodeBlock(copyButton)
+
+	const spoiler = target.closest<HTMLElement>('.md-spoiler')
+	if (spoiler) revealSpoiler(event, spoiler)
 }
 </script>
 
@@ -19,7 +66,7 @@ const revealSpoiler = (event: MouseEvent) => {
 	<!-- eslint-disable vue/no-v-html -- markdown-it 設定 html: false, 原始 HTML 會被跳脫 -->
 	<div
 		class="discord-md"
-		@click="revealSpoiler"
+		@click="handleClick"
 		v-html="html"
 	/>
 	<!-- eslint-enable vue/no-v-html -->
@@ -33,7 +80,7 @@ const revealSpoiler = (event: MouseEvent) => {
 .discord-md p + p,
 .discord-md p + ul,
 .discord-md p + ol,
-.discord-md p + pre,
+.discord-md p + .md-codeblock,
 .discord-md p + blockquote {
 	margin-top: 0.5em;
 }
@@ -90,13 +137,68 @@ const revealSpoiler = (event: MouseEvent) => {
 	border-radius: 4px;
 }
 
+.discord-md .md-codeblock {
+	position: relative;
+	margin: 0.25em 0;
+}
+
 .discord-md pre {
 	background-color: var(--ui-bg-elevated);
 	border: 1px solid var(--ui-border);
 	border-radius: 6px;
 	padding: 0.5em 0.75em;
-	margin: 0.25em 0;
 	overflow-x: auto;
+}
+
+/* 複製按鈕: 滑鼠移入程式碼區塊才顯示, 觸控裝置沒有 hover 所以一直顯示 */
+.discord-md .md-copy {
+	position: absolute;
+	top: 0.25rem;
+	right: 0.25rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.625rem;
+	height: 1.625rem;
+	border: 1px solid var(--ui-border);
+	border-radius: 6px;
+	background-color: var(--ui-bg);
+	color: var(--ui-text-muted);
+	cursor: pointer;
+	opacity: 0;
+	transition: opacity 0.15s, color 0.15s, background-color 0.15s;
+}
+
+.discord-md .md-codeblock:hover .md-copy,
+.discord-md .md-copy:focus-visible,
+.discord-md .md-copy.is-copied {
+	opacity: 1;
+}
+
+@media (hover: none) {
+	.discord-md .md-copy {
+		opacity: 1;
+	}
+}
+
+.discord-md .md-copy:hover {
+	color: var(--ui-text-highlighted);
+	background-color: var(--ui-bg-elevated);
+}
+
+.discord-md .md-copy svg {
+	width: 0.875rem;
+	height: 0.875rem;
+}
+
+.discord-md .md-copy .md-copy-check,
+.discord-md .md-copy.is-copied .md-copy-icon {
+	display: none;
+}
+
+.discord-md .md-copy.is-copied .md-copy-check {
+	display: block;
+	color: var(--ui-success);
 }
 
 .discord-md pre code {
