@@ -190,5 +190,10 @@
             "close_failed": "关闭失败",
             "close_failed_desc": "无法关闭工单，请稍后再试。"
         }
+    },
+    "legal": {
+        "terms": "服务条款",
+        "privacy": "隐私政策",
+        "updated_at": "最后更新：{date}"
     }
 }

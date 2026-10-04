@@ -33,8 +33,8 @@ const resources = [
 ]
 
 const legalLinks = [
-	{ label: '服務條款', url: '#', icon: 'i-heroicons-document-text' },
-	{ label: '隱私權政策', url: '#', icon: 'i-heroicons-shield-check' },
+	{ label: '服務條款', url: '/terms', icon: 'i-heroicons-document-text' },
+	{ label: '隱私權政策', url: '/privacy', icon: 'i-heroicons-shield-check' },
 ]
 </script>
 

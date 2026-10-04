@@ -190,5 +190,10 @@
             "close_failed": "關閉失敗",
             "close_failed_desc": "無法關閉工單，請稍後再試。"
         }
+    },
+    "legal": {
+        "terms": "服務條款",
+        "privacy": "隱私權政策",
+        "updated_at": "最後更新：{date}"
     }
 }

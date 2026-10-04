@@ -686,12 +686,28 @@ onUnmounted(() => {
 				<!-- Footer -->
 				<footer class="w-full bg-white/60 dark:bg-gray-950/60 backdrop-blur-lg border-t border-gray-200/50 dark:border-gray-800/50 py-6 sm:py-8 mt-auto z-10">
 					<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
-						<div class="flex items-center gap-3 text-center md:text-left">
-							<span class="text-xl font-bold text-gray-900 dark:text-white">TaiwanFRP</span>
-							<span class="text-gray-400 dark:text-gray-600">|</span>
-							<span class="text-sm font-medium text-gray-500 dark:text-gray-400">
-								&copy; {{ new Date().getFullYear() }} All rights reserved.
-							</span>
+						<div class="flex flex-col items-center gap-2 md:items-start">
+							<div class="flex items-center gap-3 text-center md:text-left">
+								<span class="text-xl font-bold text-gray-900 dark:text-white">TaiwanFRP</span>
+								<span class="text-gray-400 dark:text-gray-600">|</span>
+								<span class="text-sm font-medium text-gray-500 dark:text-gray-400">
+									&copy; {{ new Date().getFullYear() }} All rights reserved.
+								</span>
+							</div>
+							<div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+								<NuxtLink
+									:to="$localePath('/terms')"
+									class="hover:text-gray-900 dark:hover:text-white transition-colors"
+								>
+									{{ $t('legal.terms') }}
+								</NuxtLink>
+								<NuxtLink
+									:to="$localePath('/privacy')"
+									class="hover:text-gray-900 dark:hover:text-white transition-colors"
+								>
+									{{ $t('legal.privacy') }}
+								</NuxtLink>
+							</div>
 						</div>
 
 						<div class="flex items-center gap-6">

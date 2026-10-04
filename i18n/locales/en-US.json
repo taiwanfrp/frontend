@@ -190,5 +190,10 @@
             "close_failed": "Failed to close ticket",
             "close_failed_desc": "Unable to close the ticket. Please try again later."
         }
+    },
+    "legal": {
+        "terms": "Terms of Service",
+        "privacy": "Privacy Policy",
+        "updated_at": "Last updated: {date}"
     }
 }
