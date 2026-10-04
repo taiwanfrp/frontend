@@ -40,29 +40,48 @@ export interface TicketDetail extends Ticket {
 }
 
 export const TICKET_STATUS = {
-	open: { label: '待處理', color: 'warning', icon: 'i-heroicons-clock' },
-	claimed: { label: '處理中', color: 'info', icon: 'i-heroicons-user' },
-	closed: { label: '已關閉', color: 'neutral', icon: 'i-heroicons-lock-closed' },
+	open: { color: 'warning', icon: 'i-heroicons-clock' },
+	claimed: { color: 'info', icon: 'i-heroicons-user' },
+	closed: { color: 'neutral', icon: 'i-heroicons-lock-closed' },
 } as const
 
+// 分類由後端提供, 前端依 id 翻譯, 不認得的 id (例如後端新增的分類) 直接顯示後端給的文字
+export const useTicketCategoryText = () => {
+	const { t } = useI18n()
+
+	const texts = computed<Record<string, { name: string, description: string }>>(() => ({
+		account: { name: t('tickets.categories.account.name'), description: t('tickets.categories.account.description') },
+		tunnel: { name: t('tickets.categories.tunnel.name'), description: t('tickets.categories.tunnel.description') },
+		quota: { name: t('tickets.categories.quota.name'), description: t('tickets.categories.quota.description') },
+		other: { name: t('tickets.categories.other.name'), description: t('tickets.categories.other.description') },
+	}))
+
+	const categoryName = (category: TicketCategory) => texts.value[category.id]?.name ?? category.name
+	const categoryDescription = (category: TicketCategory) => texts.value[category.id]?.description ?? category.description
+
+	return { categoryName, categoryDescription }
+}
+
+// 依目前語系顯示, 在 template 中呼叫時切換語系會自動重新渲染
 export const formatRelativeTime = (iso: string) => {
+	const { locale, t } = useNuxtApp().$i18n
 	const diffSeconds = Math.round((new Date(iso).getTime() - Date.now()) / 1000)
 	const units: [Intl.RelativeTimeFormatUnit, number][] = [
 		['day', 86400],
 		['hour', 3600],
 		['minute', 60],
 	]
-	const rtf = new Intl.RelativeTimeFormat('zh-Hant', { numeric: 'auto' })
+	const rtf = new Intl.RelativeTimeFormat(locale.value, { numeric: 'auto' })
 	for (const [unit, seconds] of units) {
 		if (Math.abs(diffSeconds) >= seconds) {
 			return rtf.format(Math.round(diffSeconds / seconds), unit)
 		}
 	}
-	return '剛剛'
+	return t('tickets.time.just_now')
 }
 
 export const formatDateTime = (iso: string) => {
-	return new Date(iso).toLocaleString('zh-Hant', {
+	return new Date(iso).toLocaleString(useNuxtApp().$i18n.locale.value, {
 		year: 'numeric',
 		month: '2-digit',
 		day: '2-digit',

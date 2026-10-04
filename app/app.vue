@@ -219,7 +219,7 @@ const navLinks = computed(() => [
 										儀表板
 									</NuxtLink>
 									<NuxtLink
-										to="/tickets"
+										:to="$localePath('/tickets')"
 										class="flex items-center gap-2 px-2.5 py-2 text-sm rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors w-full text-left font-medium mb-1"
 										@click="isUserMenuOpen = false"
 									>
@@ -230,7 +230,7 @@ const navLinks = computed(() => [
 										工單
 									</NuxtLink>
 									<NuxtLink
-										to="/profile"
+										:to="$localePath('/profile')"
 										class="flex items-center gap-2 px-2.5 py-2 text-sm rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors w-full text-left font-medium mb-1"
 										@click="isUserMenuOpen = false"
 									>
@@ -315,7 +315,7 @@ const navLinks = computed(() => [
 
 									<!-- 工單 -->
 									<NuxtLink
-										to="/tickets"
+										:to="$localePath('/tickets')"
 										class="flex items-center gap-2 px-2.5 py-2 text-sm rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors w-full text-left font-medium mb-1"
 										@click="isMobileUserMenuOpen = false"
 									>
@@ -328,7 +328,7 @@ const navLinks = computed(() => [
 
 									<!-- 個人資料 -->
 									<NuxtLink
-										to="/profile"
+										:to="$localePath('/profile')"
 										class="flex items-center gap-2 px-2.5 py-2 text-sm rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors w-full text-left font-medium mb-1"
 										@click="isMobileUserMenuOpen = false"
 									>

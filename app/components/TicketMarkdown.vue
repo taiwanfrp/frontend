@@ -3,7 +3,13 @@ const props = defineProps<{
 	content: string
 }>()
 
-const html = computed(() => renderDiscordMarkdown(props.content))
+const { t, locale } = useI18n()
+
+const html = computed(() => renderDiscordMarkdown(props.content, {
+	locale: locale.value,
+	copy: t('tickets.markdown.copy'),
+	copyCode: t('tickets.markdown.copy_code'),
+}))
 
 // navigator.clipboard 只在 HTTPS 或 localhost 下存在, 其他情況改用 execCommand
 const copyText = async (text: string) => {
@@ -32,10 +38,10 @@ const copyCodeBlock = async (button: HTMLElement) => {
 	try {
 		await copyText((code.textContent ?? '').replace(/\n$/, ''))
 		button.classList.add('is-copied')
-		button.title = '已複製'
+		button.title = t('tickets.markdown.copied')
 		setTimeout(() => {
 			button.classList.remove('is-copied')
-			button.title = '複製'
+			button.title = t('tickets.markdown.copy')
 		}, 2000)
 	}
 	catch {

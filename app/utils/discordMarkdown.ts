@@ -22,6 +22,13 @@ const md = new MarkdownIt({
 	},
 })
 
+// render 時由呼叫端傳入, 透過 markdown-it 的 env 傳給 render 規則
+export type DiscordMarkdownEnv = {
+	locale: string	// 時間戳的顯示語系
+	copy: string	// 複製按鈕的介面文字 (呼叫端翻譯好傳入)
+	copyCode: string
+}
+
 // Discord 只會自動連結有 http(s):// 的網址
 md.linkify.set({ fuzzyLink: false, fuzzyEmail: false })
 
@@ -121,11 +128,11 @@ const RELATIVE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
 	['second', 1],
 ]
 
-const formatTimestamp = (date: Date, style: string) => {
-	if (style !== 'R') return date.toLocaleString('zh-Hant', TIMESTAMP_FORMATS[style])
+const formatTimestamp = (date: Date, style: string, locale: string) => {
+	if (style !== 'R') return date.toLocaleString(locale, TIMESTAMP_FORMATS[style])
 
 	const diffSeconds = (date.getTime() - Date.now()) / 1000
-	const rtf = new Intl.RelativeTimeFormat('zh-Hant', { numeric: 'auto' })
+	const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
 	const [unit, seconds] = RELATIVE_UNITS.find(([, seconds]) => Math.abs(diffSeconds) >= seconds) ?? ['second', 1]
 	return rtf.format(Math.round(diffSeconds / seconds), unit)
 }
@@ -146,10 +153,11 @@ md.inline.ruler.before('autolink', 'discord_timestamp', (state, silent) => {
 	return true
 })
 
-md.renderer.rules.discord_timestamp = (tokens, idx) => {
+md.renderer.rules.discord_timestamp = (tokens, idx, _options, env) => {
+	const { locale } = env as DiscordMarkdownEnv
 	const { date, style } = tokens[idx]!.meta as { date: Date, style: string }
 	const escape = md.utils.escapeHtml
-	return `<time class="md-timestamp" datetime="${date.toISOString()}" title="${escape(formatTimestamp(date, 'F'))}">${escape(formatTimestamp(date, style))}</time>`
+	return `<time class="md-timestamp" datetime="${date.toISOString()}" title="${escape(formatTimestamp(date, 'F', locale))}">${escape(formatTimestamp(date, style, locale))}</time>`
 }
 
 // Discord 的 __文字__ 是底線, **文字** 才是粗體
@@ -163,8 +171,11 @@ const COPY_ICON = '<svg class="md-copy-icon" viewBox="0 0 24 24" fill="none" str
 const CHECK_ICON = '<svg class="md-copy-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>'
 
 const renderFence = md.renderer.rules.fence!
-md.renderer.rules.fence = (tokens, idx, options, env, self) =>
-	`<div class="md-codeblock">${renderFence(tokens, idx, options, env, self)}<button type="button" class="md-copy" title="複製" aria-label="複製程式碼">${COPY_ICON}${CHECK_ICON}</button></div>`
+md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+	const labels = env as DiscordMarkdownEnv
+	const escape = md.utils.escapeHtml
+	return `<div class="md-codeblock">${renderFence(tokens, idx, options, env, self)}<button type="button" class="md-copy" title="${escape(labels.copy)}" aria-label="${escape(labels.copyCode)}">${COPY_ICON}${CHECK_ICON}</button></div>`
+}
 
 // 連結一律開新分頁
 md.renderer.rules.link_open = (tokens, idx, options, _env, self) => {
@@ -201,4 +212,4 @@ const normalizeQuotes = (text: string) => {
 	return result.join('\n')
 }
 
-export const renderDiscordMarkdown = (text: string) => md.render(normalizeQuotes(text))
+export const renderDiscordMarkdown = (text: string, env: DiscordMarkdownEnv) => md.render(normalizeQuotes(text), env)

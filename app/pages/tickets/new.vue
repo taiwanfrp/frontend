@@ -6,8 +6,11 @@ definePageMeta({
 const SUBJECT_MAX = 100
 const CONTENT_MAX = 2000
 
+const { t } = useI18n()
+const localePath = useLocalePath()
 const toast = useToast()
 const { listCategories, createTicket } = useTickets()
+const { categoryName, categoryDescription } = useTicketCategoryText()
 
 const { data: categories, pending: isCategoriesLoading } = useAsyncData('ticket-categories', listCategories, {
 	server: false,
@@ -22,7 +25,7 @@ const form = reactive({
 })
 
 const categoryItems = computed(() => categories.value.map(category => ({
-	label: category.name,
+	label: categoryName(category),
 	value: category.id,
 })))
 
@@ -48,14 +51,14 @@ const submit = async () => {
 			subject: form.subject.trim(),
 			content: form.content.trim(),
 		})
-		toast.add({ title: '工單已建立', color: 'success', icon: 'i-heroicons-check-circle' })
-		await navigateTo(`/tickets/${id}`)
+		toast.add({ title: t('tickets.new.created'), color: 'success', icon: 'i-heroicons-check-circle' })
+		await navigateTo(localePath(`/tickets/${id}`))
 	}
 	catch (error: unknown) {
 		const err = error as { data?: { detail?: string } }
 		toast.add({
-			title: '建立失敗',
-			description: err.data?.detail || '無法建立工單，請稍後再試。',
+			title: t('tickets.new.create_failed'),
+			description: err.data?.detail || t('tickets.new.create_failed_desc'),
 			color: 'error',
 			icon: 'i-heroicons-x-circle',
 		})
@@ -69,22 +72,22 @@ const submit = async () => {
 <template>
 	<div class="max-w-2xl mx-auto space-y-6">
 		<NuxtLink
-			to="/tickets"
+			:to="$localePath('/tickets')"
 			class="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
 		>
 			<UIcon
 				name="i-heroicons-arrow-left"
 				class="w-4 h-4"
 			/>
-			返回工單列表
+			{{ $t('tickets.common.back_to_list') }}
 		</NuxtLink>
 
 		<div>
 			<h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-				開新工單
+				{{ $t('tickets.new.title') }}
 			</h1>
 			<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-				送出後會在 Discord 建立對應的工單頻道，客服回覆會同時顯示在這裡
+				{{ $t('tickets.new.subtitle') }}
 			</p>
 		</div>
 
@@ -95,7 +98,7 @@ const submit = async () => {
 			>
 				<!-- 分類 -->
 				<div class="space-y-2">
-					<label class="block text-sm font-medium text-gray-700 dark:text-gray-200">分類 <span class="text-red-500">*</span></label>
+					<label class="block text-sm font-medium text-gray-700 dark:text-gray-200">{{ $t('tickets.new.category') }} <span class="text-red-500">*</span></label>
 
 					<!-- 電腦版: 卡片 -->
 					<div
@@ -123,8 +126,8 @@ const submit = async () => {
 								: 'border-gray-200 dark:border-gray-800 hover:bg-gray-900/5 dark:hover:bg-white/5'"
 							@click="form.category_id = category.id"
 						>
-							<span class="block text-sm font-medium text-gray-900 dark:text-white">{{ category.name }}</span>
-							<span class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ category.description }}</span>
+							<span class="block text-sm font-medium text-gray-900 dark:text-white">{{ categoryName(category) }}</span>
+							<span class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ categoryDescription(category) }}</span>
 						</button>
 					</div>
 
@@ -134,38 +137,38 @@ const submit = async () => {
 							v-model="form.category_id"
 							:items="categoryItems"
 							:loading="isCategoriesLoading"
-							placeholder="請選擇工單分類"
+							:placeholder="$t('tickets.new.category_placeholder')"
 							class="w-full"
 						/>
 						<p
 							v-if="selectedCategory"
 							class="text-xs text-gray-500 dark:text-gray-400"
 						>
-							{{ selectedCategory.description }}
+							{{ categoryDescription(selectedCategory) }}
 						</p>
 					</div>
 				</div>
 
 				<!-- 主旨 -->
 				<div class="space-y-1">
-					<label class="block text-sm font-medium text-gray-700 dark:text-gray-200">主旨 <span class="text-red-500">*</span></label>
+					<label class="block text-sm font-medium text-gray-700 dark:text-gray-200">{{ $t('tickets.new.subject') }} <span class="text-red-500">*</span></label>
 					<UInput
 						v-model="form.subject"
 						:maxlength="SUBJECT_MAX"
-						placeholder="用一句話描述你的問題"
+						:placeholder="$t('tickets.new.subject_placeholder')"
 						class="w-full"
 					/>
 				</div>
 
 				<!-- 內容 -->
 				<div class="space-y-1">
-					<label class="block text-sm font-medium text-gray-700 dark:text-gray-200">內容 <span class="text-red-500">*</span></label>
+					<label class="block text-sm font-medium text-gray-700 dark:text-gray-200">{{ $t('tickets.new.content') }} <span class="text-red-500">*</span></label>
 					<UTextarea
 						v-model="form.content"
 						:maxlength="CONTENT_MAX"
 						:rows="8"
 						autoresize
-						placeholder="請描述發生了什麼事、你嘗試過哪些方法，若有錯誤訊息或隧道名稱也請一併附上"
+						:placeholder="$t('tickets.new.content_placeholder')"
 						class="w-full"
 					/>
 					<p class="text-xs text-right text-gray-400 dark:text-gray-500">
@@ -177,13 +180,13 @@ const submit = async () => {
 					<UButton
 						color="neutral"
 						variant="ghost"
-						label="取消"
-						to="/tickets"
+						:label="$t('tickets.common.cancel')"
+						:to="$localePath('/tickets')"
 						:disabled="isSubmitting"
 					/>
 					<UButton
 						type="submit"
-						label="送出工單"
+						:label="$t('tickets.new.submit')"
 						icon="i-heroicons-paper-airplane"
 						:loading="isSubmitting"
 						:disabled="!canSubmit"

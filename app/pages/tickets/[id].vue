@@ -5,10 +5,12 @@ definePageMeta({
 
 const REPLY_MAX = 2000
 
+const { t } = useI18n()
 const route = useRoute()
 const toast = useToast()
 const { getAvatarUrl } = useAuth()
 const { getTicket, replyTicket, closeTicket } = useTickets()
+const { categoryName } = useTicketCategoryText()
 
 const ticketId = Number(route.params.id)
 
@@ -36,8 +38,8 @@ const submitReply = async () => {
 	catch (error: unknown) {
 		const err = error as { data?: { detail?: string } }
 		toast.add({
-			title: '回覆失敗',
-			description: err.data?.detail || '無法送出回覆，請稍後再試。',
+			title: t('tickets.detail.reply_failed'),
+			description: err.data?.detail || t('tickets.detail.reply_failed_desc'),
 			color: 'error',
 			icon: 'i-heroicons-x-circle',
 		})
@@ -55,14 +57,14 @@ const confirmClose = async () => {
 	try {
 		await closeTicket(ticketId)
 		isCloseModalOpen.value = false
-		toast.add({ title: '工單已關閉', color: 'success', icon: 'i-heroicons-check-circle' })
+		toast.add({ title: t('tickets.detail.closed'), color: 'success', icon: 'i-heroicons-check-circle' })
 		await refresh()
 	}
 	catch (error: unknown) {
 		const err = error as { data?: { detail?: string } }
 		toast.add({
-			title: '關閉失敗',
-			description: err.data?.detail || '無法關閉工單，請稍後再試。',
+			title: t('tickets.detail.close_failed'),
+			description: err.data?.detail || t('tickets.detail.close_failed_desc'),
 			color: 'error',
 			icon: 'i-heroicons-x-circle',
 		})
@@ -72,24 +74,24 @@ const confirmClose = async () => {
 	}
 }
 
-const sourceMeta = {
-	web: { icon: 'i-heroicons-globe-alt', label: '來自網頁' },
-	discord: { icon: 'i-simple-icons-discord', label: '來自 Discord' },
-	system: { icon: 'i-heroicons-cog-6-tooth', label: '系統' },
-} as const
+const sourceMeta = computed(() => ({
+	web: { icon: 'i-heroicons-globe-alt', label: t('tickets.source.web') },
+	discord: { icon: 'i-simple-icons-discord', label: t('tickets.source.discord') },
+	system: { icon: 'i-heroicons-cog-6-tooth', label: t('tickets.source.system') },
+}))
 </script>
 
 <template>
 	<div class="space-y-6">
 		<NuxtLink
-			to="/tickets"
+			:to="$localePath('/tickets')"
 			class="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
 		>
 			<UIcon
 				name="i-heroicons-arrow-left"
 				class="w-4 h-4"
 			/>
-			返回工單列表
+			{{ $t('tickets.common.back_to_list') }}
 		</NuxtLink>
 
 		<!-- 載入中 -->
@@ -112,10 +114,10 @@ const sourceMeta = {
 					class="w-12 h-12 text-gray-400 dark:text-gray-500 mb-4"
 				/>
 				<span class="text-base font-medium text-gray-900 dark:text-white">
-					找不到這張工單
+					{{ $t('tickets.detail.not_found_title') }}
 				</span>
 				<span class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-					工單可能不存在，或你沒有權限查看
+					{{ $t('tickets.detail.not_found_desc') }}
 				</span>
 			</div>
 		</UCard>
@@ -127,7 +129,7 @@ const sourceMeta = {
 					<div class="flex flex-wrap items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
 						<span class="font-mono">#{{ ticket.id }}</span>
 						<TicketStatusBadge :status="ticket.status" />
-						<span>{{ ticket.category.name }}</span>
+						<span>{{ categoryName(ticket.category) }}</span>
 					</div>
 					<h1 class="mt-2 text-2xl font-bold text-gray-900 dark:text-white wrap-break-word">
 						{{ ticket.subject }}
@@ -139,14 +141,14 @@ const sourceMeta = {
 						icon="i-heroicons-arrow-path"
 						color="neutral"
 						variant="ghost"
-						title="重新整理"
+						:title="$t('tickets.common.refresh')"
 						:loading="isLoading"
 						@click="refresh()"
 					/>
 					<UButton
 						v-if="ticket.discord_channel_url"
 						icon="i-simple-icons-discord"
-						label="在 Discord 開啟"
+						:label="$t('tickets.detail.open_in_discord')"
 						color="neutral"
 						variant="outline"
 						:to="ticket.discord_channel_url"
@@ -155,7 +157,7 @@ const sourceMeta = {
 					<UButton
 						v-if="!isClosed"
 						icon="i-heroicons-lock-closed"
-						label="關閉工單"
+						:label="$t('tickets.detail.close')"
 						color="error"
 						variant="soft"
 						@click="isCloseModalOpen = true"
@@ -169,7 +171,7 @@ const sourceMeta = {
 					<UCard class="bg-white/50 dark:bg-gray-900/50 backdrop-blur shadow-sm ring-1 ring-gray-200/50 dark:ring-gray-800/50">
 						<template #header>
 							<h2 class="text-base font-semibold text-gray-900 dark:text-white">
-								對話紀錄
+								{{ $t('tickets.detail.conversation') }}
 							</h2>
 						</template>
 
@@ -201,11 +203,11 @@ const sourceMeta = {
 									<div class="min-w-0 flex-1">
 										<div class="flex flex-wrap items-center gap-2">
 											<span class="text-sm font-semibold text-gray-900 dark:text-white">
-												{{ message.author?.username ?? '未知使用者' }}
+												{{ message.author?.username ?? $t('tickets.detail.unknown_user') }}
 											</span>
 											<UBadge
 												v-if="message.is_staff"
-												label="客服"
+												:label="$t('tickets.detail.staff')"
 												color="primary"
 												variant="subtle"
 												size="sm"
@@ -242,7 +244,7 @@ const sourceMeta = {
 								name="i-heroicons-lock-closed"
 								class="w-4 h-4"
 							/>
-							此工單已關閉，無法再回覆。如有其他問題請開新工單。
+							{{ $t('tickets.detail.closed_notice') }}
 						</div>
 
 						<form
@@ -256,7 +258,7 @@ const sourceMeta = {
 									:maxlength="REPLY_MAX"
 									:rows="4"
 									autoresize
-									placeholder="輸入回覆內容（支援 Discord 格式）"
+									:placeholder="$t('tickets.detail.reply_placeholder')"
 									class="w-full"
 								/>
 								<p class="text-xs text-right text-gray-400 dark:text-gray-500">
@@ -265,11 +267,11 @@ const sourceMeta = {
 							</div>
 							<div class="flex items-center justify-between gap-3">
 								<span class="text-xs text-gray-400 dark:text-gray-500">
-									回覆會以你的 Discord 名稱與頭像發送到工單頻道
+									{{ $t('tickets.detail.reply_hint') }}
 								</span>
 								<UButton
 									type="submit"
-									label="送出"
+									:label="$t('tickets.detail.send')"
 									icon="i-heroicons-paper-airplane"
 									:loading="isReplying"
 									:disabled="!reply.trim()"
@@ -284,14 +286,14 @@ const sourceMeta = {
 					<UCard class="bg-white/50 dark:bg-gray-900/50 backdrop-blur shadow-sm ring-1 ring-gray-200/50 dark:ring-gray-800/50">
 						<template #header>
 							<h2 class="text-base font-semibold text-gray-900 dark:text-white">
-								工單資訊
+								{{ $t('tickets.detail.info') }}
 							</h2>
 						</template>
 
 						<dl class="space-y-4 text-sm">
 							<div>
 								<dt class="text-gray-500 dark:text-gray-400">
-									狀態
+									{{ $t('tickets.detail.status') }}
 								</dt>
 								<dd class="mt-1">
 									<TicketStatusBadge :status="ticket.status" />
@@ -299,7 +301,7 @@ const sourceMeta = {
 							</div>
 							<div>
 								<dt class="text-gray-500 dark:text-gray-400">
-									開單者
+									{{ $t('tickets.detail.opener') }}
 								</dt>
 								<dd class="mt-1 flex items-center gap-2 text-gray-900 dark:text-white">
 									<img
@@ -312,7 +314,7 @@ const sourceMeta = {
 							</div>
 							<div>
 								<dt class="text-gray-500 dark:text-gray-400">
-									負責客服
+									{{ $t('tickets.detail.assignee') }}
 								</dt>
 								<dd class="mt-1 flex items-center gap-2 text-gray-900 dark:text-white">
 									<template v-if="ticket.assignee">
@@ -326,12 +328,12 @@ const sourceMeta = {
 									<span
 										v-else
 										class="text-gray-400 dark:text-gray-500"
-									>尚未指派</span>
+									>{{ $t('tickets.detail.unassigned') }}</span>
 								</dd>
 							</div>
 							<div>
 								<dt class="text-gray-500 dark:text-gray-400">
-									建立時間
+									{{ $t('tickets.detail.created_at') }}
 								</dt>
 								<dd class="mt-1 text-gray-900 dark:text-white">
 									{{ formatDateTime(ticket.created_at) }}
@@ -339,7 +341,7 @@ const sourceMeta = {
 							</div>
 							<div>
 								<dt class="text-gray-500 dark:text-gray-400">
-									最後活動
+									{{ $t('tickets.detail.last_activity') }}
 								</dt>
 								<dd class="mt-1 text-gray-900 dark:text-white">
 									{{ formatDateTime(ticket.last_activity_at) }}
@@ -347,7 +349,7 @@ const sourceMeta = {
 							</div>
 							<div v-if="ticket.closed_at">
 								<dt class="text-gray-500 dark:text-gray-400">
-									關閉時間
+									{{ $t('tickets.detail.closed_at') }}
 								</dt>
 								<dd class="mt-1 text-gray-900 dark:text-white">
 									{{ formatDateTime(ticket.closed_at) }}
@@ -373,7 +375,7 @@ const sourceMeta = {
 								name="i-heroicons-exclamation-triangle"
 								class="w-5 h-5 text-error-500"
 							/>
-							關閉工單
+							{{ $t('tickets.detail.close') }}
 						</h3>
 						<UButton
 							color="neutral"
@@ -385,22 +387,29 @@ const sourceMeta = {
 					</div>
 				</template>
 
-				<p class="py-2 text-sm text-gray-500 dark:text-gray-400">
-					確定要關閉工單 <span class="font-bold text-gray-900 dark:text-white">#{{ ticket?.id }}</span> 嗎？關閉後將無法再回覆，Discord 的工單頻道也會一併關閉。
-				</p>
+				<i18n-t
+					keypath="tickets.detail.close_confirm"
+					tag="p"
+					scope="global"
+					class="py-2 text-sm text-gray-500 dark:text-gray-400"
+				>
+					<template #id>
+						<span class="font-bold text-gray-900 dark:text-white">#{{ ticket?.id }}</span>
+					</template>
+				</i18n-t>
 
 				<template #footer>
 					<div class="flex justify-end gap-3">
 						<UButton
 							color="neutral"
 							variant="ghost"
-							label="取消"
+							:label="$t('tickets.common.cancel')"
 							:disabled="isClosing"
 							@click="isCloseModalOpen = false"
 						/>
 						<UButton
 							color="error"
-							label="確認關閉"
+							:label="$t('tickets.detail.confirm_close')"
 							:loading="isClosing"
 							@click="confirmClose"
 						/>

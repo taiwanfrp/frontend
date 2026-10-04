@@ -90,5 +90,105 @@
             "btn": "加入 Discord 社区",
             "footer_discord": "Discord 群组"
         }
+    },
+    "tickets": {
+        "common": {
+            "refresh": "刷新",
+            "new_ticket": "提交新工单",
+            "back_to_list": "返回工单列表",
+            "cancel": "取消"
+        },
+        "status": {
+            "open": "待处理",
+            "claimed": "处理中",
+            "closed": "已关闭"
+        },
+        "source": {
+            "web": "来自网页",
+            "discord": "来自 Discord",
+            "system": "系统"
+        },
+        "time": {
+            "just_now": "刚刚"
+        },
+        "categories": {
+            "account": {
+                "name": "账号问题",
+                "description": "登录、绑定、账号状态等问题"
+            },
+            "tunnel": {
+                "name": "隧道 / 节点",
+                "description": "隧道无法连接、节点异常、延迟过高"
+            },
+            "quota": {
+                "name": "额度申请",
+                "description": "申请更多隧道数量或带宽"
+            },
+            "other": {
+                "name": "其他",
+                "description": "建议反馈、举报或其他问题"
+            }
+        },
+        "markdown": {
+            "copy": "复制",
+            "copied": "已复制",
+            "copy_code": "复制代码"
+        },
+        "list": {
+            "title": "我的工单",
+            "subtitle": "在这里提交的工单会同步到 Discord，你也可以直接在 Discord 工单频道中回复",
+            "filter_active": "进行中",
+            "filter_closed": "已关闭",
+            "filter_all": "全部",
+            "search_placeholder": "搜索标题或编号...",
+            "column_subject": "标题",
+            "column_category": "分类",
+            "column_status": "状态",
+            "column_last_activity": "最后活动",
+            "empty": "暂无工单",
+            "no_results": "找不到符合条件的工单"
+        },
+        "new": {
+            "title": "提交新工单",
+            "subtitle": "提交后会在 Discord 创建对应的工单频道，客服的回复会同步显示在这里",
+            "category": "分类",
+            "category_placeholder": "请选择工单分类",
+            "subject": "标题",
+            "subject_placeholder": "用一句话描述你的问题",
+            "content": "内容",
+            "content_placeholder": "请描述发生了什么、你尝试过哪些方法，如有错误信息或隧道名称也请一并附上",
+            "submit": "提交工单",
+            "created": "工单已创建",
+            "create_failed": "创建失败",
+            "create_failed_desc": "无法创建工单，请稍后再试。"
+        },
+        "detail": {
+            "not_found_title": "找不到该工单",
+            "not_found_desc": "工单可能不存在，或你没有权限查看",
+            "open_in_discord": "在 Discord 中打开",
+            "close": "关闭工单",
+            "conversation": "对话记录",
+            "unknown_user": "未知用户",
+            "staff": "客服",
+            "closed_notice": "该工单已关闭，无法再回复。如有其他问题请提交新工单。",
+            "reply_placeholder": "输入回复内容（支持 Discord 格式）",
+            "reply_hint": "回复会以你的 Discord 名称与头像发送到工单频道",
+            "send": "发送",
+            "reply_failed": "回复失败",
+            "reply_failed_desc": "无法发送回复，请稍后再试。",
+            "info": "工单信息",
+            "status": "状态",
+            "opener": "提交者",
+            "assignee": "负责客服",
+            "unassigned": "尚未分配",
+            "created_at": "创建时间",
+            "last_activity": "最后活动",
+            "closed_at": "关闭时间",
+            "close_confirm": "确定要关闭工单 {id} 吗？关闭后将无法再回复，Discord 的工单频道也会一并关闭。",
+            "confirm_close": "确认关闭",
+            "closed": "工单已关闭",
+            "close_failed": "关闭失败",
+            "close_failed_desc": "无法关闭工单，请稍后再试。"
+        }
     }
 }

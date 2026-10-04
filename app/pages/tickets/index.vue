@@ -5,7 +5,9 @@ definePageMeta({
 	layout: 'tickets',
 })
 
+const { t } = useI18n()
 const { listTickets } = useTickets()
+const { categoryName } = useTicketCategoryText()
 
 const { data: tickets, pending: isLoading, refresh } = useAsyncData('tickets', listTickets, {
 	server: false,
@@ -14,11 +16,11 @@ const { data: tickets, pending: isLoading, refresh } = useAsyncData('tickets', l
 })
 
 const statusFilter = ref<'active' | 'closed' | 'all'>('active')
-const statusTabs = [
-	{ label: '進行中', value: 'active' },
-	{ label: '已關閉', value: 'closed' },
-	{ label: '全部', value: 'all' },
-]
+const statusTabs = computed(() => [
+	{ label: t('tickets.list.filter_active'), value: 'active' },
+	{ label: t('tickets.list.filter_closed'), value: 'closed' },
+	{ label: t('tickets.list.filter_all'), value: 'all' },
+])
 
 const searchQuery = ref('')
 
@@ -33,13 +35,13 @@ const filteredTickets = computed(() => {
 	})
 })
 
-const columns: TableColumn<Ticket>[] = [
+const columns = computed<TableColumn<Ticket>[]>(() => [
 	{ accessorKey: 'id', header: '#' },
-	{ accessorKey: 'subject', header: '主旨' },
-	{ id: 'category', header: '分類' },
-	{ accessorKey: 'status', header: '狀態' },
-	{ accessorKey: 'last_activity_at', header: '最後活動' },
-]
+	{ accessorKey: 'subject', header: t('tickets.list.column_subject') },
+	{ id: 'category', header: t('tickets.list.column_category') },
+	{ accessorKey: 'status', header: t('tickets.list.column_status') },
+	{ accessorKey: 'last_activity_at', header: t('tickets.list.column_last_activity') },
+])
 </script>
 
 <template>
@@ -48,10 +50,10 @@ const columns: TableColumn<Ticket>[] = [
 		<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
 			<div>
 				<h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-					我的工單
+					{{ $t('tickets.list.title') }}
 				</h1>
 				<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-					在這裡開啟的工單會同步到 Discord，你也可以直接在 Discord 工單頻道中回覆
+					{{ $t('tickets.list.subtitle') }}
 				</p>
 			</div>
 
@@ -60,14 +62,14 @@ const columns: TableColumn<Ticket>[] = [
 					icon="i-heroicons-arrow-path"
 					color="neutral"
 					variant="ghost"
-					title="重新整理"
+					:title="$t('tickets.common.refresh')"
 					:loading="isLoading"
 					@click="refresh()"
 				/>
 				<UButton
 					icon="i-heroicons-plus"
-					label="開新工單"
-					to="/tickets/new"
+					:label="$t('tickets.common.new_ticket')"
+					:to="$localePath('/tickets/new')"
 				/>
 			</div>
 		</div>
@@ -86,7 +88,7 @@ const columns: TableColumn<Ticket>[] = [
 				<UInput
 					v-model="searchQuery"
 					icon="i-heroicons-magnifying-glass"
-					placeholder="搜尋主旨或編號..."
+					:placeholder="$t('tickets.list.search_placeholder')"
 					class="w-full"
 				/>
 			</div>
@@ -107,7 +109,7 @@ const columns: TableColumn<Ticket>[] = [
 
 				<template #subject-cell="{ row }">
 					<NuxtLink
-						:to="`/tickets/${row.original.id}`"
+						:to="$localePath(`/tickets/${row.original.id}`)"
 						class="font-medium text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 hover:underline"
 					>
 						{{ row.original.subject }}
@@ -116,7 +118,7 @@ const columns: TableColumn<Ticket>[] = [
 
 				<template #category-cell="{ row }">
 					<span class="text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">
-						{{ row.original.category.name }}
+						{{ categoryName(row.original.category) }}
 					</span>
 				</template>
 
@@ -141,15 +143,15 @@ const columns: TableColumn<Ticket>[] = [
 							class="w-12 h-12 text-gray-400 dark:text-gray-500 mb-4"
 						/>
 						<span class="text-base font-medium text-gray-900 dark:text-white">
-							{{ searchQuery ? '找不到符合的工單' : '目前沒有工單' }}
+							{{ searchQuery ? $t('tickets.list.no_results') : $t('tickets.list.empty') }}
 						</span>
 						<UButton
 							v-if="!searchQuery"
-							label="開新工單"
+							:label="$t('tickets.common.new_ticket')"
 							icon="i-heroicons-plus"
 							variant="soft"
 							class="mt-4"
-							to="/tickets/new"
+							:to="$localePath('/tickets/new')"
 						/>
 					</div>
 				</template>

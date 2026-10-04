@@ -90,5 +90,105 @@
             "btn": "Join our Discord",
             "footer_discord": "Discord Server"
         }
+    },
+    "tickets": {
+        "common": {
+            "refresh": "Refresh",
+            "new_ticket": "New Ticket",
+            "back_to_list": "Back to tickets",
+            "cancel": "Cancel"
+        },
+        "status": {
+            "open": "Open",
+            "claimed": "In Progress",
+            "closed": "Closed"
+        },
+        "source": {
+            "web": "Sent from web",
+            "discord": "Sent from Discord",
+            "system": "System"
+        },
+        "time": {
+            "just_now": "Just now"
+        },
+        "categories": {
+            "account": {
+                "name": "Account",
+                "description": "Login, account linking, account status, etc."
+            },
+            "tunnel": {
+                "name": "Tunnels / Nodes",
+                "description": "Tunnel connection failures, node issues, high latency"
+            },
+            "quota": {
+                "name": "Quota Request",
+                "description": "Request more tunnels or bandwidth"
+            },
+            "other": {
+                "name": "Other",
+                "description": "Feedback, abuse reports, or anything else"
+            }
+        },
+        "markdown": {
+            "copy": "Copy",
+            "copied": "Copied",
+            "copy_code": "Copy code"
+        },
+        "list": {
+            "title": "My Tickets",
+            "subtitle": "Tickets opened here are synced to Discord, and you can also reply directly in the Discord ticket channel",
+            "filter_active": "Active",
+            "filter_closed": "Closed",
+            "filter_all": "All",
+            "search_placeholder": "Search by subject or ID...",
+            "column_subject": "Subject",
+            "column_category": "Category",
+            "column_status": "Status",
+            "column_last_activity": "Last Activity",
+            "empty": "No tickets yet",
+            "no_results": "No matching tickets"
+        },
+        "new": {
+            "title": "New Ticket",
+            "subtitle": "Submitting creates a matching ticket channel on Discord, and staff replies will also show up here",
+            "category": "Category",
+            "category_placeholder": "Select a category",
+            "subject": "Subject",
+            "subject_placeholder": "Describe your issue in one sentence",
+            "content": "Details",
+            "content_placeholder": "Describe what happened and what you've tried so far. Please include any error messages or tunnel names",
+            "submit": "Submit Ticket",
+            "created": "Ticket created",
+            "create_failed": "Failed to create ticket",
+            "create_failed_desc": "Unable to create the ticket. Please try again later."
+        },
+        "detail": {
+            "not_found_title": "Ticket not found",
+            "not_found_desc": "This ticket may not exist, or you don't have permission to view it",
+            "open_in_discord": "Open in Discord",
+            "close": "Close Ticket",
+            "conversation": "Conversation",
+            "unknown_user": "Unknown user",
+            "staff": "Staff",
+            "closed_notice": "This ticket is closed and can no longer be replied to. Please open a new ticket if you need further help.",
+            "reply_placeholder": "Write a reply (Discord formatting supported)",
+            "reply_hint": "Your reply will be posted to the ticket channel with your Discord name and avatar",
+            "send": "Send",
+            "reply_failed": "Failed to send reply",
+            "reply_failed_desc": "Unable to send your reply. Please try again later.",
+            "info": "Ticket Info",
+            "status": "Status",
+            "opener": "Opened by",
+            "assignee": "Assigned to",
+            "unassigned": "Unassigned",
+            "created_at": "Created",
+            "last_activity": "Last Activity",
+            "closed_at": "Closed",
+            "close_confirm": "Are you sure you want to close ticket {id}? You won't be able to reply afterward, and the Discord ticket channel will also be closed.",
+            "confirm_close": "Close Ticket",
+            "closed": "Ticket closed",
+            "close_failed": "Failed to close ticket",
+            "close_failed_desc": "Unable to close the ticket. Please try again later."
+        }
     }
 }

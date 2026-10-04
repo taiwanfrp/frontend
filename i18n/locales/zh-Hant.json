@@ -90,5 +90,105 @@
             "btn": "加入 Discord 社群",
             "footer_discord": "Discord 群組"
         }
+    },
+    "tickets": {
+        "common": {
+            "refresh": "重新整理",
+            "new_ticket": "開新工單",
+            "back_to_list": "返回工單列表",
+            "cancel": "取消"
+        },
+        "status": {
+            "open": "待處理",
+            "claimed": "處理中",
+            "closed": "已關閉"
+        },
+        "source": {
+            "web": "來自網頁",
+            "discord": "來自 Discord",
+            "system": "系統"
+        },
+        "time": {
+            "just_now": "剛剛"
+        },
+        "categories": {
+            "account": {
+                "name": "帳號問題",
+                "description": "登入、綁定、帳號狀態等問題"
+            },
+            "tunnel": {
+                "name": "隧道 / 節點",
+                "description": "隧道無法連線、節點異常、延遲過高"
+            },
+            "quota": {
+                "name": "額度申請",
+                "description": "申請更多隧道數量或頻寬"
+            },
+            "other": {
+                "name": "其他",
+                "description": "建議回饋、檢舉或其他問題"
+            }
+        },
+        "markdown": {
+            "copy": "複製",
+            "copied": "已複製",
+            "copy_code": "複製程式碼"
+        },
+        "list": {
+            "title": "我的工單",
+            "subtitle": "在這裡開啟的工單會同步到 Discord，你也可以直接在 Discord 工單頻道中回覆",
+            "filter_active": "進行中",
+            "filter_closed": "已關閉",
+            "filter_all": "全部",
+            "search_placeholder": "搜尋主旨或編號...",
+            "column_subject": "主旨",
+            "column_category": "分類",
+            "column_status": "狀態",
+            "column_last_activity": "最後活動",
+            "empty": "目前沒有工單",
+            "no_results": "找不到符合的工單"
+        },
+        "new": {
+            "title": "開新工單",
+            "subtitle": "送出後會在 Discord 建立對應的工單頻道，客服回覆會同時顯示在這裡",
+            "category": "分類",
+            "category_placeholder": "請選擇工單分類",
+            "subject": "主旨",
+            "subject_placeholder": "用一句話描述你的問題",
+            "content": "內容",
+            "content_placeholder": "請描述發生了什麼事、你嘗試過哪些方法，若有錯誤訊息或隧道名稱也請一併附上",
+            "submit": "送出工單",
+            "created": "工單已建立",
+            "create_failed": "建立失敗",
+            "create_failed_desc": "無法建立工單，請稍後再試。"
+        },
+        "detail": {
+            "not_found_title": "找不到這張工單",
+            "not_found_desc": "工單可能不存在，或你沒有權限查看",
+            "open_in_discord": "在 Discord 開啟",
+            "close": "關閉工單",
+            "conversation": "對話紀錄",
+            "unknown_user": "未知使用者",
+            "staff": "客服",
+            "closed_notice": "此工單已關閉，無法再回覆。如有其他問題請開新工單。",
+            "reply_placeholder": "輸入回覆內容（支援 Discord 格式）",
+            "reply_hint": "回覆會以你的 Discord 名稱與頭像發送到工單頻道",
+            "send": "送出",
+            "reply_failed": "回覆失敗",
+            "reply_failed_desc": "無法送出回覆，請稍後再試。",
+            "info": "工單資訊",
+            "status": "狀態",
+            "opener": "開單者",
+            "assignee": "負責客服",
+            "unassigned": "尚未指派",
+            "created_at": "建立時間",
+            "last_activity": "最後活動",
+            "closed_at": "關閉時間",
+            "close_confirm": "確定要關閉工單 {id} 嗎？關閉後將無法再回覆，Discord 的工單頻道也會一併關閉。",
+            "confirm_close": "確認關閉",
+            "closed": "工單已關閉",
+            "close_failed": "關閉失敗",
+            "close_failed_desc": "無法關閉工單，請稍後再試。"
+        }
     }
 }
