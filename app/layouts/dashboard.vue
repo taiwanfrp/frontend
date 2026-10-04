@@ -1,16 +1,17 @@
 <script setup lang="ts">
 const route = useRoute()
 const { user, isLoading } = useAuth()
+const localePath = useLocalePath()
 
 onMounted(() => {
 	if (!isLoading.value && !user.value) {
-		navigateTo('/')
+		navigateTo(localePath('/'))
 	}
 })
 
 watchEffect(() => {
 	if (!isLoading.value && !user.value) {
-		navigateTo('/')
+		navigateTo(localePath('/'))
 	}
 })
 
