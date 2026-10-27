@@ -1,66 +1,144 @@
-export type TicketStatus = 'open' | 'claimed' | 'closed'
-export type TicketMessageSource = 'web' | 'discord' | 'system'
+// 客服單 bot 的資料格式 (bot repo 的 bot/api/schemas.py), Discord ID 一律是字串
 
+export type TicketStatus = 'open' | 'closed' | 'failed'
+// 顯示用的狀態: 開啟中而且有人接手時是 claimed
+export type TicketDisplayStatus = 'open' | 'claimed' | 'closed' | 'failed'
+export type TicketSource = 'discord' | 'web'
+
+// 客服單裡某個人的快照, 顯示名稱的順序: nickname → global_name → username
 export interface TicketUser {
-	discord_id: string
+	id: string
 	username: string
-	avatar: string | null
+	global_name: string | null
+	nickname: string | null
+	avatar_url: string | null
+	role_name: string | null
+	role_color: number | null
+	is_bot: boolean
+}
+
+export interface TicketMe {
+	id: string
+	username: string
+	global_name: string | null
+	nickname: string | null
+	avatar_url: string
+	in_guild: boolean
+	guild_id: string
+	is_admin: boolean
+	category_ids: number[]
 }
 
 export interface TicketCategory {
-	id: string
+	id: number
 	name: string
-	description: string
+	emoji: string | null
+	description: string | null
+	position: number
+	enabled: boolean
+	// null 表示使用設定裡的預設 Discord 類別
+	discord_category_id: string | null
+	created_at: string
+	updated_at: string
 }
 
 export interface Ticket {
 	id: number
-	subject: string
+	category_id: number
 	status: TicketStatus
-	category: TicketCategory
-	opener: TicketUser
-	assignee: TicketUser | null
-	discord_channel_url: string | null
+	source: TicketSource
+	channel_id: string | null
+	opener_id: string
+	claimed_by_id: string | null
+	subject: string
 	created_at: string
-	last_activity_at: string
+	last_message_at: string
 	closed_at: string | null
+	// null 表示系統自動關閉
+	closed_by_id: string | null
 }
 
-export interface TicketMessage {
-	id: string
-	author: TicketUser | null
-	is_staff: boolean
-	source: TicketMessageSource
-	content: string
-	created_at: string
+export interface TicketSummary extends Ticket {
+	opener: TicketUser | null
+	claimed_by: TicketUser | null
 }
 
 export interface TicketDetail extends Ticket {
+	content: string
+	claimed_at: string | null
+	inactivity_reminded_at: string | null
+	close_reason: string | null
+	rating: number | null
+	feedback: string | null
+	rated_at: string | null
+	users: TicketUser[]
+	members: { user_id: string, added_by_id: string, added_at: string }[]
+}
+
+export type TicketAttachmentStatus = 'pending' | 'done' | 'rejected' | 'failed'
+
+export interface TicketAttachment {
+	id: number
+	ticket_id: number
+	message_id: number | null
+	uploader_id: string
+	source: TicketSource
+	filename: string
+	content_type: string | null
+	size: number
+	status: TicketAttachmentStatus
+	removed_at: string | null
+	created_at: string
+	// presigned URL, 會過期, 需要時用 getAttachment 重新取得
+	download_url: string | null
+}
+
+export interface TicketMessage {
+	id: number
+	ticket_id: number
+	source: TicketSource
+	author_id: string
+	content: string
+	created_at: string
+	edited_at: string | null
+	// 被刪除的訊息只有客服看得到內容
+	deleted_at: string | null
+	// 網頁訊息才有
+	delivery_status: 'pending' | 'sent' | 'failed' | null
+	attachments: TicketAttachment[]
+	// 編輯前的每一版, 只有客服拿得到
+	revisions: { content: string, created_at: string, replaced_at: string }[]
+}
+
+export interface TicketMessagePage {
 	messages: TicketMessage[]
+	users: TicketUser[]
+}
+
+export interface TicketListQuery {
+	status?: TicketStatus
+	before?: number
+	limit?: number
 }
 
 export const TICKET_STATUS = {
 	open: { color: 'warning', icon: 'i-heroicons-clock' },
 	claimed: { color: 'info', icon: 'i-heroicons-user' },
 	closed: { color: 'neutral', icon: 'i-heroicons-lock-closed' },
+	failed: { color: 'error', icon: 'i-heroicons-exclamation-triangle' },
 } as const
 
-// 分類由後端提供, 前端依 id 翻譯, 不認得的 id (例如後端新增的分類) 直接顯示後端給的文字
-export const useTicketCategoryText = () => {
-	const { t } = useI18n()
-
-	const texts = computed<Record<string, { name: string, description: string }>>(() => ({
-		account: { name: t('tickets.categories.account.name'), description: t('tickets.categories.account.description') },
-		tunnel: { name: t('tickets.categories.tunnel.name'), description: t('tickets.categories.tunnel.description') },
-		quota: { name: t('tickets.categories.quota.name'), description: t('tickets.categories.quota.description') },
-		other: { name: t('tickets.categories.other.name'), description: t('tickets.categories.other.description') },
-	}))
-
-	const categoryName = (category: TicketCategory) => texts.value[category.id]?.name ?? category.name
-	const categoryDescription = (category: TicketCategory) => texts.value[category.id]?.description ?? category.description
-
-	return { categoryName, categoryDescription }
+export const displayStatus = (ticket: Ticket): TicketDisplayStatus => {
+	if (ticket.status === 'open' && ticket.claimed_by_id) return 'claimed'
+	return ticket.status
 }
+
+export const displayName = (user: Pick<TicketUser, 'username' | 'global_name' | 'nickname'>) =>
+	user.nickname || user.global_name || user.username
+
+// 沒有自訂頭像時使用 Discord 的預設頭像
+export const ticketAvatarUrl = (user: Pick<TicketUser, 'id' | 'avatar_url'>) =>
+	user.avatar_url || useAuth().getAvatarUrl({ discord_id: user.id, avatar: null })
 
 // 依目前語系顯示, 在 template 中呼叫時切換語系會自動重新渲染
 export const formatRelativeTime = (iso: string) => {
@@ -90,138 +168,176 @@ export const formatDateTime = (iso: string) => {
 	})
 }
 
-// fake data for demo
+export const formatFileSize = (bytes: number) => {
+	const units = ['B', 'KB', 'MB', 'GB']
+	let size = bytes
+	let unit = 0
+	while (size >= 1024 && unit < units.length - 1) {
+		size /= 1024
+		unit++
+	}
+	return `${unit === 0 ? size : size.toFixed(1)} ${units[unit]}`
+}
 
-const MOCK_CATEGORIES: TicketCategory[] = [
-	{ id: 'account', name: '帳號問題', description: '登入、綁定、帳號狀態等問題' },
-	{ id: 'tunnel', name: '隧道 / 節點', description: '隧道無法連線、節點異常、延遲過高' },
-	{ id: 'quota', name: '額度申請', description: '申請更多隧道數量或頻寬' },
-	{ id: 'other', name: '其他', description: '建議回饋、檢舉或其他問題' },
-]
+interface TicketUpload {
+	attachment: TicketAttachment
+	// 不超過 part_size 時直接 PUT 整個檔案到這個網址
+	url: string | null
+	part_size: number | null
+	part_count: number | null
+}
 
-const MOCK_STAFF: TicketUser = { discord_id: '1', username: 'TaiwanFRP 客服', avatar: null }
-const MOCK_OPENER: TicketUser = { discord_id: '0', username: 'demo_user', avatar: null }
+// 分塊上傳時每次申請的網址數量, 網址會過期 (預設 10 分鐘), 所以在上傳前才分批申請
+const PART_BATCH = 10
 
-const hoursAgo = (hours: number) => new Date(Date.now() - hours * 3600 * 1000).toISOString()
-const unixHoursAgo = (hours: number) => Math.floor(Date.now() / 1000 - hours * 3600)
-
-const createMockTickets = (): TicketDetail[] => [
-	{
-		id: 1042,
-		subject: 'Minecraft 隧道連線一直逾時',
-		status: 'claimed',
-		category: MOCK_CATEGORIES[1]!,
-		opener: MOCK_OPENER,
-		assignee: MOCK_STAFF,
-		discord_channel_url: '#',
-		created_at: hoursAgo(26),
-		last_activity_at: hoursAgo(2),
-		closed_at: null,
-		messages: [
-			{ id: 'm1', author: MOCK_OPENER, is_staff: false, source: 'web', content: '我的 Minecraft 伺服器用 TCP 隧道開在 25565，朋友連線都會顯示 Timed out。\n本機連 127.0.0.1:25565 是正常的。', created_at: hoursAgo(26) },
-			{ id: 'm2', author: null, is_staff: false, source: 'system', content: 'TaiwanFRP 客服 已認領此工單', created_at: hoursAgo(25) },
-			{ id: 'm3', author: MOCK_STAFF, is_staff: true, source: 'discord', content: `您好，請問連接器的日誌有出現 \`login to server success\` 嗎？另外麻煩提供一下隧道名稱。\n-# 節點將於 <t:${unixHoursAgo(-20)}:F>（<t:${unixHoursAgo(-20)}:R>）進行例行維護`, created_at: hoursAgo(25) },
-			{ id: 'm4', author: MOCK_OPENER, is_staff: false, source: 'discord', content: '> 請問連接器的日誌有出現 `login to server success` 嗎？\n有顯示 **success**，隧道名稱是 `mc-survival`\n```\n[I] [service.go:301] login to server success\n```\n設定檔如下：\n```toml\nserverAddr = "tw1.taiwanfrp.me"\nserverPort = 7000\n\n[[proxies]]\nname = "mc-survival"\ntype = "tcp"\nlocalPort = 25565 # Minecraft 預設埠\n```', created_at: hoursAgo(2) },
-		],
-	},
-	{
-		id: 1038,
-		subject: '申請增加隧道數量',
-		status: 'open',
-		category: MOCK_CATEGORIES[2]!,
-		opener: MOCK_OPENER,
-		assignee: null,
-		discord_channel_url: '#',
-		created_at: hoursAgo(50),
-		last_activity_at: hoursAgo(50),
-		closed_at: null,
-		messages: [
-			{ id: 'm1', author: MOCK_OPENER, is_staff: false, source: 'web', content: '目前額度 3 個隧道不夠用，想申請到 5 個，用途是社團的遊戲伺服器。', created_at: hoursAgo(50) },
-		],
-	},
-	{
-		id: 1001,
-		subject: 'Discord 帳號綁定錯誤',
-		status: 'closed',
-		category: MOCK_CATEGORIES[0]!,
-		opener: MOCK_OPENER,
-		assignee: MOCK_STAFF,
-		discord_channel_url: null,
-		created_at: hoursAgo(240),
-		last_activity_at: hoursAgo(200),
-		closed_at: hoursAgo(200),
-		messages: [
-			{ id: 'm1', author: MOCK_OPENER, is_staff: false, source: 'web', content: '登入後顯示的是我另一個 Discord 帳號。', created_at: hoursAgo(240) },
-			{ id: 'm2', author: MOCK_STAFF, is_staff: true, source: 'discord', content: '請先到 Discord 登出另一個帳號後再重新登入即可。', created_at: hoursAgo(230) },
-			{ id: 'm3', author: null, is_staff: false, source: 'system', content: '工單已關閉', created_at: hoursAgo(200) },
-		],
-	},
-]
-
-const mockDelay = () => new Promise(resolve => setTimeout(resolve, 300))
-
-// 不用 crypto.randomUUID(), 它只在 HTTPS 或 localhost 下存在, 用區網 IP 開啟時會是 undefined
-const mockMessageId = () => `${Date.now()}-${Math.random().toString(36).slice(2)}`
+const putToStorage = async (url: string, body: Blob) => {
+	// 直接上傳到 S3, 不帶 cookie; 簽章包含檔案大小, 瀏覽器會自動帶上 Content-Length
+	const response = await fetch(url, { method: 'PUT', body })
+	if (!response.ok) throw new Error(`upload failed: ${response.status}`)
+}
 
 export const useTickets = () => {
-	const tickets = useState<TicketDetail[]>('tickets_mock', createMockTickets)
+	const { request, subscribe } = useTicketApi()
+	// 在 bot 的身分 (是不是管理員, 負責哪些分類)
+	const me = useState<TicketMe | null>('ticket_me', () => null)
 
-	const listCategories = async (): Promise<TicketCategory[]> => {
-		await mockDelay()
-		return MOCK_CATEGORIES
+	const fetchMe = async () => {
+		me.value = await request<TicketMe>('/me')
+		return me.value
 	}
 
-	const listTickets = async (): Promise<Ticket[]> => {
-		await mockDelay()
-		return [...tickets.value].sort((a, b) => b.last_activity_at.localeCompare(a.last_activity_at))
-	}
+	const isStaff = (categoryId: number) =>
+		!!me.value && (me.value.is_admin || me.value.category_ids.includes(categoryId))
 
-	const getTicket = async (id: number): Promise<TicketDetail | null> => {
-		await mockDelay()
-		return tickets.value.find(t => t.id === id) ?? null
-	}
+	const listCategories = () => request<TicketCategory[]>('/categories')
 
-	const createTicket = async (input: { category_id: string, subject: string, content: string }): Promise<number> => {
-		await mockDelay()
-		const now = new Date().toISOString()
-		const id = Math.max(...tickets.value.map(t => t.id)) + 1
-		tickets.value.push({
-			id,
-			subject: input.subject,
-			status: 'open',
-			category: MOCK_CATEGORIES.find(c => c.id === input.category_id) ?? MOCK_CATEGORIES[3]!,
-			opener: MOCK_OPENER,
-			assignee: null,
-			discord_channel_url: null,
-			created_at: now,
-			last_activity_at: now,
-			closed_at: null,
-			messages: [
-				{ id: mockMessageId(), author: MOCK_OPENER, is_staff: false, source: 'web', content: input.content, created_at: now },
-			],
+	const listTickets = (query: TicketListQuery = {}) =>
+		request<TicketSummary[]>('/tickets', { query: { ...query } })
+
+	const getTicket = (id: number) => request<TicketDetail>(`/tickets/${id}`)
+
+	const createTicket = (input: { category_id: number, subject: string, content: string }) =>
+		request<Ticket>('/tickets', { method: 'POST', body: input })
+
+	const listMessages = (id: number, query: { before?: number, after?: number, limit?: number } = {}) =>
+		request<TicketMessagePage>(`/tickets/${id}/messages`, { query })
+
+	const getMessage = (id: number, messageId: number) =>
+		request<TicketMessagePage>(`/tickets/${id}/messages/${messageId}`)
+
+	const sendMessage = (id: number, content: string, attachmentIds: number[]) =>
+		request<TicketMessage>(`/tickets/${id}/messages`, {
+			method: 'POST',
+			body: { content, attachment_ids: attachmentIds },
 		})
-		return id
+
+	const closeTicket = (id: number, reason: string | null) =>
+		request<Ticket>(`/tickets/${id}/close`, { method: 'POST', body: { reason } })
+
+	const claimTicket = (id: number) => request<Ticket>(`/tickets/${id}/claim`, { method: 'POST' })
+
+	const unclaimTicket = (id: number) => request<Ticket>(`/tickets/${id}/unclaim`, { method: 'POST' })
+
+	const rateTicket = (id: number, rating: number, feedback: string | null) =>
+		request(`/tickets/${id}/rating`, { method: 'PUT', body: { rating, feedback } })
+
+	const getAttachment = (attachmentId: number) => request<TicketAttachment>(`/attachments/${attachmentId}`)
+
+	const removeAttachment = (attachmentId: number) =>
+		request(`/attachments/${attachmentId}`, { method: 'DELETE' })
+
+	// 上傳附件: 向 bot 申請網址, 瀏覽器直接上傳到 S3, 完成後由 worker 檢查內容 (結果用 SSE 的 attachment.updated 通知)
+	// onCreated 在申請到附件 id 時呼叫, 讓呼叫端在上傳途中也能取消; onProgress 的值是 0 到 1
+	const uploadAttachment = async (
+		ticketId: number,
+		file: File,
+		onCreated?: (attachment: TicketAttachment) => void,
+		onProgress?: (ratio: number) => void,
+	) => {
+		const upload = await request<TicketUpload>(`/tickets/${ticketId}/attachments`, {
+			method: 'POST',
+			body: { filename: file.name, size: file.size },
+		})
+		const attachmentId = upload.attachment.id
+		onCreated?.(upload.attachment)
+
+		if (upload.url) {
+			await putToStorage(upload.url, file)
+		}
+		else {
+			const partSize = upload.part_size!
+			const partCount = upload.part_count!
+			for (let first = 1; first <= partCount; first += PART_BATCH) {
+				const numbers = Array.from({ length: Math.min(PART_BATCH, partCount - first + 1) }, (_, i) => first + i)
+				const parts = await request<{ part_number: number, url: string }[]>(`/attachments/${attachmentId}/parts`, {
+					method: 'POST',
+					body: { part_numbers: numbers },
+				})
+				for (const part of parts) {
+					const start = (part.part_number - 1) * partSize
+					await putToStorage(part.url, file.slice(start, start + partSize))
+					onProgress?.(part.part_number / partCount)
+				}
+			}
+		}
+
+		onProgress?.(1)
+		return await request<TicketAttachment>(`/attachments/${attachmentId}/complete`, { method: 'POST' })
 	}
 
-	const replyTicket = async (id: number, content: string) => {
-		await mockDelay()
-		const ticket = tickets.value.find(t => t.id === id)
-		if (!ticket) throw new Error('找不到工單')
-		const now = new Date().toISOString()
-		ticket.messages.push({ id: mockMessageId(), author: MOCK_OPENER, is_staff: false, source: 'web', content, created_at: now })
-		ticket.last_activity_at = now
-	}
+	// 客服單列表的變動 (新開單, 被接手, 已關閉)
+	const subscribeList = (onEvent: (event: TicketEvent) => void, onReconnect?: () => void) =>
+		subscribe('/events', LIST_EVENT_TYPES, onEvent, onReconnect)
 
-	const closeTicket = async (id: number) => {
-		await mockDelay()
-		const ticket = tickets.value.find(t => t.id === id)
-		if (!ticket) throw new Error('找不到工單')
-		const now = new Date().toISOString()
-		ticket.status = 'closed'
-		ticket.closed_at = now
-		ticket.last_activity_at = now
-		ticket.messages.push({ id: mockMessageId(), author: null, is_staff: false, source: 'system', content: '工單已關閉', created_at: now })
-	}
+	// 單一客服單的事件
+	const subscribeTicket = (id: number, onEvent: (event: TicketEvent) => void, onReconnect?: () => void) =>
+		subscribe(`/tickets/${id}/events`, [...MESSAGE_EVENT_TYPES, ...LIST_EVENT_TYPES], onEvent, onReconnect)
 
-	return { listCategories, listTickets, getTicket, createTicket, replyTicket, closeTicket }
+	return {
+		me,
+		fetchMe,
+		isStaff,
+		listCategories,
+		listTickets,
+		getTicket,
+		createTicket,
+		listMessages,
+		getMessage,
+		sendMessage,
+		closeTicket,
+		claimTicket,
+		unclaimTicket,
+		rateTicket,
+		getAttachment,
+		removeAttachment,
+		uploadAttachment,
+		subscribeList,
+		subscribeTicket,
+	}
+}
+
+const MESSAGE_EVENT_TYPES = ['message.created', 'message.updated', 'message.deleted', 'attachment.updated']
+
+const LIST_EVENT_TYPES = [
+	'ticket.created',
+	'ticket.claimed',
+	'ticket.unclaimed',
+	'ticket.transferred',
+	'ticket.member_added',
+	'ticket.member_removed',
+	'ticket.opener_added',
+	'ticket.inactivity_reminded',
+	'ticket.closed',
+	'ticket.rated',
+]
+
+// 主要 API 確認登入後才呼叫 bot 的 API (沒有登入時 layout 會導回首頁, 不需要再顯示錯誤)
+export const whenLoggedIn = (callback: () => void) => {
+	const { user, isLoading } = useAuth()
+	let called = false
+	watch(() => !isLoading.value && !!user.value, (ready) => {
+		if (!ready || called) return
+		called = true
+		callback()
+	}, { immediate: true })
 }

@@ -3,29 +3,44 @@ definePageMeta({
 	layout: 'tickets',
 })
 
+// 與 bot 的限制相同
 const SUBJECT_MAX = 100
-const CONTENT_MAX = 2000
+const CONTENT_MAX = 4000
 
 const { t } = useI18n()
 const localePath = useLocalePath()
 const toast = useToast()
 const { listCategories, createTicket } = useTickets()
-const { categoryName, categoryDescription } = useTicketCategoryText()
 
-const { data: categories, pending: isCategoriesLoading } = useAsyncData('ticket-categories', listCategories, {
-	server: false,
-	lazy: true,
-	default: () => [] as TicketCategory[],
+const categories = ref<TicketCategory[]>([])
+const isCategoriesLoading = ref(true)
+
+whenLoggedIn(async () => {
+	try {
+		// 管理員也看得到停用的分類, 開單時只列出啟用中的
+		categories.value = (await listCategories()).filter(category => category.enabled)
+	}
+	catch (error: unknown) {
+		toast.add({
+			title: t('tickets.new.categories_failed'),
+			description: ticketErrorMessage(error) || t('tickets.common.try_again'),
+			color: 'error',
+			icon: 'i-heroicons-x-circle',
+		})
+	}
+	finally {
+		isCategoriesLoading.value = false
+	}
 })
 
 const form = reactive({
-	category_id: '',
+	category_id: undefined as number | undefined,
 	subject: '',
 	content: '',
 })
 
 const categoryItems = computed(() => categories.value.map(category => ({
-	label: categoryName(category),
+	label: category.name,
 	value: category.id,
 })))
 
@@ -34,7 +49,7 @@ const selectedCategory = computed(() => categories.value.find(category => catego
 const isSubmitting = ref(false)
 
 const canSubmit = computed(() =>
-	form.category_id
+	form.category_id !== undefined
 	&& form.subject.trim()
 	&& form.content.trim()
 	&& form.subject.length <= SUBJECT_MAX
@@ -42,23 +57,22 @@ const canSubmit = computed(() =>
 )
 
 const submit = async () => {
-	if (!canSubmit.value) return
+	if (!canSubmit.value || form.category_id === undefined) return
 
 	isSubmitting.value = true
 	try {
-		const id = await createTicket({
+		const ticket = await createTicket({
 			category_id: form.category_id,
 			subject: form.subject.trim(),
 			content: form.content.trim(),
 		})
 		toast.add({ title: t('tickets.new.created'), color: 'success', icon: 'i-heroicons-check-circle' })
-		await navigateTo(localePath(`/tickets/${id}`))
+		await navigateTo(localePath(`/tickets/${ticket.id}`))
 	}
 	catch (error: unknown) {
-		const err = error as { data?: { detail?: string } }
 		toast.add({
 			title: t('tickets.new.create_failed'),
-			description: err.data?.detail || t('tickets.new.create_failed_desc'),
+			description: ticketErrorMessage(error) || t('tickets.new.create_failed_desc'),
 			color: 'error',
 			icon: 'i-heroicons-x-circle',
 		})
@@ -112,6 +126,13 @@ const submit = async () => {
 						/>
 					</div>
 
+					<p
+						v-else-if="!categories.length"
+						class="text-sm text-gray-500 dark:text-gray-400"
+					>
+						{{ $t('tickets.new.no_categories') }}
+					</p>
+
 					<div
 						v-else
 						class="hidden sm:grid grid-cols-2 gap-3"
@@ -126,8 +147,18 @@ const submit = async () => {
 								: 'border-gray-200 dark:border-gray-800 hover:bg-gray-900/5 dark:hover:bg-white/5'"
 							@click="form.category_id = category.id"
 						>
-							<span class="block text-sm font-medium text-gray-900 dark:text-white">{{ categoryName(category) }}</span>
-							<span class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ categoryDescription(category) }}</span>
+							<span class="block text-sm font-medium text-gray-900 dark:text-white">
+								<TicketEmoji
+									v-if="category.emoji"
+									:emoji="category.emoji"
+									class="mr-1"
+								/>
+								{{ category.name }}
+							</span>
+							<span
+								v-if="category.description"
+								class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5"
+							>{{ category.description }}</span>
 						</button>
 					</div>
 
@@ -141,10 +172,10 @@ const submit = async () => {
 							class="w-full"
 						/>
 						<p
-							v-if="selectedCategory"
+							v-if="selectedCategory?.description"
 							class="text-xs text-gray-500 dark:text-gray-400"
 						>
-							{{ categoryDescription(selectedCategory) }}
+							{{ selectedCategory.description }}
 						</p>
 					</div>
 				</div>
@@ -175,6 +206,10 @@ const submit = async () => {
 						{{ form.content.length }} / {{ CONTENT_MAX }}
 					</p>
 				</div>
+
+				<p class="text-xs text-gray-500 dark:text-gray-400">
+					{{ $t('tickets.new.attachment_hint') }}
+				</p>
 
 				<div class="flex justify-end gap-3">
 					<UButton

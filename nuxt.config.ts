@@ -46,6 +46,7 @@ export default defineNuxtConfig({
 		public: {
 			version: pkg.version,
 			apiUrl: '',
+			ticketApiUrl: '',
 			discordUrl: '',
 		},
 	},

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
-	status: TicketStatus
+	status: TicketDisplayStatus
 }>()
 
 const { t } = useI18n()
@@ -11,6 +11,7 @@ const labels = computed(() => ({
 	open: t('tickets.status.open'),
 	claimed: t('tickets.status.claimed'),
 	closed: t('tickets.status.closed'),
+	failed: t('tickets.status.failed'),
 }))
 </script>
 
