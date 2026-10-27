@@ -21,7 +21,7 @@
     "@nuxt/image": "2.0.0",
     "@nuxt/ui": "4.10.0",
     "@nuxtjs/i18n": "10.4.1",
-    "@nuxtjs/sitemap": "8.2.2",
+    "@nuxtjs/sitemap": "8.6.1",
     "@tiptap/core": "^3",
     "@tiptap/extension-bubble-menu": "^3",
     "@tiptap/extension-code": "^3",
@@ -52,6 +52,7 @@
   },
   "devDependencies": {
     "@intlify/eslint-plugin-vue-i18n": "^4.5.1",
+    "@types/node": "^22",
     "husky": "^9.1.7",
     "lint-staged": "^17.2.0",
     "vue-tsc": "^3.3.7"
