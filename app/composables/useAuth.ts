@@ -23,6 +23,7 @@ export const useAuth = () => {
 	const user = useState<User | null>('auth_user', () => null)
 	// 建立 loading 狀態避免在檢查登入前畫面閃爍
 	const isLoading = useState<boolean>('auth_loading', () => true)
+	const { logout: logoutTicketApi } = useTicketApi()
 
 	const fetchUser = async () => {
 		isLoading.value = true
@@ -55,6 +56,14 @@ export const useAuth = () => {
 		finally {
 			// 無論是否成功都清空狀態
 			user.value = null
+		}
+
+		// 客服單 bot 有自己的 cookie, 主要 API 的 session 刪除後就會失效, 這裡只是一併清除
+		try {
+			await logoutTicketApi()
+		}
+		catch (error) {
+			console.error('Logout ticket API failed:', error)
 		}
 	}
 

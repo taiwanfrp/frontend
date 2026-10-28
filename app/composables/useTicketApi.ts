@@ -79,6 +79,12 @@ export const useTicketApi = () => {
 		}
 	}
 
+	// 刪除 bot 的 session 與 cookie, 沒有 session 時也會成功, 不需要交換
+	const logout = async () => {
+		if (!baseURL) return
+		await send('/auth/logout', { method: 'POST' })
+	}
+
 	// SSE: EventSource 失敗時拿不到狀態碼, 先關閉, 用 GET /me 判斷是不是 401 (會自動重新交換) 再重新連線
 	// 自己重新連線不會帶 Last-Event-ID, 斷線期間的事件可能漏掉, 所以重新連上時呼叫 onReconnect 重新載入資料
 	const subscribe = (
@@ -124,5 +130,5 @@ export const useTicketApi = () => {
 		}
 	}
 
-	return { request, subscribe }
+	return { request, subscribe, logout }
 }
