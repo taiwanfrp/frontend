@@ -4,12 +4,16 @@ const props = defineProps<{
 }>()
 
 const { t, locale } = useI18n()
+const config = useRuntimeConfig()
 
 const html = computed(() => renderDiscordMarkdown(props.content, {
 	locale: locale.value,
 	copy: t('tickets.markdown.copy'),
 	copyCode: t('tickets.markdown.copy_code'),
+	emojiBaseUrl: config.public.ticketApiUrl as string,
 }))
+
+const isJumbo = computed(() => isJumboEmoji(props.content))
 
 // 複製程式碼區塊, 失敗時改為選取內容讓使用者自行複製
 const copyCodeBlock = async (button: HTMLElement) => {
@@ -53,6 +57,7 @@ const handleClick = (event: MouseEvent) => {
 	<!-- eslint-disable vue/no-v-html -- markdown-it 設定 html: false, 原始 HTML 會被跳脫 -->
 	<div
 		class="discord-md"
+		:class="{ 'is-jumbo': isJumbo }"
 		@click="handleClick"
 		v-html="html"
 	/>
@@ -276,6 +281,20 @@ const handleClick = (event: MouseEvent) => {
 .discord-md .hljs-deletion {
 	color: var(--hl-keyword);
 	background-color: var(--hl-deletion-bg);
+}
+
+/* 自訂表情的大小跟 Discord 一樣是文字的 1.375 倍, 只有表情的訊息放大到約 48px */
+.discord-md .md-emoji {
+	display: inline-block;
+	width: 1.375em;
+	height: 1.375em;
+	object-fit: contain;
+	vertical-align: -0.3em;
+}
+
+.discord-md.is-jumbo {
+	font-size: 2.5em;
+	line-height: 1.2;
 }
 
 .discord-md .md-timestamp {

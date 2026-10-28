@@ -175,6 +175,7 @@
             "edited": "（已编辑）",
             "deleted": "该消息已被删除",
             "deleted_staff": "该消息已被删除（仅客服可见原内容）",
+            "sticker": "贴图：{name}",
             "revisions": "编辑记录（{count}）",
             "delivery_pending": "正在发送到 Discord…",
             "delivery_failed": "无法发送到 Discord",

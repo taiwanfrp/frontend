@@ -175,6 +175,7 @@
             "edited": "(edited)",
             "deleted": "This message was deleted",
             "deleted_staff": "This message was deleted (only staff can see the original content)",
+            "sticker": "Sticker: {name}",
             "revisions": "Edit history ({count})",
             "delivery_pending": "Sending to Discord…",
             "delivery_failed": "Failed to send to Discord",

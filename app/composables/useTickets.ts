@@ -106,6 +106,8 @@ export interface TicketMessage {
 	// 網頁訊息才有
 	delivery_status: 'pending' | 'sent' | 'failed' | null
 	attachments: TicketAttachment[]
+	// Discord 訊息的貼圖, lottie 是 JSON 動畫; 格式不認得時沒有 url
+	stickers: { id: string, name: string, format: 'png' | 'apng' | 'gif' | 'lottie', url: string | null }[]
 	// 編輯前的每一版, 只有客服拿得到
 	revisions: { content: string, created_at: string, replaced_at: string }[]
 }

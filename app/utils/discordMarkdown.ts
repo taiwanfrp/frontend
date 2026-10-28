@@ -27,6 +27,7 @@ export type DiscordMarkdownEnv = {
 	locale: string	// 時間戳的顯示語系
 	copy: string	// 複製按鈕的介面文字 (呼叫端翻譯好傳入)
 	copyCode: string
+	emojiBaseUrl: string	// 客服單 bot 的網址, 自訂表情的圖片由 bot 轉址
 }
 
 // Discord 只會自動連結有 http(s):// 的網址
@@ -160,6 +161,31 @@ md.renderer.rules.discord_timestamp = (tokens, idx, _options, env) => {
 	return `<time class="md-timestamp" datetime="${date.toISOString()}" title="${escape(formatTimestamp(date, 'F', locale))}">${escape(formatTimestamp(date, style, locale))}</time>`
 }
 
+// <:名稱:id> 或 <a:名稱:id> (動態) 自訂表情, 其他伺服器的表情也一樣
+// 圖片由 bot 轉址到 S3 上的備份, 還沒備份好時轉址到 Discord (bot repo 的 docs/tickets.md 8.7)
+const CUSTOM_EMOJI = /^<(a?):(\w{2,32}):(\d{15,21})>/
+
+md.inline.ruler.before('autolink', 'discord_emoji', (state, silent) => {
+	const match = CUSTOM_EMOJI.exec(state.src.slice(state.pos, state.posMax))
+	if (!match) return false
+
+	if (!silent) {
+		const token = state.push('discord_emoji', 'img', 0)
+		token.meta = { animated: !!match[1], name: match[2], id: match[3] }
+	}
+
+	state.pos += match[0].length
+	return true
+})
+
+md.renderer.rules.discord_emoji = (tokens, idx, _options, env) => {
+	const { emojiBaseUrl } = env as DiscordMarkdownEnv
+	const { animated, name, id } = tokens[idx]!.meta as { animated: boolean, name: string, id: string }
+	const escape = md.utils.escapeHtml
+	const src = `${emojiBaseUrl}/emojis/${id}.${animated ? 'gif' : 'webp'}`
+	return `<img class="md-emoji" src="${escape(src)}" alt=":${escape(name)}:" title=":${escape(name)}:" draggable="false" loading="lazy">`
+}
+
 // Discord 的 __文字__ 是底線, **文字** 才是粗體
 md.renderer.rules.strong_open = (tokens, idx, options, _env, self) =>
 	tokens[idx]!.markup === '__' ? '<u>' : self.renderToken(tokens, idx, options)
@@ -213,3 +239,13 @@ const normalizeQuotes = (text: string) => {
 }
 
 export const renderDiscordMarkdown = (text: string, env: DiscordMarkdownEnv) => md.render(normalizeQuotes(text), env)
+
+// 跟 Discord 一樣, 只有表情 (最多 30 個) 的訊息顯示大的表情
+const EMOJI_ONLY = /^(?:<a?:\w{2,32}:\d{15,21}>|\p{Extended_Pictographic}|\p{Emoji_Modifier}|\p{Regional_Indicator}|\u200D|\uFE0F|\s)+$/u
+const EMOJI = /<a?:\w{2,32}:\d{15,21}>|\p{Extended_Pictographic}|\p{Regional_Indicator}{2}/gu
+
+export const isJumboEmoji = (text: string) => {
+	if (!EMOJI_ONLY.test(text)) return false
+	const count = text.match(EMOJI)?.length ?? 0
+	return count > 0 && count <= 30
+}
