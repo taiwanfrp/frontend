@@ -24,6 +24,8 @@ export const useAuth = () => {
 	// 建立 loading 狀態避免在檢查登入前畫面閃爍
 	const isLoading = useState<boolean>('auth_loading', () => true)
 	const { logout: logoutTicketApi } = useTicketApi()
+	// 尚未啟用 (suspended) 的帳號也能登入, 但只能使用工單
+	const isAccountActive = computed(() => user.value?.internal_account_status === 'active')
 
 	const fetchUser = async () => {
 		isLoading.value = true
@@ -87,5 +89,5 @@ export const useAuth = () => {
 		return `https://cdn.discordapp.com/embed/avatars/${defaultAvatarIndex}.png`
 	}
 
-	return { user, isLoading, fetchUser, logout, getAvatarUrl }
+	return { user, isLoading, isAccountActive, fetchUser, logout, getAvatarUrl }
 }

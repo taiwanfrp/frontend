@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const route = useRoute()
-const { user, isLoading } = useAuth()
+const config = useRuntimeConfig()
+const toast = useToast()
+const { user, isLoading, isAccountActive, fetchUser } = useAuth()
 const localePath = useLocalePath()
 
 onMounted(() => {
@@ -14,6 +16,22 @@ watchEffect(() => {
 		navigateTo(localePath('/'))
 	}
 })
+
+// 在 Discord 啟用帳號後, 重新取得帳號狀態
+const isCheckingActivation = ref(false)
+const checkActivation = async () => {
+	isCheckingActivation.value = true
+	await fetchUser()
+	isCheckingActivation.value = false
+	if (user.value && !isAccountActive.value) {
+		toast.add({
+			title: '帳號尚未啟用',
+			description: '請在 Discord 伺服器按下「啟用帳號」後再試一次。',
+			color: 'warning',
+			icon: 'i-heroicons-exclamation-triangle',
+		})
+	}
+}
 
 const menuGroups = [
 	{
@@ -121,7 +139,61 @@ const isActive = (itemPath: string) => {
 
 		<!-- Main Content -->
 		<main class="relative z-10 flex-1 md:ml-64 w-full">
-			<slot />
+			<slot v-if="isAccountActive" />
+
+			<!-- 尚未啟用的帳號不能使用儀表板的 API, 只顯示說明 -->
+			<div
+				v-else-if="user"
+				class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
+			>
+				<UCard class="bg-white/50 dark:bg-gray-900/50 backdrop-blur shadow-sm ring-1 ring-gray-200/50 dark:ring-gray-800/50">
+					<div class="flex flex-col items-center gap-4 py-4 text-center">
+						<div class="p-3 bg-amber-100 dark:bg-amber-900/50 rounded-full text-amber-600 dark:text-amber-400">
+							<UIcon
+								name="i-heroicons-lock-closed"
+								class="w-8 h-8"
+							/>
+						</div>
+
+						<div>
+							<h1 class="text-xl font-bold text-gray-900 dark:text-white">
+								帳號尚未啟用
+							</h1>
+							<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+								您需要加入 TaiwanFRP 的 Discord 伺服器，並在伺服器內按下「啟用帳號」按鈕，才能使用儀表板。
+							</p>
+							<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+								如果無法啟用，可以開工單詢問客服。
+							</p>
+						</div>
+
+						<div class="flex flex-wrap justify-center gap-2">
+							<UButton
+								v-if="config.public.discordUrl"
+								label="加入 Discord 伺服器"
+								icon="i-simple-icons-discord"
+								:to="config.public.discordUrl"
+								target="_blank"
+							/>
+							<UButton
+								label="我已經啟用了"
+								icon="i-heroicons-arrow-path"
+								color="neutral"
+								variant="outline"
+								:loading="isCheckingActivation"
+								@click="checkActivation"
+							/>
+							<UButton
+								label="開工單"
+								icon="i-heroicons-lifebuoy"
+								color="neutral"
+								variant="ghost"
+								:to="localePath('/tickets/new')"
+							/>
+						</div>
+					</div>
+				</UCard>
+			</div>
 		</main>
 	</div>
 </template>
