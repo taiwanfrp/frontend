@@ -263,7 +263,7 @@
             "channel_name_template_desc": "可以使用 {'{id}'}、{'{id:4}'}（补零到 4 位）、{'{category}'}、{'{opener}'}",
             "max_open_tickets": "每人同时开启的工单上限",
             "remind_after": "闲置多久后提醒（小时）",
-            "close_after": "闲置多久后自动关闭（小时）",
+            "close_after": "提醒后再过多久没有新消息就自动关闭（小时）",
             "max_attachment_size": "附件大小上限（MB）",
             "file_types": "允许的附件类型",
             "use_default_file_types": "使用默认",

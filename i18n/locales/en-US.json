@@ -263,7 +263,7 @@
             "channel_name_template_desc": "You can use {'{id}'}, {'{id:4}'} (zero-padded to 4 digits), {'{category}'} and {'{opener}'}",
             "max_open_tickets": "Open tickets per user",
             "remind_after": "Remind after inactivity (hours)",
-            "close_after": "Auto-close after inactivity (hours)",
+            "close_after": "Auto-close if still inactive after the reminder (hours)",
             "max_attachment_size": "Max attachment size (MB)",
             "file_types": "Allowed attachment types",
             "use_default_file_types": "Use default",
