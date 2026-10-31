@@ -77,6 +77,19 @@ export interface TicketDetail extends Ticket {
 
 export type TicketAttachmentStatus = 'pending' | 'done' | 'rejected' | 'failed'
 
+// 匯出由 bot 的 worker 在背景產生: 沒有附件是 html, 有附件是 zip (html 加上 assets 資料夾)
+export interface TicketExport {
+	id: number
+	ticket_id: number
+	status: 'pending' | 'done' | 'failed'
+	format: 'html' | 'zip' | null
+	size: number | null
+	created_at: string
+	finished_at: string | null
+	// 完成時才有, 會過期
+	download_url: string | null
+}
+
 export interface TicketAttachment {
 	id: number
 	ticket_id: number
@@ -243,6 +256,12 @@ export const useTickets = () => {
 	const rateTicket = (id: number, rating: number, feedback: string | null) =>
 		request(`/tickets/${id}/rating`, { method: 'PUT', body: { rating, feedback } })
 
+	// 時間依照瀏覽器的時區寫進檔案 (getTimezoneOffset 的正負號跟 UTC 時差相反)
+	const createExport = (id: number) =>
+		request<TicketExport>(`/tickets/${id}/exports`, { method: 'POST', body: { utc_offset: -new Date().getTimezoneOffset() } })
+
+	const getExport = (exportId: number) => request<TicketExport>(`/exports/${exportId}`)
+
 	const getAttachment = (attachmentId: number) => request<TicketAttachment>(`/attachments/${attachmentId}`)
 
 	const removeAttachment = (attachmentId: number) =>
@@ -310,6 +329,8 @@ export const useTickets = () => {
 		claimTicket,
 		unclaimTicket,
 		rateTicket,
+		createExport,
+		getExport,
 		getAttachment,
 		removeAttachment,
 		uploadAttachment,

@@ -9,6 +9,7 @@ const ATTACHMENTS_MAX = 10
 const CLOSE_REASON_MAX = 1000
 const FEEDBACK_MAX = 1000
 const PAGE_SIZE = 50
+const EXPORT_POLL_INTERVAL = 2000
 
 const { t } = useI18n()
 const route = useRoute()
@@ -26,6 +27,8 @@ const {
 	claimTicket,
 	unclaimTicket,
 	rateTicket,
+	createExport,
+	getExport,
 	removeAttachment,
 	uploadAttachment,
 	subscribeTicket,
@@ -172,7 +175,12 @@ whenLoggedIn(async () => {
 	}
 })
 
-onBeforeUnmount(() => unsubscribe?.())
+let isUnmounted = false
+
+onBeforeUnmount(() => {
+	isUnmounted = true
+	unsubscribe?.()
+})
 
 const isOpen = computed(() => ticket.value?.status === 'open')
 const isOpener = computed(() => !!me.value && me.value.id === ticket.value?.opener_id)
@@ -181,6 +189,7 @@ const isTicketStaff = computed(() => !!ticket.value && isStaff(ticket.value.cate
 const canClaim = computed(() => isOpen.value && !ticket.value?.claimed_by_id && isTicketStaff.value && !!me.value?.in_guild)
 const canUnclaim = computed(() => isOpen.value && !!me.value && ticket.value?.claimed_by_id === me.value.id)
 const canClose = computed(() => isOpen.value && (isOpener.value || isTicketStaff.value))
+const canExport = computed(() => isOpener.value || isTicketStaff.value)
 const canRate = computed(() => ticket.value?.status === 'closed' && isOpener.value && ticket.value.rating === null)
 
 const discordChannelUrl = computed(() => {
@@ -212,6 +221,28 @@ const toggleClaim = async () => {
 	}
 	finally {
 		isClaiming.value = false
+	}
+}
+
+// 匯出: bot 在背景產生檔案, 定時查詢, 完成後直接下載 (S3 的網址會讓瀏覽器下載, 不會離開這一頁)
+const isExporting = ref(false)
+const startExport = async () => {
+	isExporting.value = true
+	try {
+		let result = await createExport(ticketId)
+		while (result.status === 'pending') {
+			await new Promise(resolve => setTimeout(resolve, EXPORT_POLL_INTERVAL))
+			if (isUnmounted) return
+			result = await getExport(result.id)
+		}
+		if (result.status !== 'done' || !result.download_url) throw new Error(`Export ${result.id} failed`)
+		window.location.assign(result.download_url)
+	}
+	catch (error: unknown) {
+		showError(t('tickets.detail.export_failed'), error)
+	}
+	finally {
+		isExporting.value = false
 	}
 }
 
@@ -444,6 +475,16 @@ const submitRating = async () => {
 						variant="outline"
 						:loading="isClaiming"
 						@click="toggleClaim"
+					/>
+					<UButton
+						v-if="canExport"
+						icon="i-heroicons-arrow-down-tray"
+						:label="isExporting ? $t('tickets.detail.exporting') : $t('tickets.detail.export')"
+						color="neutral"
+						variant="outline"
+						:loading="isExporting"
+						:title="$t('tickets.detail.export_desc')"
+						@click="startExport"
 					/>
 					<UButton
 						v-if="canClose"
