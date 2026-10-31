@@ -106,6 +106,14 @@ export interface TicketAttachment {
 	download_url: string | null
 }
 
+// lottie 是 JSON 動畫; 格式不認得時沒有 url
+export interface TicketSticker {
+	id: string
+	name: string
+	format: 'png' | 'apng' | 'gif' | 'lottie'
+	url: string | null
+}
+
 export interface TicketMessage {
 	id: number
 	ticket_id: number
@@ -119,10 +127,19 @@ export interface TicketMessage {
 	// 網頁訊息才有
 	delivery_status: 'pending' | 'sent' | 'failed' | null
 	attachments: TicketAttachment[]
-	// Discord 訊息的貼圖, lottie 是 JSON 動畫; 格式不認得時沒有 url
-	stickers: { id: string, name: string, format: 'png' | 'apng' | 'gif' | 'lottie', url: string | null }[]
+	// Discord 訊息的貼圖
+	stickers: TicketSticker[]
 	// 編輯前的每一版, 只有客服拿得到
 	revisions: { content: string, created_at: string, replaced_at: string }[]
+	// 轉發的訊息: 被轉發的內容, 附件一樣在 attachments; content 是轉發時另外加上的文字
+	forwarded: {
+		content: string
+		created_at: string
+		guild_id: string | null
+		channel_id: string | null
+		message_id: string | null
+		stickers: TicketSticker[]
+	} | null
 }
 
 export interface TicketMessagePage {

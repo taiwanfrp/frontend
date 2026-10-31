@@ -180,6 +180,7 @@
             "deleted": "此訊息已被刪除",
             "deleted_staff": "此訊息已被刪除（只有客服看得到原本的內容）",
             "sticker": "貼圖：{name}",
+            "forwarded": "已轉發",
             "revisions": "編輯紀錄（{count}）",
             "delivery_pending": "正在傳送到 Discord…",
             "delivery_failed": "無法傳送到 Discord",

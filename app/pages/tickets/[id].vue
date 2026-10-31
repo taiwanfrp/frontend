@@ -631,39 +631,53 @@ const submitRating = async () => {
 										:class="{ 'opacity-60 line-through decoration-gray-400': message.deleted_at }"
 									/>
 
-									<!-- 貼圖: Lottie 是 JSON 動畫, 目前只顯示名稱 -->
-									<div
+									<TicketStickers
 										v-if="message.stickers.length"
-										class="mt-1 flex flex-wrap gap-2"
+										:stickers="message.stickers"
+										class="mt-1"
+										:class="{ 'opacity-60': message.deleted_at }"
+									/>
+
+									<!-- 轉發的訊息: 跟 Discord 一樣用左邊的線標出被轉發的內容, 附件也在裡面 -->
+									<div
+										v-if="message.forwarded"
+										class="mt-1 border-l-4 border-gray-300 dark:border-gray-700 pl-3"
 										:class="{ 'opacity-60': message.deleted_at }"
 									>
-										<template
-											v-for="sticker in message.stickers"
-											:key="sticker.id"
+										<p class="flex items-center gap-1 text-xs italic text-gray-500 dark:text-gray-400">
+											<UIcon
+												name="i-heroicons-arrow-uturn-right"
+												class="w-3.5 h-3.5"
+											/>
+											{{ $t('tickets.detail.forwarded') }}
+										</p>
+										<TicketMarkdown
+											v-if="message.forwarded.content"
+											:content="message.forwarded.content"
+											class="mt-1 text-sm text-gray-700 dark:text-gray-200"
+										/>
+										<TicketStickers
+											v-if="message.forwarded.stickers.length"
+											:stickers="message.forwarded.stickers"
+											class="mt-1"
+										/>
+										<div
+											v-if="message.attachments.length"
+											class="mt-2 flex flex-col gap-2"
 										>
-											<img
-												v-if="sticker.url && sticker.format !== 'lottie'"
-												:src="sticker.url"
-												:alt="sticker.name"
-												:title="sticker.name"
-												class="w-40 h-40 object-contain"
-												loading="lazy"
-											>
-											<span
-												v-else
-												class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300"
-											>
-												<UIcon
-													name="i-heroicons-face-smile"
-													class="w-4 h-4 shrink-0"
-												/>
-												{{ $t('tickets.detail.sticker', { name: sticker.name }) }}
-											</span>
-										</template>
+											<TicketAttachment
+												v-for="attachment in message.attachments"
+												:key="attachment.id"
+												:attachment="attachment"
+											/>
+										</div>
+										<p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+											{{ formatDateTime(message.forwarded.created_at) }}
+										</p>
 									</div>
 
 									<div
-										v-if="message.attachments.length"
+										v-else-if="message.attachments.length"
 										class="mt-2 flex flex-col gap-2"
 									>
 										<TicketAttachment
