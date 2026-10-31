@@ -189,6 +189,9 @@ const submit = async () => {
 						:placeholder="$t('tickets.new.subject_placeholder')"
 						class="w-full"
 					/>
+					<p class="text-xs text-right text-gray-400 dark:text-gray-500">
+						{{ form.subject.length }} / {{ SUBJECT_MAX }}
+					</p>
 				</div>
 
 				<!-- 內容 -->
