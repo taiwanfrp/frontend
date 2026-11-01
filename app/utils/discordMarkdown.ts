@@ -29,6 +29,8 @@ export type DiscordMarkdownEnv = {
 	copyCode: string
 	emojiBaseUrl: string	// 客服單 bot 的網址, 自訂表情的圖片由 bot 轉址
 	userName: (id: string) => string | null	// <@id> 要顯示的名稱, 沒有快照時是 null
+	role: (id: string) => { name: string, color: number } | null	// <@&id>, 找不到時是 null
+	channelName: (id: string) => string | null	// <#id>, 找不到或看不到時是 null
 }
 
 // Discord 只會自動連結有 http(s):// 的網址
@@ -209,6 +211,42 @@ md.renderer.rules.discord_mention = (tokens, idx, _options, env) => {
 	const escape = md.utils.escapeHtml
 	const name = userName(id)
 	return name === null ? escape(raw) : `<span class="md-mention">@${escape(name)}</span>`
+}
+
+// <@&id> 身份組、<#id> 頻道, 找得到的顯示名稱, 找不到或看不到的照原樣顯示
+type InlineRule = Parameters<typeof md.inline.ruler.before>[2]
+
+const guildMention = (type: string, pattern: RegExp): InlineRule => (state, silent) => {
+	const match = pattern.exec(state.src.slice(state.pos, state.posMax))
+	if (!match) return false
+
+	if (!silent) {
+		const token = state.push(type, 'span', 0)
+		token.meta = { id: match[1], raw: match[0] }
+	}
+
+	state.pos += match[0].length
+	return true
+}
+
+md.inline.ruler.before('autolink', 'discord_role', guildMention('discord_role', /^<@&(\d{15,21})>/))
+md.inline.ruler.before('autolink', 'discord_channel', guildMention('discord_channel', /^<#(\d{15,21})>/))
+
+md.renderer.rules.discord_role = (tokens, idx, _options, env) => {
+	const { id, raw } = tokens[idx]!.meta as { id: string, raw: string }
+	const escape = md.utils.escapeHtml
+	const role = (env as DiscordMarkdownEnv).role(id)
+	if (!role) return escape(raw)
+	// 有顏色的身份組跟 Discord 一樣用它的顏色
+	const style = role.color ? ` style="--mention-color: #${role.color.toString(16).padStart(6, '0')}"` : ''
+	return `<span class="md-mention"${style}>@${escape(role.name)}</span>`
+}
+
+md.renderer.rules.discord_channel = (tokens, idx, _options, env) => {
+	const { id, raw } = tokens[idx]!.meta as { id: string, raw: string }
+	const escape = md.utils.escapeHtml
+	const name = (env as DiscordMarkdownEnv).channelName(id)
+	return name === null ? escape(raw) : `<span class="md-mention">#${escape(name)}</span>`
 }
 
 // Discord 的 __文字__ 是底線, **文字** 才是粗體

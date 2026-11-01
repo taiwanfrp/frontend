@@ -41,6 +41,10 @@ const category = ref<TicketCategory | null>(null)
 const messages = ref<TicketMessage[]>([])
 // 客服單裡每個人的快照, 訊息與客服單的 Discord ID 都對應到這裡
 const users = ref<Record<string, TicketUser>>({})
+// 內容裡提及的身份組與頻道
+const roles = ref<Record<string, TicketMentionedRole>>({})
+const channels = ref<Record<string, TicketMentionedChannel>>({})
+const mentions = computed<TicketMentions>(() => ({ users: users.value, roles: roles.value, channels: channels.value }))
 const isLoading = ref(true)
 const isNotFound = ref(false)
 const hasOlder = ref(false)
@@ -55,8 +59,10 @@ const showError = (title: string, error: unknown) => {
 	})
 }
 
-const mergeUsers = (list: TicketUser[]) => {
-	for (const user of list) users.value[user.id] = user
+const mergeMentions = (page: Pick<TicketMessagePage, 'users' | 'roles' | 'channels'>) => {
+	for (const user of page.users) users.value[user.id] = user
+	for (const role of page.roles) roles.value[role.id] = role
+	for (const channel of page.channels) channels.value[channel.id] = channel
 }
 
 // 依照 id 合併 (重複收到同一則時以新的為準), 保持舊的在前面
@@ -68,12 +74,12 @@ const upsertMessages = (list: TicketMessage[]) => {
 
 const loadTicket = async () => {
 	ticket.value = await getTicket(ticketId)
-	mergeUsers(ticket.value.users)
+	mergeMentions(ticket.value)
 }
 
 const loadLatest = async () => {
 	const page = await listMessages(ticketId, { limit: PAGE_SIZE })
-	mergeUsers(page.users)
+	mergeMentions(page)
 	messages.value = page.messages
 	hasOlder.value = page.messages.length === PAGE_SIZE
 }
@@ -84,7 +90,7 @@ const loadOlder = async () => {
 	isLoadingOlder.value = true
 	try {
 		const page = await listMessages(ticketId, { before: first.id, limit: PAGE_SIZE })
-		mergeUsers(page.users)
+		mergeMentions(page)
 		upsertMessages(page.messages)
 		hasOlder.value = page.messages.length === PAGE_SIZE
 	}
@@ -101,7 +107,7 @@ const loadNewer = async () => {
 	for (;;) {
 		const last = messages.value.at(-1)
 		const page = await listMessages(ticketId, { after: last?.id, limit: PAGE_SIZE })
-		mergeUsers(page.users)
+		mergeMentions(page)
 		upsertMessages(page.messages)
 		if (page.messages.length < PAGE_SIZE) return
 	}
@@ -110,7 +116,7 @@ const loadNewer = async () => {
 const reloadMessage = async (messageId: number) => {
 	try {
 		const page = await getMessage(ticketId, messageId)
-		mergeUsers(page.users)
+		mergeMentions(page)
 		upsertMessages(page.messages)
 	}
 	catch (error) {
@@ -560,7 +566,7 @@ const submitRating = async () => {
 									</div>
 									<TicketMarkdown
 										:content="ticket.content"
-										:users="users"
+										:mentions="mentions"
 										class="mt-1 text-sm text-gray-700 dark:text-gray-200"
 									/>
 								</div>
@@ -628,7 +634,7 @@ const submitRating = async () => {
 									<TicketMarkdown
 										v-if="message.content"
 										:content="message.content"
-										:users="users"
+										:mentions="mentions"
 										class="mt-1 text-sm text-gray-700 dark:text-gray-200"
 										:class="{ 'opacity-60 line-through decoration-gray-400': message.deleted_at }"
 									/>
@@ -656,7 +662,7 @@ const submitRating = async () => {
 										<TicketMarkdown
 											v-if="message.forwarded.content"
 											:content="message.forwarded.content"
-											:users="users"
+											:mentions="mentions"
 											class="mt-1 text-sm text-gray-700 dark:text-gray-200"
 										/>
 										<TicketStickers
@@ -730,7 +736,7 @@ const submitRating = async () => {
 												</span>
 												<TicketMarkdown
 													:content="revision.content"
-													:users="users"
+													:mentions="mentions"
 													class="text-sm text-gray-600 dark:text-gray-300"
 												/>
 											</li>

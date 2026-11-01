@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
 	content: string
-	users?: Record<string, TicketUser>	// <@id> 顯示成名稱用的快照
+	mentions?: TicketMentions	// <@id>、<@&id>、<#id> 顯示成名稱用的資料
 }>()
 
 const { t, locale } = useI18n()
@@ -13,9 +13,11 @@ const html = computed(() => renderDiscordMarkdown(props.content, {
 	copyCode: t('tickets.markdown.copy_code'),
 	emojiBaseUrl: config.public.ticketApiUrl as string,
 	userName: (id) => {
-		const user = props.users?.[id]
+		const user = props.mentions?.users[id]
 		return user ? displayName(user) : null
 	},
+	role: id => props.mentions?.roles[id] ?? null,
+	channelName: id => props.mentions?.channels[id]?.name ?? null,
 }))
 
 const isJumbo = computed(() => isJumboEmoji(props.content))
@@ -302,9 +304,10 @@ const handleClick = (event: MouseEvent) => {
 	line-height: 1.2;
 }
 
+/* 有顏色的身份組用 --mention-color */
 .discord-md .md-mention {
-	color: var(--ui-primary);
-	background-color: color-mix(in oklab, var(--ui-primary) 15%, transparent);
+	color: var(--mention-color, var(--ui-primary));
+	background-color: color-mix(in oklab, var(--mention-color, var(--ui-primary)) 15%, transparent);
 	border-radius: 4px;
 	padding: 0 0.2em;
 	font-weight: 500;

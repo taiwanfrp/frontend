@@ -63,6 +63,25 @@ export interface TicketSummary extends Ticket {
 	claimed_by: TicketUser | null
 }
 
+// 內容裡提及的身份組 (<@&id>) 與頻道 (<#id>), 名稱是伺服器現在的資料, 看不到的頻道不會回傳
+export interface TicketMentionedRole {
+	id: string
+	name: string
+	color: number	// 0 表示沒有顏色
+}
+
+export interface TicketMentionedChannel {
+	id: string
+	name: string
+}
+
+// 依照 id 查詢的提及資料, 網頁合併客服單與每一頁訊息的回應
+export interface TicketMentions {
+	users: Record<string, TicketUser>
+	roles: Record<string, TicketMentionedRole>
+	channels: Record<string, TicketMentionedChannel>
+}
+
 export interface TicketDetail extends Ticket {
 	content: string
 	claimed_at: string | null
@@ -73,6 +92,8 @@ export interface TicketDetail extends Ticket {
 	rated_at: string | null
 	users: TicketUser[]
 	members: { user_id: string, added_by_id: string, added_at: string }[]
+	roles: TicketMentionedRole[]	// 開單內容裡提及的
+	channels: TicketMentionedChannel[]
 }
 
 export type TicketAttachmentStatus = 'pending' | 'done' | 'rejected' | 'failed'
@@ -144,7 +165,9 @@ export interface TicketMessage {
 
 export interface TicketMessagePage {
 	messages: TicketMessage[]
-	users: TicketUser[]
+	users: TicketUser[]	// 作者與內容裡被 tag 的人
+	roles: TicketMentionedRole[]
+	channels: TicketMentionedChannel[]
 }
 
 export interface TicketListQuery {
