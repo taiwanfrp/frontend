@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
 	content: string
+	users?: Record<string, TicketUser>	// <@id> 顯示成名稱用的快照
 }>()
 
 const { t, locale } = useI18n()
@@ -11,6 +12,10 @@ const html = computed(() => renderDiscordMarkdown(props.content, {
 	copy: t('tickets.markdown.copy'),
 	copyCode: t('tickets.markdown.copy_code'),
 	emojiBaseUrl: config.public.ticketApiUrl as string,
+	userName: (id) => {
+		const user = props.users?.[id]
+		return user ? displayName(user) : null
+	},
 }))
 
 const isJumbo = computed(() => isJumboEmoji(props.content))
@@ -295,6 +300,14 @@ const handleClick = (event: MouseEvent) => {
 .discord-md.is-jumbo {
 	font-size: 2.5em;
 	line-height: 1.2;
+}
+
+.discord-md .md-mention {
+	color: var(--ui-primary);
+	background-color: color-mix(in oklab, var(--ui-primary) 15%, transparent);
+	border-radius: 4px;
+	padding: 0 0.2em;
+	font-weight: 500;
 }
 
 .discord-md .md-timestamp {

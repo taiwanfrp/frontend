@@ -560,6 +560,7 @@ const submitRating = async () => {
 									</div>
 									<TicketMarkdown
 										:content="ticket.content"
+										:users="users"
 										class="mt-1 text-sm text-gray-700 dark:text-gray-200"
 									/>
 								</div>
@@ -627,6 +628,7 @@ const submitRating = async () => {
 									<TicketMarkdown
 										v-if="message.content"
 										:content="message.content"
+										:users="users"
 										class="mt-1 text-sm text-gray-700 dark:text-gray-200"
 										:class="{ 'opacity-60 line-through decoration-gray-400': message.deleted_at }"
 									/>
@@ -654,6 +656,7 @@ const submitRating = async () => {
 										<TicketMarkdown
 											v-if="message.forwarded.content"
 											:content="message.forwarded.content"
+											:users="users"
 											class="mt-1 text-sm text-gray-700 dark:text-gray-200"
 										/>
 										<TicketStickers
@@ -727,6 +730,7 @@ const submitRating = async () => {
 												</span>
 												<TicketMarkdown
 													:content="revision.content"
+													:users="users"
 													class="text-sm text-gray-600 dark:text-gray-300"
 												/>
 											</li>

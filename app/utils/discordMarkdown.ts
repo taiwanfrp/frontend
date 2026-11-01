@@ -28,6 +28,7 @@ export type DiscordMarkdownEnv = {
 	copy: string	// 複製按鈕的介面文字 (呼叫端翻譯好傳入)
 	copyCode: string
 	emojiBaseUrl: string	// 客服單 bot 的網址, 自訂表情的圖片由 bot 轉址
+	userName: (id: string) => string | null	// <@id> 要顯示的名稱, 沒有快照時是 null
 }
 
 // Discord 只會自動連結有 http(s):// 的網址
@@ -184,6 +185,30 @@ md.renderer.rules.discord_emoji = (tokens, idx, _options, env) => {
 	const escape = md.utils.escapeHtml
 	const src = `${emojiBaseUrl}/emojis/${id}.${animated ? 'gif' : 'webp'}`
 	return `<img class="md-emoji" src="${escape(src)}" alt=":${escape(name)}:" title=":${escape(name)}:" draggable="false" loading="lazy">`
+}
+
+// <@id> 或 <@!id> 提及使用者, 有快照的人 (作者與被 tag 的人) 顯示名稱, 沒有的照原樣顯示
+const USER_MENTION = /^<@!?(\d{15,21})>/
+
+md.inline.ruler.before('autolink', 'discord_mention', (state, silent) => {
+	const match = USER_MENTION.exec(state.src.slice(state.pos, state.posMax))
+	if (!match) return false
+
+	if (!silent) {
+		const token = state.push('discord_mention', 'span', 0)
+		token.meta = { id: match[1], raw: match[0] }
+	}
+
+	state.pos += match[0].length
+	return true
+})
+
+md.renderer.rules.discord_mention = (tokens, idx, _options, env) => {
+	const { userName } = env as DiscordMarkdownEnv
+	const { id, raw } = tokens[idx]!.meta as { id: string, raw: string }
+	const escape = md.utils.escapeHtml
+	const name = userName(id)
+	return name === null ? escape(raw) : `<span class="md-mention">@${escape(name)}</span>`
 }
 
 // Discord 的 __文字__ 是底線, **文字** 才是粗體
