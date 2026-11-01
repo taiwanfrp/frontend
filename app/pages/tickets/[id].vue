@@ -354,7 +354,20 @@ const onDrop = (event: DragEvent) => {
 	addFiles(files)
 }
 
+// Ctrl+V 貼上檔案 (例如截圖); 剪貼簿有文字時照原本的方式貼上文字 (例如從試算表複製的內容也會帶一張圖片)
+const onPaste = (event: ClipboardEvent) => {
+	if (!isOpen.value) return
+	// 回覆框以外的輸入框不處理
+	const target = event.target instanceof Element ? event.target : null
+	if (target?.closest('input, textarea, [contenteditable]') && !target.closest('[data-reply-form]')) return
+	const files = [...(event.clipboardData?.files ?? [])]
+	if (!files.length || event.clipboardData?.types.includes('text/plain')) return
+	event.preventDefault()
+	addFiles(files)
+}
+
 onMounted(() => {
+	window.addEventListener('paste', onPaste)
 	window.addEventListener('dragenter', onDragEnter)
 	window.addEventListener('dragover', onDragOver)
 	window.addEventListener('dragleave', onDragLeave)
@@ -362,6 +375,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+	window.removeEventListener('paste', onPaste)
 	window.removeEventListener('dragenter', onDragEnter)
 	window.removeEventListener('dragover', onDragOver)
 	window.removeEventListener('dragleave', onDragLeave)
@@ -847,6 +861,7 @@ const submitRating = async () => {
 						<form
 							v-else
 							class="space-y-3"
+							data-reply-form
 							@submit.prevent="submitReply"
 						>
 							<div class="space-y-1">

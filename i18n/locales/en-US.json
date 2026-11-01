@@ -188,7 +188,7 @@
             "failed_notice": "The Discord ticket channel could not be created, so this ticket can't be used. Please open a new ticket.",
             "reply_placeholder": "Write a reply (Discord formatting supported)",
             "reply_hint": "Your reply will be posted to the ticket channel with your Discord name and avatar",
-            "attach": "Attach files",
+            "attach": "Attach files (or drag and drop, or paste)",
             "remove_attachment": "Remove attachment",
             "too_many_attachments": "A message can have at most {max} attachments",
             "upload_failed": "Failed to upload {name}",

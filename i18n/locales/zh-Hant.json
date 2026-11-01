@@ -188,7 +188,7 @@
             "failed_notice": "建立 Discord 工單頻道失敗，這張工單無法使用，請重新開單。",
             "reply_placeholder": "輸入回覆內容（支援 Discord 格式）",
             "reply_hint": "回覆會以你的 Discord 名稱與頭像發送到工單頻道",
-            "attach": "附加檔案",
+            "attach": "附加檔案（也可以直接拖曳或貼上）",
             "remove_attachment": "移除附件",
             "too_many_attachments": "一則訊息最多 {max} 個附件",
             "upload_failed": "{name} 上傳失敗",

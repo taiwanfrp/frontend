@@ -188,7 +188,7 @@
             "failed_notice": "创建 Discord 工单频道失败，该工单无法使用，请重新提交。",
             "reply_placeholder": "输入回复内容（支持 Discord 格式）",
             "reply_hint": "回复会以你的 Discord 名称与头像发送到工单频道",
-            "attach": "添加附件",
+            "attach": "添加附件（也可以直接拖拽或粘贴）",
             "remove_attachment": "移除附件",
             "too_many_attachments": "每条消息最多 {max} 个附件",
             "upload_failed": "{name} 上传失败",
