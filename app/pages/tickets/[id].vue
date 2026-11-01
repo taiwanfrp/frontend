@@ -295,16 +295,78 @@ const startUpload = async (file: File) => {
 	}
 }
 
-const pickFiles = (event: Event) => {
-	const input = event.target as HTMLInputElement
-	const files = [...(input.files ?? [])]
-	input.value = ''
+const addFiles = (files: File[]) => {
 	const room = ATTACHMENTS_MAX - uploads.value.length
 	if (files.length > room) {
 		toast.add({ title: t('tickets.detail.too_many_attachments', { max: ATTACHMENTS_MAX }), color: 'warning', icon: 'i-heroicons-exclamation-triangle' })
 	}
 	for (const file of files.slice(0, Math.max(room, 0))) startUpload(file)
 }
+
+const pickFiles = (event: Event) => {
+	const input = event.target as HTMLInputElement
+	const files = [...(input.files ?? [])]
+	input.value = ''
+	addFiles(files)
+}
+
+// 跟 Discord 一樣, 檔案拖到頁面上任何地方都可以上傳 (只有客服單還開著的時候)
+const isDragging = ref(false)
+let dragDepth = 0
+
+const hasFiles = (event: DragEvent) => !!event.dataTransfer?.types.includes('Files')
+
+const onDragEnter = (event: DragEvent) => {
+	if (!isOpen.value || !hasFiles(event)) return
+	event.preventDefault()
+	dragDepth++
+	isDragging.value = true
+}
+
+const onDragOver = (event: DragEvent) => {
+	if (!isOpen.value || !hasFiles(event)) return
+	// 不取消的話瀏覽器會直接打開檔案
+	event.preventDefault()
+	event.dataTransfer!.dropEffect = 'copy'
+}
+
+const onDragLeave = (event: DragEvent) => {
+	if (!isDragging.value || !hasFiles(event)) return
+	// 經過子元素時也會觸發, 離開整個頁面才隱藏
+	dragDepth = Math.max(dragDepth - 1, 0)
+	if (dragDepth === 0) isDragging.value = false
+}
+
+const onDrop = (event: DragEvent) => {
+	if (!isOpen.value || !hasFiles(event)) return
+	event.preventDefault()
+	dragDepth = 0
+	isDragging.value = false
+	const items = [...(event.dataTransfer?.items ?? [])]
+	// 資料夾沒辦法上傳, 略過
+	const files = items
+		.filter(item => item.kind === 'file' && !item.webkitGetAsEntry()?.isDirectory)
+		.map(item => item.getAsFile())
+		.filter((file): file is File => !!file)
+	if (files.length < items.length) {
+		toast.add({ title: t('tickets.detail.folder_not_supported'), color: 'warning', icon: 'i-heroicons-exclamation-triangle' })
+	}
+	addFiles(files)
+}
+
+onMounted(() => {
+	window.addEventListener('dragenter', onDragEnter)
+	window.addEventListener('dragover', onDragOver)
+	window.addEventListener('dragleave', onDragLeave)
+	window.addEventListener('drop', onDrop)
+})
+
+onBeforeUnmount(() => {
+	window.removeEventListener('dragenter', onDragEnter)
+	window.removeEventListener('dragover', onDragOver)
+	window.removeEventListener('dragleave', onDragLeave)
+	window.removeEventListener('drop', onDrop)
+})
 
 const discardUpload = async (upload: Upload) => {
 	uploads.value = uploads.value.filter(item => item.key !== upload.key)
@@ -395,6 +457,28 @@ const submitRating = async () => {
 
 <template>
 	<div class="space-y-6">
+		<!-- 拖曳檔案時的提示, 放在 body 底下才不會被有 backdrop-blur 的元素限制在裡面 -->
+		<ClientOnly>
+			<Teleport to="body">
+				<div
+					v-if="isDragging"
+					class="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 p-6 backdrop-blur-sm"
+				>
+					<div class="flex flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-primary-400 bg-white/90 px-10 py-8 text-center shadow-lg dark:bg-gray-900/90">
+						<UIcon
+							name="i-heroicons-arrow-up-tray"
+							class="h-10 w-10 text-primary-500"
+						/>
+						<p class="text-base font-semibold text-gray-900 dark:text-white">
+							{{ $t('tickets.detail.drop_files') }}
+						</p>
+						<p class="text-sm text-gray-500 dark:text-gray-400">
+							{{ $t('tickets.detail.drop_files_hint', { max: ATTACHMENTS_MAX }) }}
+						</p>
+					</div>
+				</div>
+			</Teleport>
+		</ClientOnly>
 		<NuxtLink
 			:to="$localePath('/tickets')"
 			class="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
