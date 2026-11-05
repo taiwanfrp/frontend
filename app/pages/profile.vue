@@ -22,13 +22,19 @@ const { data: sessions, pending: isSessionsLoading, refresh: refreshSessions } =
 // 目前的裝置放在最前面
 const orderedSessions = computed(() => [...(sessions.value || [])].sort((a, b) => Number(b.current) - Number(a.current)))
 
-// 例如 Linux · Firefox 157
+// bowser 只會判斷成 Linux, 發行版要自己從 user agent 找
+const LINUX_DISTROS = ['Ubuntu', 'Fedora', 'Debian', 'Mint', 'Arch', 'openSUSE', 'CentOS']
+
+// 例如 Ubuntu Linux · Firefox 157
+// 作業系統的版本不顯示: 瀏覽器為了隱私會固定成假的版本 (Android 都是 10, Windows 11 也是 10)
 const describeDevice = (userAgent: string | null) => {
 	if (!userAgent) return { name: '未知裝置', icon: 'i-heroicons-question-mark-circle' }
 
 	const { browser, os, platform } = Bowser.parse(userAgent)
+	const distro = os.name === 'Linux' ? LINUX_DISTROS.find(name => userAgent.includes(name)) : undefined
+	const osName = [distro, os.name].filter(Boolean).join(' ')
 	const browserName = [browser.name, browser.version?.split('.')[0]].filter(Boolean).join(' ')
-	const name = [os.name, browserName].filter(Boolean).join(' · ') || userAgent
+	const name = [osName, browserName].filter(Boolean).join(' · ') || userAgent
 
 	let icon = 'i-heroicons-computer-desktop'
 	if (platform.type === 'mobile') icon = 'i-heroicons-device-phone-mobile'
