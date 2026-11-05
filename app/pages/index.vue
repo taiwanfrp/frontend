@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 
 const config = useRuntimeConfig()
 const discordUrl = config.public.discordUrl
+const { loginUrl } = useAuth()
 
 const installCommands = {
 	unix: { prompt: '$', command: 'curl -fsSL https://get.taiwanfrp.me | bash' },
@@ -194,7 +195,7 @@ onUnmounted(() => {
 						trailing-icon="i-heroicons-arrow-right-20-solid"
 						size="xl"
 						color="primary"
-						to="https://api.taiwanfrp.me/api/v1/auth/discord/login"
+						:to="loginUrl"
 						class="rounded-lg px-8 py-3 font-semibold transition-transform hover:scale-105 w-full sm:w-auto justify-center"
 					/>
 
@@ -456,7 +457,7 @@ onUnmounted(() => {
 								color="primary"
 								block
 								size="xl"
-								to="https://api.taiwanfrp.me/api/v1/auth/discord/login"
+								:to="loginUrl"
 								class="rounded-xl font-bold transition-transform hover:scale-[1.02]"
 							/>
 						</div>

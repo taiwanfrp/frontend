@@ -24,7 +24,7 @@ const selectLanguage = (code: Parameters<typeof setLocale>[0]) => {
 	isLangOpen.value = false
 }
 
-const { user, isLoading, fetchUser, logout, getAvatarUrl } = useAuth()
+const { user, isLoading, loginUrl, fetchUser, logout, getAvatarUrl } = useAuth()
 
 onMounted(() => {
 	fetchUser()
@@ -169,7 +169,7 @@ const navLinks = computed(() => [
 							color="neutral"
 							variant="ghost"
 							class="hidden sm:inline-flex text-sm"
-							to="https://api.taiwanfrp.me/api/v1/auth/discord/login"
+							:to="loginUrl"
 						/>
 
 						<div
@@ -313,6 +313,19 @@ const navLinks = computed(() => [
 										</p>
 									</div>
 
+									<!-- 儀表板 -->
+									<NuxtLink
+										to="/dashboard"
+										class="flex items-center gap-2 px-2.5 py-2 text-sm rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors w-full text-left font-medium mb-1"
+										@click="isMobileUserMenuOpen = false"
+									>
+										<UIcon
+											name="i-heroicons-chart-pie-20-solid"
+											class="w-4 h-4 shrink-0"
+										/>
+										儀表板
+									</NuxtLink>
+
 									<!-- 工單 -->
 									<NuxtLink
 										:to="$localePath('/tickets')"
@@ -413,7 +426,7 @@ const navLinks = computed(() => [
 									color="neutral"
 									variant="ghost"
 									class="w-full justify-start px-4 py-3 text-base font-medium"
-									to="https://api.taiwanfrp.me/api/auth/discord/login"
+									:to="loginUrl"
 								/>
 							</div>
 						</ClientOnly>
