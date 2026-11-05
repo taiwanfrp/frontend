@@ -45,6 +45,19 @@ export const useAuth = () => {
 		}
 	}
 
+	// 目前裝置的 session 已被刪除後, 清空狀態並一併登出客服單 bot
+	const clearSession = async () => {
+		user.value = null
+
+		// 客服單 bot 有自己的 cookie, 主要 API 的 session 刪除後就會失效, 這裡只是一併清除
+		try {
+			await logoutTicketApi()
+		}
+		catch (error) {
+			console.error('Logout ticket API failed:', error)
+		}
+	}
+
 	const logout = async () => {
 		try {
 			await $fetch(`${config.public.apiUrl}/api/v1/auth/logout`, {
@@ -55,18 +68,9 @@ export const useAuth = () => {
 		catch (error) {
 			console.error('Logout failed:', error)
 		}
-		finally {
-			// 無論是否成功都清空狀態
-			user.value = null
-		}
 
-		// 客服單 bot 有自己的 cookie, 主要 API 的 session 刪除後就會失效, 這裡只是一併清除
-		try {
-			await logoutTicketApi()
-		}
-		catch (error) {
-			console.error('Logout ticket API failed:', error)
-		}
+		// 無論是否成功都清空狀態
+		await clearSession()
 	}
 
 	const getAvatarUrl = (user: Pick<User, 'discord_id' | 'avatar'> | null) => {
@@ -89,5 +93,5 @@ export const useAuth = () => {
 		return `https://cdn.discordapp.com/embed/avatars/${defaultAvatarIndex}.png`
 	}
 
-	return { user, isLoading, isAccountActive, fetchUser, logout, getAvatarUrl }
+	return { user, isLoading, isAccountActive, fetchUser, logout, clearSession, getAvatarUrl }
 }
