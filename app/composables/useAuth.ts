@@ -1,6 +1,9 @@
 export interface User {
 	internal_user_id: string
 	internal_account_status: string
+	// 停權, 封禁的原因與到期時間, status_until 為 null 表示永久
+	status_reason?: string | null
+	status_until?: string | null
 	discord_id: string
 	username: string
 	avatar: string | null
@@ -24,8 +27,12 @@ export const useAuth = () => {
 	// 建立 loading 狀態避免在檢查登入前畫面閃爍
 	const isLoading = useState<boolean>('auth_loading', () => true)
 	const { logout: logoutTicketApi } = useTicketApi()
-	// 尚未啟用 (suspended) 的帳號也能登入, 但只能使用工單
+	// 尚未啟用 (suspended), 封禁 (banned) 的帳號也能登入, 但只能使用工單
 	const isAccountActive = computed(() => user.value?.internal_account_status === 'active')
+	const isAccountBanned = computed(() => user.value?.internal_account_status === 'banned')
+	const statusUntilText = computed(() =>
+		user.value?.status_until ? new Date(user.value.status_until).toLocaleString('zh-TW') : '永久',
+	)
 	const loginUrl = `${config.public.apiUrl}/api/v1/auth/discord/login`
 
 	const fetchUser = async () => {
@@ -94,5 +101,5 @@ export const useAuth = () => {
 		return `https://cdn.discordapp.com/embed/avatars/${defaultAvatarIndex}.png`
 	}
 
-	return { user, isLoading, isAccountActive, loginUrl, fetchUser, logout, clearSession, getAvatarUrl }
+	return { user, isLoading, isAccountActive, isAccountBanned, statusUntilText, loginUrl, fetchUser, logout, clearSession, getAvatarUrl }
 }

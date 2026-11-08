@@ -9,7 +9,16 @@ interface AuthSession {
 	current: boolean
 }
 
-const { user, isLoading, getAvatarUrl, clearSession } = useAuth()
+const { user, isLoading, getAvatarUrl, clearSession, statusUntilText } = useAuth()
+
+const ACCOUNT_STATUS: Record<string, { label: string, color: 'success' | 'warning' | 'error' | 'neutral' }> = {
+	active: { label: '正常', color: 'success' },
+	suspended: { label: '尚未啟用', color: 'warning' },
+	banned: { label: '已封禁', color: 'error' },
+}
+const accountStatus = computed(() =>
+	ACCOUNT_STATUS[user.value?.internal_account_status || ''] || { label: user.value?.internal_account_status || '未知', color: 'neutral' as const },
+)
 const toast = useToast()
 const config = useRuntimeConfig()
 
@@ -153,6 +162,27 @@ watchEffect(() => {
 								<span class="text-gray-900 dark:text-gray-100 font-mono text-sm bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">{{ user.discord_id }}</span>
 							</div>
 						</div>
+
+						<!-- 帳號狀態 -->
+						<div class="flex items-center gap-3 sm:gap-4">
+							<span class="text-sm font-medium text-gray-500 dark:text-gray-400 w-20 sm:w-24 shrink-0">帳號狀態</span>
+							<UBadge
+								:label="accountStatus.label"
+								:color="accountStatus.color"
+								variant="subtle"
+							/>
+						</div>
+
+						<template v-if="user.internal_account_status !== 'active' && (user.status_reason || user.status_until)">
+							<div class="flex items-start gap-3 sm:gap-4">
+								<span class="text-sm font-medium text-gray-500 dark:text-gray-400 w-20 sm:w-24 shrink-0">原因</span>
+								<span class="text-base text-gray-900 dark:text-gray-100 break-words">{{ user.status_reason || '未提供' }}</span>
+							</div>
+							<div class="flex items-center gap-3 sm:gap-4">
+								<span class="text-sm font-medium text-gray-500 dark:text-gray-400 w-20 sm:w-24 shrink-0">到期</span>
+								<span class="text-base text-gray-900 dark:text-gray-100">{{ statusUntilText }}</span>
+							</div>
+						</template>
 					</div>
 				</div>
 			</div>

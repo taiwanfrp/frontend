@@ -2,7 +2,7 @@
 const route = useRoute()
 const config = useRuntimeConfig()
 const toast = useToast()
-const { user, isLoading, isAccountActive, fetchUser } = useAuth()
+const { user, isLoading, isAccountActive, isAccountBanned, statusUntilText, fetchUser } = useAuth()
 const localePath = useLocalePath()
 
 onMounted(() => {
@@ -140,6 +140,57 @@ const isActive = (itemPath: string) => {
 		<!-- Main Content -->
 		<main class="relative z-10 flex-1 md:ml-64 w-full">
 			<slot v-if="isAccountActive" />
+
+			<!-- 封禁的帳號不能使用儀表板的 API, 只顯示原因與期限 -->
+			<div
+				v-else-if="user && isAccountBanned"
+				class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
+			>
+				<UCard class="bg-white/50 dark:bg-gray-900/50 backdrop-blur shadow-sm ring-1 ring-gray-200/50 dark:ring-gray-800/50">
+					<div class="flex flex-col items-center gap-4 py-4 text-center">
+						<div class="p-3 bg-red-100 dark:bg-red-900/50 rounded-full text-red-600 dark:text-red-400">
+							<UIcon
+								name="i-heroicons-no-symbol"
+								class="w-8 h-8"
+							/>
+						</div>
+
+						<div>
+							<h1 class="text-xl font-bold text-gray-900 dark:text-white">
+								帳號已被封禁
+							</h1>
+							<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+								封禁期間無法使用儀表板的功能，如有疑問可以開工單申訴（封禁期間同時只能開 1 張工單）。
+							</p>
+						</div>
+
+						<dl class="w-full max-w-sm text-sm text-left space-y-2">
+							<div class="flex gap-3">
+								<dt class="w-16 shrink-0 text-gray-500 dark:text-gray-400">
+									原因
+								</dt>
+								<dd class="text-gray-900 dark:text-gray-100 break-words">
+									{{ user.status_reason || '未提供' }}
+								</dd>
+							</div>
+							<div class="flex gap-3">
+								<dt class="w-16 shrink-0 text-gray-500 dark:text-gray-400">
+									到期
+								</dt>
+								<dd class="text-gray-900 dark:text-gray-100">
+									{{ statusUntilText }}
+								</dd>
+							</div>
+						</dl>
+
+						<UButton
+							label="開工單"
+							icon="i-heroicons-lifebuoy"
+							:to="localePath('/tickets/new')"
+						/>
+					</div>
+				</UCard>
+			</div>
 
 			<!-- 尚未啟用的帳號不能使用儀表板的 API, 只顯示說明 -->
 			<div
