@@ -6,6 +6,7 @@ const menuGroups = [
 		title: '管理',
 		items: [
 			{ label: '概覽', icon: 'i-heroicons-squares-2x2', to: '/admin' },
+			{ label: '使用者', icon: 'i-heroicons-users', to: '/admin/users' },
 		],
 	},
 ]
