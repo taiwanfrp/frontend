@@ -233,7 +233,7 @@ const formatLimit = (value: number | undefined, unit = '') => {
 							>（自訂）</span>
 						</div>
 						<div>
-							限速：{{ formatLimit(row.original.limits?.max_bandwidth, ' Mbps') }}
+							限速：{{ formatLimit(row.original.limits?.max_bandwidth, ' MB/s') }}
 							<span
 								v-if="row.original.custom_max_bandwidth !== null"
 								class="text-xs text-primary-500"
