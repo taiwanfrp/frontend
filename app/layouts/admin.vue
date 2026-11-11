@@ -8,6 +8,7 @@ const menuGroups = [
 			{ label: '概覽', icon: 'i-heroicons-squares-2x2', to: '/admin' },
 			{ label: '使用者', icon: 'i-heroicons-users', to: '/admin/users' },
 			{ label: '身份組', icon: 'i-heroicons-identification', to: '/admin/roles' },
+			{ label: '權限節點', icon: 'i-heroicons-key', to: '/admin/permissions' },
 		],
 	},
 ]
