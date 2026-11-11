@@ -71,8 +71,9 @@ const navLinks = computed(() => [
 			class="sticky top-0 z-50 transition-all duration-300"
 			:class="isMobileMenuOpen
 				? 'bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-800/50'
-				: 'bg-transparent border-b border-transparent hover:border-gray-200 dark:hover:border-gray-800 hover:bg-white/75 dark:hover:bg-gray-950/75 backdrop-blur'"
+				: 'bg-transparent border-b border-transparent backdrop-blur'"
 		>
+			<!-- : 'bg-transparent border-b border-transparent hover:border-gray-200 dark:hover:border-gray-800 hover:bg-white/75 dark:hover:bg-gray-950/75 backdrop-blur'" -->
 			<div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl flex items-center justify-between h-16">
 				<!-- Logo -->
 				<NuxtLink
