@@ -182,12 +182,10 @@ const formatLimit = (value: number | null, unit = '') => {
 					</div>
 				</template>
 
-				<!-- 後端目前只有一個頻寬上限, 上傳與下載共用 -->
 				<template #limits-cell="{ row }">
 					<div class="text-sm text-gray-600 dark:text-gray-300">
 						<div>FRP 隧道：{{ formatLimit(row.original.custom_max_tunnels, ' 條') }}</div>
-						<div>上傳限速：{{ formatLimit(row.original.custom_max_bandwidth, ' Mbps') }}</div>
-						<div>下載限速：{{ formatLimit(row.original.custom_max_bandwidth, ' Mbps') }}</div>
+						<div>限速：{{ formatLimit(row.original.custom_max_bandwidth, ' Mbps') }}</div>
 					</div>
 				</template>
 
