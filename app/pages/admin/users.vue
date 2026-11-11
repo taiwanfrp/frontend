@@ -5,6 +5,15 @@ definePageMeta({
 	layout: 'admin',
 })
 
+// 客服單 bot 同步的伺服器成員資料, 不在伺服器時是 null
+interface DiscordMember {
+	username: string
+	global_name: string | null
+	nick: string | null
+	avatar: string | null
+	guild_avatar: string | null
+}
+
 interface AdminUser {
 	id: string
 	discord_id: string
@@ -14,6 +23,7 @@ interface AdminUser {
 	custom_max_tunnels: number | null
 	custom_max_bandwidth: number | null
 	roles: { id: number, name: string }[]
+	member?: DiscordMember | null
 	created_at: string
 	updated_at: string
 }
@@ -31,7 +41,7 @@ const statusOptions = [
 ]
 
 const columns: TableColumn<AdminUser>[] = [
-	{ accessorKey: 'discord_id', header: 'Discord ID' },
+	{ id: 'user', header: '使用者' },
 	{ accessorKey: 'status', header: '狀態' },
 	{ id: 'roles', header: '身份組' },
 	{ id: 'limits', header: '資源限制' },
@@ -53,6 +63,11 @@ const errorMessage = computed(() => {
 	return typeof detail === 'string' ? detail : '無法取得使用者列表，請稍後再試。'
 })
 
+const { getAvatarUrl } = useAuth()
+
+const displayName = (user: AdminUser) =>
+	user.member?.nick || user.member?.global_name || user.member?.username || user.discord_id
+
 const searchQuery = ref('')
 const statusFilter = ref('all')
 
@@ -62,7 +77,9 @@ const filteredUsers = computed(() => {
 	return (users.value || []).filter((user) => {
 		if (statusFilter.value !== 'all' && user.status !== statusFilter.value) return false
 		if (!query) return true
+		const names = [user.member?.username, user.member?.global_name, user.member?.nick]
 		return user.discord_id.includes(query)
+			|| names.some(name => name?.toLowerCase().includes(query))
 			|| (user.roles || []).some(role => role.name.toLowerCase().includes(query))
 	})
 })
@@ -106,7 +123,7 @@ const formatLimit = (value: number | null, unit = '') => {
 				<UInput
 					v-model="searchQuery"
 					icon="i-heroicons-magnifying-glass"
-					placeholder="搜尋 Discord ID 或身份組..."
+					placeholder="搜尋名稱、Discord ID 或身份組..."
 					class="flex-1 sm:w-72"
 				>
 					<template
@@ -140,10 +157,32 @@ const formatLimit = (value: number | null, unit = '') => {
 				:columns="columns"
 				:loading="isUsersLoading"
 			>
-				<template #discord_id-cell="{ row }">
-					<span class="font-mono text-gray-900 dark:text-white">
-						{{ row.original.discord_id }}
-					</span>
+				<template #user-cell="{ row }">
+					<div class="flex items-center gap-3">
+						<UAvatar
+							:src="getAvatarUrl({ discord_id: row.original.discord_id, avatar: row.original.member?.avatar ?? null })"
+							:alt="displayName(row.original)"
+							size="md"
+						/>
+						<div class="min-w-0">
+							<div class="font-medium text-gray-900 dark:text-white truncate">
+								{{ displayName(row.original) }}
+							</div>
+							<div class="text-xs text-gray-500 dark:text-gray-400">
+								<span v-if="row.original.member">@{{ row.original.member.username }}・</span>
+								<span class="font-mono">{{ row.original.discord_id }}</span>
+							</div>
+							<UBadge
+								v-if="!row.original.member"
+								color="neutral"
+								variant="subtle"
+								size="sm"
+								class="mt-1"
+							>
+								不在伺服器
+							</UBadge>
+						</div>
+					</div>
 				</template>
 
 				<template #status-cell="{ row }">
