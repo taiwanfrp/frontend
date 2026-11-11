@@ -23,6 +23,8 @@ interface AdminUser {
 	custom_max_tunnels: number | null
 	custom_max_bandwidth: number | null
 	roles: { id: number, name: string }[]
+	// 實際的上限: 有自訂值時用自訂值, 否則依身份組計算
+	limits?: { max_tunnels: number, max_bandwidth: number }
 	member?: DiscordMember | null
 	created_at: string
 	updated_at: string
@@ -86,9 +88,9 @@ const filteredUsers = computed(() => {
 
 const formatDate = (value: string | null) => (value ? new Date(value).toLocaleString('zh-TW') : '')
 
-// null 表示依身份組, 0 表示無限制
-const formatLimit = (value: number | null, unit = '') => {
-	if (value === null) return '依身份組'
+// 0 表示無限制
+const formatLimit = (value: number | undefined, unit = '') => {
+	if (value === undefined) return '-'
 	if (value === 0) return '無限制'
 	return `${value}${unit}`
 }
@@ -223,8 +225,20 @@ const formatLimit = (value: number | null, unit = '') => {
 
 				<template #limits-cell="{ row }">
 					<div class="text-sm text-gray-600 dark:text-gray-300">
-						<div>FRP 隧道：{{ formatLimit(row.original.custom_max_tunnels, ' 條') }}</div>
-						<div>限速：{{ formatLimit(row.original.custom_max_bandwidth, ' Mbps') }}</div>
+						<div>
+							FRP 隧道：{{ formatLimit(row.original.limits?.max_tunnels, ' 條') }}
+							<span
+								v-if="row.original.custom_max_tunnels !== null"
+								class="text-xs text-primary-500"
+							>（自訂）</span>
+						</div>
+						<div>
+							限速：{{ formatLimit(row.original.limits?.max_bandwidth, ' Mbps') }}
+							<span
+								v-if="row.original.custom_max_bandwidth !== null"
+								class="text-xs text-primary-500"
+							>（自訂）</span>
+						</div>
 					</div>
 				</template>
 
