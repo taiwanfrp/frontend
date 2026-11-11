@@ -24,7 +24,7 @@ const selectLanguage = (code: Parameters<typeof setLocale>[0]) => {
 	isLangOpen.value = false
 }
 
-const { user, isLoading, loginUrl, fetchUser, logout, getAvatarUrl } = useAuth()
+const { user, isLoading, isAdmin, loginUrl, fetchUser, logout, getAvatarUrl } = useAuth()
 
 onMounted(() => {
 	fetchUser()
@@ -219,6 +219,18 @@ const navLinks = computed(() => [
 										儀表板
 									</NuxtLink>
 									<NuxtLink
+										v-if="isAdmin"
+										to="/admin"
+										class="flex items-center gap-2 px-2.5 py-2 text-sm rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors w-full text-left font-medium mb-1"
+										@click="isUserMenuOpen = false"
+									>
+										<UIcon
+											name="i-heroicons-shield-check-20-solid"
+											class="w-4 h-4 shrink-0"
+										/>
+										管理員介面
+									</NuxtLink>
+									<NuxtLink
 										:to="$localePath('/tickets')"
 										class="flex items-center gap-2 px-2.5 py-2 text-sm rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors w-full text-left font-medium mb-1"
 										@click="isUserMenuOpen = false"
@@ -324,6 +336,18 @@ const navLinks = computed(() => [
 											class="w-4 h-4 shrink-0"
 										/>
 										儀表板
+									</NuxtLink>
+									<NuxtLink
+										v-if="isAdmin"
+										to="/admin"
+										class="flex items-center gap-2 px-2.5 py-2 text-sm rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors w-full text-left font-medium mb-1"
+										@click="isMobileUserMenuOpen = false"
+									>
+										<UIcon
+											name="i-heroicons-shield-check-20-solid"
+											class="w-4 h-4 shrink-0"
+										/>
+										管理員介面
 									</NuxtLink>
 
 									<!-- 工單 -->
