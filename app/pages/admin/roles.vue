@@ -22,9 +22,7 @@ interface AdminRole {
 	updated_at: string
 }
 
-// 後端不允許改名與刪除的身份組
 const SYSTEM_ROLES = ['admin', 'user', 'node_provider']
-// 權限超過這個數量時先收合
 const COLLAPSED_COUNT = 6
 
 const columns: TableColumn<AdminRole>[] = [
@@ -34,19 +32,10 @@ const columns: TableColumn<AdminRole>[] = [
 	{ accessorKey: 'updated_at', header: '更新時間' },
 ]
 
-const { data: roles, pending: isRolesLoading, error: rolesError, refresh: refreshRoles } = useApiFetch<AdminRole[]>('/api/v1/roles', {
+const { data: roles, pending: isRolesLoading, refresh: refreshRoles } = useApiFetch<AdminRole[]>('/api/v1/roles', {
 	server: false,
 	lazy: true,
 	default: () => [],
-})
-
-const errorMessage = computed(() => {
-	if (!rolesError.value) return ''
-	const statusCode = rolesError.value.statusCode
-	if (statusCode === 401) return '尚未登入，請先登入後再試一次。'
-	if (statusCode === 403) return '沒有查看身份組的權限（需要 role.read.all）。'
-	const detail = (rolesError.value.data as { detail?: unknown } | undefined)?.detail
-	return typeof detail === 'string' ? detail : '無法取得身份組列表，請稍後再試。'
 })
 
 const searchQuery = ref('')
@@ -88,7 +77,6 @@ const getPermissionColor = (name: string) => {
 
 const formatDate = (value: string) => new Date(value).toLocaleString('zh-TW')
 
-// 0 表示無限制
 const formatLimit = (value: number, unit = '') => (value === 0 ? '無限制' : `${value}${unit}`)
 </script>
 
@@ -134,15 +122,6 @@ const formatLimit = (value: number, unit = '') => (value === 0 ? '無限制' : `
 				</UInput>
 			</div>
 		</div>
-
-		<UAlert
-			v-if="errorMessage"
-			color="error"
-			variant="subtle"
-			icon="i-heroicons-exclamation-triangle"
-			title="載入失敗"
-			:description="errorMessage"
-		/>
 
 		<UCard class="bg-white/50 dark:bg-gray-900/50 backdrop-blur shadow-sm ring-1 ring-gray-200/50 dark:ring-gray-800/50">
 			<UTable
@@ -218,7 +197,7 @@ const formatLimit = (value: number, unit = '') => (value === 0 ? '無限制' : `
 							class="w-12 h-12 text-gray-400 dark:text-gray-500 mb-4"
 						/>
 						<span class="text-base font-medium text-gray-900 dark:text-white">
-							{{ errorMessage ? '無法顯示身份組' : searchQuery ? '找不到符合的身份組' : '目前沒有任何身份組' }}
+							{{ searchQuery ? '找不到符合的身份組' : '目前沒有任何身份組' }}
 						</span>
 					</div>
 				</template>

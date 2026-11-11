@@ -28,14 +28,13 @@ const columns: TableColumn<PermissionRow>[] = [
 	{ id: 'roles', header: '擁有的身份組' },
 ]
 
-// GET /permissions 只回傳自己擁有的權限, 再加上身份組裡的權限, 盡量列出完整的清單
-const { data: permissions, pending: isPermissionsLoading, error: permissionsError, refresh: refreshPermissions } = useApiFetch<AdminPermission[]>('/api/v1/permissions', {
+const { data: permissions, pending: isPermissionsLoading, refresh: refreshPermissions } = useApiFetch<AdminPermission[]>('/api/v1/permissions', {
 	server: false,
 	lazy: true,
 	default: () => [],
 })
 
-const { data: roles, pending: isRolesLoading, error: rolesError, refresh: refreshRoles } = useApiFetch<AdminRole[]>('/api/v1/roles', {
+const { data: roles, pending: isRolesLoading, refresh: refreshRoles } = useApiFetch<AdminRole[]>('/api/v1/roles', {
 	server: false,
 	lazy: true,
 	default: () => [],
@@ -44,15 +43,6 @@ const { data: roles, pending: isRolesLoading, error: rolesError, refresh: refres
 const isLoading = computed(() => isPermissionsLoading.value || isRolesLoading.value)
 
 const refresh = () => Promise.all([refreshPermissions(), refreshRoles()])
-
-const errorMessage = computed(() => {
-	const error = permissionsError.value || rolesError.value
-	if (!error) return ''
-	if (error.statusCode === 401) return '尚未登入，請先登入後再試一次。'
-	if (error.statusCode === 403) return '沒有查看身份組的權限（需要 role.read.all）。'
-	const detail = (error.data as { detail?: unknown } | undefined)?.detail
-	return typeof detail === 'string' ? detail : '無法取得權限節點，請稍後再試。'
-})
 
 const rows = computed<PermissionRow[]>(() => {
 	const map = new Map<number, PermissionRow>()
@@ -149,15 +139,6 @@ const getPermissionColor = (name: string) => {
 		</div>
 
 		<UAlert
-			v-if="errorMessage"
-			color="error"
-			variant="subtle"
-			icon="i-heroicons-exclamation-triangle"
-			title="載入失敗"
-			:description="errorMessage"
-		/>
-
-		<UAlert
 			color="neutral"
 			variant="subtle"
 			icon="i-heroicons-information-circle"
@@ -210,7 +191,7 @@ const getPermissionColor = (name: string) => {
 							class="w-12 h-12 text-gray-400 dark:text-gray-500 mb-4"
 						/>
 						<span class="text-base font-medium text-gray-900 dark:text-white">
-							{{ errorMessage ? '無法顯示權限節點' : searchQuery || resourceFilter !== 'all' ? '找不到符合的權限節點' : '目前沒有任何權限節點' }}
+							{{ searchQuery || resourceFilter !== 'all' ? '找不到符合的權限節點' : '目前沒有任何權限節點' }}
 						</span>
 					</div>
 				</template>

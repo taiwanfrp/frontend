@@ -5,7 +5,6 @@ definePageMeta({
 	layout: 'admin',
 })
 
-// 客服單 bot 同步的伺服器成員資料, 不在伺服器時是 null
 interface DiscordMember {
 	username: string
 	global_name: string | null
@@ -23,7 +22,6 @@ interface AdminUser {
 	custom_max_tunnels: number | null
 	custom_max_bandwidth: number | null
 	roles: { id: number, name: string }[]
-	// 實際的上限: 有自訂值時用自訂值, 否則依身份組計算
 	limits?: { max_tunnels: number, max_bandwidth: number }
 	member?: DiscordMember | null
 	created_at: string
@@ -50,19 +48,10 @@ const columns: TableColumn<AdminUser>[] = [
 	{ accessorKey: 'created_at', header: '建立時間' },
 ]
 
-const { data: users, pending: isUsersLoading, error: usersError, refresh: refreshUsers } = useApiFetch<AdminUser[]>('/api/v1/users', {
+const { data: users, pending: isUsersLoading, refresh: refreshUsers } = useApiFetch<AdminUser[]>('/api/v1/users', {
 	server: false,
 	lazy: true,
 	default: () => [],
-})
-
-const errorMessage = computed(() => {
-	if (!usersError.value) return ''
-	const statusCode = usersError.value.statusCode
-	if (statusCode === 401) return '尚未登入，請先登入後再試一次。'
-	if (statusCode === 403) return '沒有查看使用者的權限（需要 user.read.all）。'
-	const detail = (usersError.value.data as { detail?: unknown } | undefined)?.detail
-	return typeof detail === 'string' ? detail : '無法取得使用者列表，請稍後再試。'
 })
 
 const { getAvatarUrl } = useAuth()
@@ -88,7 +77,6 @@ const filteredUsers = computed(() => {
 
 const formatDate = (value: string | null) => (value ? new Date(value).toLocaleString('zh-TW') : '')
 
-// 0 表示無限制
 const formatLimit = (value: number | undefined, unit = '') => {
 	if (value === undefined) return '-'
 	if (value === 0) return '無限制'
@@ -144,15 +132,6 @@ const formatLimit = (value: number | undefined, unit = '') => {
 			</div>
 		</div>
 
-		<UAlert
-			v-if="errorMessage"
-			color="error"
-			variant="subtle"
-			icon="i-heroicons-exclamation-triangle"
-			title="載入失敗"
-			:description="errorMessage"
-		/>
-
 		<UCard class="bg-white/50 dark:bg-gray-900/50 backdrop-blur shadow-sm ring-1 ring-gray-200/50 dark:ring-gray-800/50">
 			<UTable
 				:data="filteredUsers"
@@ -196,7 +175,6 @@ const formatLimit = (value: number | undefined, unit = '') => {
 						>
 							{{ ACCOUNT_STATUS[row.original.status].label }}
 						</UBadge>
-						<!-- 停權, 封禁的原因與期限 -->
 						<span
 							v-if="row.original.status === 'suspended' || row.original.status === 'banned'"
 							class="text-xs text-gray-500 dark:text-gray-400"
@@ -255,7 +233,7 @@ const formatLimit = (value: number | undefined, unit = '') => {
 							class="w-12 h-12 text-gray-400 dark:text-gray-500 mb-4"
 						/>
 						<span class="text-base font-medium text-gray-900 dark:text-white">
-							{{ errorMessage ? '無法顯示使用者' : searchQuery || statusFilter !== 'all' ? '找不到符合的使用者' : '目前沒有任何使用者' }}
+							{{ searchQuery || statusFilter !== 'all' ? '找不到符合的使用者' : '目前沒有任何使用者' }}
 						</span>
 					</div>
 				</template>

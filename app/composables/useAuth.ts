@@ -30,7 +30,6 @@ export const useAuth = () => {
 	// 尚未啟用 (suspended), 封禁 (banned) 的帳號也能登入, 但只能使用工單
 	const isAccountActive = computed(() => user.value?.internal_account_status === 'active')
 	const isAccountBanned = computed(() => user.value?.internal_account_status === 'banned')
-	// 只用來決定是否顯示管理員介面的入口, 權限一律由後端判斷
 	const isAdmin = computed(() => user.value?.roles?.includes('admin') ?? false)
 	const statusUntilText = computed(() =>
 		user.value?.status_until ? new Date(user.value.status_until).toLocaleString('zh-TW') : '永久',

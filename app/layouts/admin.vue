@@ -1,5 +1,13 @@
 <script setup lang="ts">
 const route = useRoute()
+const { isLoading, isAdmin } = useAuth()
+const localePath = useLocalePath()
+
+watchEffect(() => {
+	if (!isLoading.value && !isAdmin.value) {
+		navigateTo(localePath('/'))
+	}
+})
 
 const menuGroups = [
 	{
