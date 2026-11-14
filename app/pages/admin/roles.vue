@@ -23,6 +23,7 @@ interface AdminRole {
 }
 
 const SYSTEM_ROLES = ['admin', 'user', 'node_provider']
+const LOCKED_ROLES = ['admin', 'user']
 const COLLAPSED_COUNT = 6
 
 const columns: TableColumn<AdminRole>[] = [
@@ -30,6 +31,7 @@ const columns: TableColumn<AdminRole>[] = [
 	{ id: 'limits', header: '資源限制' },
 	{ id: 'permissions', header: '權限' },
 	{ accessorKey: 'updated_at', header: '更新時間' },
+	{ id: 'actions', header: '' },
 ]
 
 const { data: roles, pending: isRolesLoading, refresh: refreshRoles } = useApiFetch<AdminRole[]>('/api/v1/roles', {
@@ -111,9 +113,24 @@ const isFormModalOpen = ref(false)
 const isSubmitting = ref(false)
 const formErrorMessage = ref('')
 const roleForm = ref(emptyForm())
+const editingRole = ref<AdminRole | null>(null)
 
 const openAddModal = () => {
+	editingRole.value = null
 	roleForm.value = emptyForm()
+	formErrorMessage.value = ''
+	isFormModalOpen.value = true
+}
+
+const openEditModal = (role: AdminRole) => {
+	editingRole.value = role
+	roleForm.value = {
+		name: role.name,
+		description: role.description || '',
+		max_tunnels: role.max_tunnels,
+		max_bandwidth: role.max_bandwidth,
+		permissions: (role.permissions || []).map(permission => permission.id),
+	}
 	formErrorMessage.value = ''
 	isFormModalOpen.value = true
 }
@@ -136,11 +153,13 @@ const submitForm = async () => {
 		return
 	}
 
+	const action = editingRole.value ? '更新' : '建立'
+
 	formErrorMessage.value = ''
 	isSubmitting.value = true
 	try {
-		await $fetch('/api/v1/roles', {
-			method: 'POST',
+		await $fetch(editingRole.value ? `/api/v1/roles/${editingRole.value.id}` : '/api/v1/roles', {
+			method: editingRole.value ? 'PATCH' : 'POST',
 			baseURL: config.public.apiUrl as string,
 			credentials: 'include',
 			body: {
@@ -153,8 +172,8 @@ const submitForm = async () => {
 		})
 
 		toast.add({
-			title: '新增成功',
-			description: `身份組 ${name} 已成功建立。`,
+			title: editingRole.value ? '編輯成功' : '新增成功',
+			description: `身份組 ${name} 已成功${action}。`,
 			color: 'success',
 			icon: 'i-heroicons-check-circle',
 		})
@@ -164,7 +183,7 @@ const submitForm = async () => {
 	catch (error: unknown) {
 		const detail = (error as { data?: { detail?: unknown } }).data?.detail
 		if (typeof detail !== 'string') {
-			formErrorMessage.value = '無法建立身份組，請檢查輸入資料或稍後再試。'
+			formErrorMessage.value = `無法${action}身份組，請檢查輸入資料或稍後再試。`
 		}
 		else if (detail.includes('already exists')) {
 			formErrorMessage.value = '已經有相同名稱的身份組。'
@@ -299,6 +318,17 @@ const formatLimit = (value: number, unit = '') => (value === 0 ? '無限制' : `
 					</span>
 				</template>
 
+				<template #actions-cell="{ row }">
+					<UButton
+						v-if="!LOCKED_ROLES.includes(row.original.name)"
+						icon="i-heroicons-pencil-square"
+						color="neutral"
+						variant="ghost"
+						title="編輯"
+						@click="openEditModal(row.original)"
+					/>
+				</template>
+
 				<template #empty>
 					<div class="flex flex-col items-center justify-center py-12 text-center">
 						<UIcon
@@ -322,7 +352,7 @@ const formatLimit = (value: number, unit = '') => (value === 0 ? '無限制' : `
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
-							新增身份組
+							{{ editingRole ? '編輯身份組' : '新增身份組' }}
 						</h3>
 						<UButton
 							color="neutral"
@@ -349,6 +379,7 @@ const formatLimit = (value: number, unit = '') => (value === 0 ? '無限制' : `
 							<UInput
 								v-model="roleForm.name"
 								:maxlength="50"
+								:disabled="!!editingRole && SYSTEM_ROLES.includes(editingRole.name)"
 								placeholder="例如：vip"
 								class="w-full"
 							/>
@@ -429,7 +460,7 @@ const formatLimit = (value: number, unit = '') => (value === 0 ? '無限制' : `
 						/>
 						<UButton
 							color="primary"
-							label="確認新增"
+							:label="editingRole ? '確認修改' : '確認新增'"
 							:loading="isSubmitting"
 							@click="submitForm"
 						/>
