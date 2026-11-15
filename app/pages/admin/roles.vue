@@ -197,6 +197,49 @@ const submitForm = async () => {
 	}
 }
 
+const isDeleteModalOpen = ref(false)
+const isDeleting = ref(false)
+const roleToDelete = ref<AdminRole | null>(null)
+
+const openDeleteModal = (role: AdminRole) => {
+	roleToDelete.value = role
+	isDeleteModalOpen.value = true
+}
+
+const confirmDelete = async () => {
+	if (!roleToDelete.value) return
+
+	isDeleting.value = true
+	try {
+		await $fetch(`/api/v1/roles/${roleToDelete.value.id}`, {
+			method: 'DELETE',
+			baseURL: config.public.apiUrl as string,
+			credentials: 'include',
+		})
+
+		toast.add({
+			title: '刪除成功',
+			description: `身份組 ${roleToDelete.value.name} 已成功移除。`,
+			color: 'success',
+			icon: 'i-heroicons-check-circle',
+		})
+		isDeleteModalOpen.value = false
+		refreshRoles()
+	}
+	catch (error: unknown) {
+		const detail = (error as { data?: { detail?: unknown } }).data?.detail
+		toast.add({
+			title: '刪除失敗',
+			description: typeof detail === 'string' ? detail : '無法刪除該身份組，請稍後再試。',
+			color: 'error',
+			icon: 'i-heroicons-x-circle',
+		})
+	}
+	finally {
+		isDeleting.value = false
+	}
+}
+
 const formatDate = (value: string) => new Date(value).toLocaleString('zh-TW')
 
 const formatLimit = (value: number, unit = '') => (value === 0 ? '無限制' : `${value}${unit}`)
@@ -319,14 +362,24 @@ const formatLimit = (value: number, unit = '') => (value === 0 ? '無限制' : `
 				</template>
 
 				<template #actions-cell="{ row }">
-					<UButton
-						v-if="!LOCKED_ROLES.includes(row.original.name)"
-						icon="i-heroicons-pencil-square"
-						color="neutral"
-						variant="ghost"
-						title="編輯"
-						@click="openEditModal(row.original)"
-					/>
+					<div class="flex justify-end gap-1">
+						<UButton
+							v-if="!LOCKED_ROLES.includes(row.original.name)"
+							icon="i-heroicons-pencil-square"
+							color="neutral"
+							variant="ghost"
+							title="編輯"
+							@click="openEditModal(row.original)"
+						/>
+						<UButton
+							v-if="!SYSTEM_ROLES.includes(row.original.name)"
+							icon="i-heroicons-trash"
+							color="error"
+							variant="ghost"
+							title="刪除"
+							@click="openDeleteModal(row.original)"
+						/>
+					</div>
 				</template>
 
 				<template #empty>
@@ -463,6 +516,55 @@ const formatLimit = (value: number, unit = '') => (value === 0 ? '無限制' : `
 							:label="editingRole ? '確認修改' : '確認新增'"
 							:loading="isSubmitting"
 							@click="submitForm"
+						/>
+					</div>
+				</template>
+			</UCard>
+		</div>
+
+		<div
+			v-if="isDeleteModalOpen"
+			class="fixed inset-0 z-100 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm p-4 transition-opacity"
+			@click.self="isDeleteModalOpen = false"
+		>
+			<UCard class="w-full max-w-lg shadow-2xl ring-1 ring-gray-200/50 dark:ring-gray-800/50 divide-y divide-gray-100 dark:divide-gray-800">
+				<template #header>
+					<div class="flex items-center justify-between">
+						<h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
+							刪除身份組
+						</h3>
+						<UButton
+							color="neutral"
+							variant="ghost"
+							icon="i-heroicons-x-mark-20-solid"
+							class="-my-1"
+							@click="isDeleteModalOpen = false"
+						/>
+					</div>
+				</template>
+
+				<div class="py-2">
+					<p class="text-sm text-gray-500 dark:text-gray-400">
+						確定要刪除身份組 <span class="font-bold text-gray-900 dark:text-white">{{ roleToDelete?.name }}</span> 嗎？
+						<br><br>
+						<span class="text-red-500 font-medium">注意：此操作無法復原，擁有這個身份組的使用者會立刻失去它帶來的權限與上限。</span>
+					</p>
+				</div>
+
+				<template #footer>
+					<div class="flex justify-end gap-3">
+						<UButton
+							color="neutral"
+							variant="ghost"
+							label="取消"
+							:disabled="isDeleting"
+							@click="isDeleteModalOpen = false"
+						/>
+						<UButton
+							color="error"
+							label="確認刪除"
+							:loading="isDeleting"
+							@click="confirmDelete"
 						/>
 					</div>
 				</template>
