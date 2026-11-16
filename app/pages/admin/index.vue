@@ -104,7 +104,7 @@ const cards = computed(() => [
 	{
 		label: '節點',
 		icon: 'i-heroicons-server-stack',
-		to: '/dashboard/nodes',
+		to: '/admin/nodes',
 		loading: isNodesLoading.value,
 		count: nodes.value?.length || 0,
 		detail: summarize(countBy((nodes.value || []).map(node => node.status)), NODE_STATUS),
